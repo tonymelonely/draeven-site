@@ -109,7 +109,7 @@ Pickers (\`people\`, \`roles\`, \`channels\`, \`mentions\`) use \`press\` the sa
 
 <h2 id="use">use() in the events folder</h2>
 
-\`use({ ids, kind?, run })\` is a durable component handler. It lives in the events folder, the same place as \`export function memberJoin\`. \`Start\` loads it with that folder. It survives a restart. It is separate from a discord.js \`InteractionCreate\` listener.
+\`use({ ids, kind?, run })\` is a durable component handler. It lives in the events folder, the same place as \`export function memberJoin\`. \`Start\` loads it with that folder. It survives a restart. It is separate from a discord.js \`InteractionCreate\` listener. When \`events\` is an inline object (no folder), pass the same handlers as \`Start({ uses: […] })\` — see [Start options](/docs/start-options).
 
 Keep \`press\` for a simple one-off button:
 
@@ -295,7 +295,7 @@ Kiezers (\`people\`, \`roles\`, \`channels\`, \`mentions\`) gebruiken \`press\` 
 
 <h2 id="use">use() in de events-map</h2>
 
-\`use({ ids, kind?, run })\` is een duurzame component-handler. Hij staat in de events-map, dezelfde plek als \`export function memberJoin\`. \`Start\` laadt hem met die map. Hij overleeft een herstart. Het is geen discord.js \`InteractionCreate\`-listener.
+\`use({ ids, kind?, run })\` is een duurzame component-handler. Hij staat in de events-map, dezelfde plek als \`export function memberJoin\`. \`Start\` laadt hem met die map. Hij overleeft een herstart. Het is geen discord.js \`InteractionCreate\`-listener. Als \`events\` een inline object is (geen map), geef dezelfde handlers mee als \`Start({ uses: […] })\` — zie [Start-opties](/docs/start-options).
 
 Houd \`press\` voor een eenvoudige eenmalige knop:
 
@@ -586,24 +586,23 @@ Package versions are independent: this package publishes \`"0.1.5"\` while these
 | \`gatewayEventNames\`, \`gatewayEventReaders\` | Every \`GatewayEventName\`, plus the Discord \`t\` string and reader for each. |
 | \`GatewayReady\`, \`GatewayGuild\`, \`GatewayChannel\`, \`GatewayRole\`, \`GatewayMember\`, \`GatewayBan\`, \`GatewayMessage\`, \`GatewayMessageDelete\`, \`GatewayMessageBulkDelete\`, \`GatewayReaction\`, \`GatewayReactionClear\`, \`GatewayReactionClearEmoji\`, \`GatewayVoice\`, \`GatewayInvite\`, \`GatewayTyping\`, \`GatewayPresence\`, \`GatewaySchedule\`, \`GatewayPollVote\`, \`GatewayEvents\`, \`GatewayEventName\` | Payload types. |
 | \`DiscordClient\` | The session: \`start\`, \`stop\`, \`setPresence\`, \`registerCommands\`, \`onCommand\`, \`onMenu\`, \`onSuggest\`, \`onUse\`, \`onEvent\`, \`onDispatch\`, replies, and the moderation helpers \`Start\` uses. |
-| \`DiscordRestClient\` | Token REST helper. See below. |
 | \`DiscordClientOptions\` | \`token\`, optional \`presence\`, \`intents\`, and test-only gateway overrides. |
-| Interaction readers | \`IncomingCommand\`, \`IncomingMenu\`, \`IncomingSuggest\`, \`IncomingUse\`, and the option shapes. |
+| Interaction types | \`IncomingCommand\`, \`IncomingMenu\`, \`IncomingSuggest\`, \`IncomingUse\`, and the option shapes (type-only). Value helpers exported today: \`readIncomingMenu\`, \`readIncomingSuggest\`. |
 | \`EPHEMERAL\`, \`normalizeEmoji\`, \`createdAtFromId\` | Flag bit, emoji path encoding, snowflake time. |
 
 The generated reference for this package is [/reference/discord](/reference/discord). Power-user entry points that sit on core, such as \`startBot\` and \`answerCommand\`, are on [Advanced API](/docs/advanced-api).
 
-## DiscordRestClient
+## REST under DiscordClient
 
-\`DiscordClient\` constructs one \`DiscordRestClient\` from the bot token and calls it for you. The surface, at a high level:
+\`DiscordClient\` owns an internal REST helper (not a public \`DiscordRestClient\` export). Through the client you get, at a high level:
 
-- Gateway discovery (\`getGatewayBot\`) and reads: guild, roles, user, channel, message pages.
+- Gateway discovery and reads: guild, roles, user, channel, message pages.
 - Interactions: defer, defer-update, reply, edit, follow-up, autocomplete choices, webhook message edit and delete.
 - Application commands: replace the guild or global command set.
 - Channel writes: create, edit, delete, purge, pin, unpin, react.
 - Members: timeout, kick, ban, move voice.
 
-App code should go through \`ctx\`, \`bot.send\`, and the mod helpers on the command context. Constructing a second REST client next to \`Start\` duplicates the token and skips Draeven's reply rules.
+App code should go through \`ctx\`, \`bot.send\`, and the mod helpers on the command context. Do not open a second Discord client next to \`Start\` — two sessions on one token fight over identify and heartbeats.
 
 <Warn fix="One library per token — do not mix discord.js in this process." href="/docs/why-failing">
 Do not mix this client with discord.js in the same process. There is no \`Client\`, no \`EmbedBuilder\`, and no shared gateway session. Two libraries on one token will fight over identify and heartbeats.
@@ -633,24 +632,23 @@ Pakketversies staan los van elkaar: dit pakket publiceert \`"0.1.5"\`, terwijl d
 | \`gatewayEventNames\`, \`gatewayEventReaders\` | Elke \`GatewayEventName\`, plus de Discord-\`t\`-string en reader. |
 | \`GatewayReady\`, \`GatewayGuild\`, \`GatewayChannel\`, \`GatewayRole\`, \`GatewayMember\`, \`GatewayBan\`, \`GatewayMessage\`, \`GatewayMessageDelete\`, \`GatewayMessageBulkDelete\`, \`GatewayReaction\`, \`GatewayReactionClear\`, \`GatewayReactionClearEmoji\`, \`GatewayVoice\`, \`GatewayInvite\`, \`GatewayTyping\`, \`GatewayPresence\`, \`GatewaySchedule\`, \`GatewayPollVote\`, \`GatewayEvents\`, \`GatewayEventName\` | Payload-types. |
 | \`DiscordClient\` | De sessie: \`start\`, \`stop\`, \`setPresence\`, \`registerCommands\`, \`onCommand\`, \`onMenu\`, \`onSuggest\`, \`onUse\`, \`onEvent\`, \`onDispatch\`, replies, en de moderatiehelpers die \`Start\` gebruikt. |
-| \`DiscordRestClient\` | REST-hulp met het token. Zie hieronder. |
 | \`DiscordClientOptions\` | \`token\`, optionele \`presence\`, \`intents\`, en gateway-overrides die alleen voor tests zijn. |
-| Interactie-readers | \`IncomingCommand\`, \`IncomingMenu\`, \`IncomingSuggest\`, \`IncomingUse\`, en de optievormen. |
+| Interactie-types | \`IncomingCommand\`, \`IncomingMenu\`, \`IncomingSuggest\`, \`IncomingUse\` en de optievormen (alleen types). Value-helpers die nu geëxporteerd worden: \`readIncomingMenu\`, \`readIncomingSuggest\`. |
 | \`EPHEMERAL\`, \`normalizeEmoji\`, \`createdAtFromId\` | Vlagbit, emoji-pad, snowflake-tijd. |
 
 De gegenereerde referentie van dit pakket is [/reference/discord](/reference/discord). Power-user-ingangen die op core zitten, zoals \`startBot\` en \`answerCommand\`, staan bij [Geavanceerde API](/docs/advanced-api).
 
-## DiscordRestClient
+## REST onder DiscordClient
 
-\`DiscordClient\` maakt één \`DiscordRestClient\` van het bot-token en roept hem voor je aan. Het oppervlak, op hoofdlijnen:
+\`DiscordClient\` houdt een interne REST-hulp bij (geen publieke \`DiscordRestClient\`-export). Via de client krijg je, op hoofdlijnen:
 
-- Gateway-ontdekking (\`getGatewayBot\`) en reads: guild, rollen, user, kanaal, berichtpagina's.
+- Gateway-ontdekking en reads: guild, rollen, user, kanaal, berichtpagina's.
 - Interacties: defer, defer-update, reply, edit, follow-up, autocomplete-keuzes, webhook-bericht bewerken en wissen.
 - Applicatiecommando's: vervang de guild- of globale commandoset.
 - Kanaalberichten: aanmaken, bewerken, wissen, purge, pin, unpin, reageren.
 - Leden: timeout, kick, ban, voice verplaatsen.
 
-App-code hoort via \`ctx\`, \`bot.send\` en de mod-helpers op de commandocontext te gaan. Een tweede REST-client naast \`Start\` verdubbelt het token en slaat Draeven's reply-regels over.
+App-code hoort via \`ctx\`, \`bot.send\` en de mod-helpers op de commandocontext te gaan. Open geen tweede Discord-client naast \`Start\` — twee sessies op één token vechten om identify en heartbeats.
 
 <Warn fix="Eén library per token — meng discord.js niet in dit proces." href="/docs/why-failing">
 Meng deze client niet met discord.js in hetzelfde proces. Er is geen \`Client\`, geen \`EmbedBuilder\`, en geen gedeelde gateway-sessie. Twee libraries op één token vechten om identify en heartbeats.
@@ -820,15 +818,15 @@ These exports are for a custom host or a test that does not want \`Start\` to ow
 | \`permissionBitfield(value)\` | Names, a list, a digit string, or \`bigint\` become one \`bigint\`. Unknown names throw. |
 | \`frame(key, locale, vars)\` | Framework strings \`cooldown\`, \`need\`, \`when\`, \`owner\`, \`failed\`. Only \`cooldown\` uses \`{name}\` / \`{seconds}\`. |
 | \`loadCommands(folder, { bust? })\` | Import \`.js\` command and menu exports. Skips tests, names ending in \`old.js\` (so \`fold.js\` too), dotfiles, and reload copies. Duplicate message-menu names throw. |
-| \`loadEvents(folder, { bust? })\` | Import \`.js\` whose export name is a gateway event. A second export of the same name throws. |
+| \`loadEvents(folder, { bust? })\` | Import \`.js\` whose export name is a gateway event, **and** every \`use()\` value exported from those modules. A second gateway export of the same name throws. |
 | \`answerCommand(commands, incoming, bot, ...)\` | Builds the command \`ctx\` and runs the handler. Cooldown and gates are not here. The \`Start\` dispatcher does those before it calls \`answerCommand\`. Returns the \`Reply\`, or \`undefined\` if the name is not loaded. |
 | \`startBot(client, options)\` | Register commands on a \`BotConnection\` and answer them. \`Start\` builds the Discord client, then calls this. |
-| \`isCommand\`, \`isMenu\` | Narrow a \`loadCommands\` value. |
+| \`isCommand\`, \`isMenu\`, \`isUse\` | Narrow a \`loadCommands\` / \`loadEvents\` value. |
 | \`isLayout\`, \`isPoll\` | Narrow a reply part in a custom renderer. |
 
 \`answerCommand\`'s later arguments are the hooks the live dispatcher fills in: guild, transcript, channel send, the interaction ack (\`wait\`, \`edit\`, \`remove\`, \`collect\`, \`flush\`), and mod actions. A test that only cares about reply text should use \`simulate\`. Building that bag yourself means you are the host.
 
-\`startBot\` options are \`commands\`, and optionally \`commandsFolder\`, \`eventsFolder\`, \`guildId\`, \`timeZone\`, \`events\`, \`watch\`, \`guard\`, and \`autoDefer\`. \`watch\` only reloads when the folder options are set. The \`client\` must implement \`BotConnection\` (\`start\`, \`stop\`, \`readyUser\`, \`registerCommands\`, \`onCommand\`, \`onUse\`, reads, and replies).
+\`startBot\` options are \`commands\`, and optionally \`commandsFolder\`, \`eventsFolder\`, \`guildId\`, \`timeZone\`, \`events\`, \`uses\`, \`watch\`, \`guard\`, and \`autoDefer\`. \`uses\` is the same durable-handler list as \`Start({ uses })\`. \`watch\` only reloads when the folder options are set. The \`client\` must implement \`BotConnection\` (\`start\`, \`stop\`, \`readyUser\`, \`registerCommands\`, \`onCommand\`, \`onUse\`, reads, and replies).
 
 ## Cooldown book
 
@@ -892,15 +890,15 @@ Deze exports zijn voor een eigen host of een test die niet wil dat \`Start\` het
 | \`permissionBitfield(value)\` | Namen, een lijst, een cijferstring of \`bigint\` worden één \`bigint\`. Onbekende namen geven een foutmelding. |
 | \`frame(key, locale, vars)\` | Frameworkteksten \`cooldown\`, \`need\`, \`when\`, \`owner\`, \`failed\`. Alleen \`cooldown\` gebruikt \`{name}\` / \`{seconds}\`. |
 | \`loadCommands(folder, { bust? })\` | Importeert \`.js\`-exports van commando's en menu's. Slaat tests, namen die eindigen op \`old.js\` (dus ook \`fold.js\`), dotfiles en reload-kopieën over. Dubbele berichtmenu-namen geven een foutmelding. |
-| \`loadEvents(folder, { bust? })\` | Importeert \`.js\` waarvan de exportnaam een gateway-event is. Een tweede export met dezelfde naam geeft een foutmelding. |
+| \`loadEvents(folder, { bust? })\` | Importeert \`.js\` waarvan de exportnaam een gateway-event is, **en** elke \`use()\`-waarde uit die modules. Een tweede gateway-export met dezelfde naam geeft een foutmelding. |
 | \`answerCommand(commands, incoming, bot, ...)\` | Bouwt de commando-\`ctx\` en draait de handler. Wachttijd en gates zitten hier niet. De \`Start\`-dispatcher doet die vóór hij \`answerCommand\` aanroept. Geeft de \`Reply\` terug, of \`undefined\` als de naam niet geladen is. |
 | \`startBot(client, options)\` | Registreert commando's op een \`BotConnection\` en beantwoordt ze. \`Start\` bouwt de Discord-client en roept dit aan. |
-| \`isCommand\`, \`isMenu\` | Herkent een commando of menu in de output van \`loadCommands\`. |
+| \`isCommand\`, \`isMenu\`, \`isUse\` | Herkent een commando, menu of \`use()\` in loader-output. |
 | \`isLayout\`, \`isPoll\` | Herkent een layout of peiling in een eigen renderer. |
 
 De latere argumenten van \`answerCommand\` zijn de hooks die de live dispatcher invult: guild, transcript, kanaal-send, de interactie-ack (\`wait\`, \`edit\`, \`remove\`, \`collect\`, \`flush\`) en mod-acties. Een test die alleen om reply-tekst geeft, gebruikt \`simulate\`. Die zak zelf bouwen betekent dat jij de host bent.
 
-Opties van \`startBot\` zijn \`commands\`, en optioneel \`commandsFolder\`, \`eventsFolder\`, \`guildId\`, \`timeZone\`, \`events\`, \`watch\`, \`guard\` en \`autoDefer\`. \`watch\` herlaadt alleen als de map-opties gezet zijn. De \`client\` moet \`BotConnection\` implementeren (\`start\`, \`stop\`, \`readyUser\`, \`registerCommands\`, \`onCommand\`, \`onUse\`, reads en replies).
+Opties van \`startBot\` zijn \`commands\`, en optioneel \`commandsFolder\`, \`eventsFolder\`, \`guildId\`, \`timeZone\`, \`events\`, \`uses\`, \`watch\`, \`guard\` en \`autoDefer\`. \`uses\` is dezelfde duurzame-handlerlijst als \`Start({ uses })\`. \`watch\` herlaadt alleen als de map-opties gezet zijn. De \`client\` moet \`BotConnection\` implementeren (\`start\`, \`stop\`, \`readyUser\`, \`registerCommands\`, \`onCommand\`, \`onUse\`, reads en replies).
 
 ## Cooldown-boek
 

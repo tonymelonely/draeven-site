@@ -94,7 +94,7 @@ export const ask = command("ask", "Vraag om een notitie", async (ctx) => {
 });
 ```
 
-Een submit beantwoordt de modal. Een timeout bewerkt de oorspronkelijke interactie. Lees `submitted?.fields` niet als de wachttijd `undefined` teruggaf.
+Een submit beantwoordt de modal. Een timeout geeft `undefined` terug — roep zelf `edit()` of `reply()` aan; het framework doet dat niet. Lees `submitted?.fields` niet als de wachttijd `undefined` teruggaf.
 
 `fieldStyles.short` is één regel (de standaard). `fieldStyles.long` is een alinea. Een formuliertitel is 1–45 tekens, met 1–5 velden. Veld-ids moeten uniek zijn en mogen de formulier-id niet herhalen.
 

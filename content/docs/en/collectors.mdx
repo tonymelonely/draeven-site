@@ -94,7 +94,7 @@ export const ask = command("ask", "Ask for a note", async (ctx) => {
 });
 ```
 
-A submit answers on the modal. A timeout edits the original interaction. Do not read `submitted?.fields` when the wait returned `undefined`.
+A submit answers on the modal. A timeout returns `undefined` — call `edit()` or `reply()` yourself; the framework does not. Do not read `submitted?.fields` when the wait returned `undefined`.
 
 `fieldStyles.short` is one line (the default). `fieldStyles.long` is a paragraph. A form title is 1–45 characters, with 1–5 fields. Field ids must be unique and must not repeat the form id.
 

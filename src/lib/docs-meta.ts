@@ -77,10 +77,10 @@ export const DOC_EXTRAS: Record<string, DocExtras> = {
     aliases: ["folder", "dist", "tree", "structure"],
   },
   "start-options": {
-    related: ["config", "events-intents", "alone", "hot-reload-guard"],
+    related: ["config", "events-intents", "press-handlers", "alone", "hot-reload-guard"],
     nextStep: "recipes",
-    api: [core("", "Start")],
-    aliases: ["Start", "watch", "autoDefer", "alone", "guildId"],
+    api: [core("", "Start"), core("", "use")],
+    aliases: ["Start", "watch", "autoDefer", "alone", "guildId", "uses", "use()"],
   },
   recipes: {
     related: ["starters", "commands", "replies", "collectors", "pieces"],

@@ -106,7 +106,7 @@ Kiezers (`people`, `roles`, `channels`, `mentions`) gebruiken `press` net als `m
 
 <h2 id="use">use() in de events-map</h2>
 
-`use({ ids, kind?, run })` is een duurzame component-handler. Hij staat in de events-map, dezelfde plek als `export function memberJoin`. `Start` laadt hem met die map. Hij overleeft een herstart. Het is geen discord.js `InteractionCreate`-listener.
+`use({ ids, kind?, run })` is een duurzame component-handler. Hij staat in de events-map, dezelfde plek als `export function memberJoin`. `Start` laadt hem met die map. Hij overleeft een herstart. Het is geen discord.js `InteractionCreate`-listener. Als `events` een inline object is (geen map), geef dezelfde handlers mee als `Start({ uses: […] })` — zie [Start-opties](/docs/start-options).
 
 Houd `press` voor een eenvoudige eenmalige knop:
 

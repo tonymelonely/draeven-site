@@ -21,15 +21,15 @@ These exports are for a custom host or a test that does not want `Start` to own 
 | `permissionBitfield(value)` | Names, a list, a digit string, or `bigint` become one `bigint`. Unknown names throw. |
 | `frame(key, locale, vars)` | Framework strings `cooldown`, `need`, `when`, `owner`, `failed`. Only `cooldown` uses `{name}` / `{seconds}`. |
 | `loadCommands(folder, { bust? })` | Import `.js` command and menu exports. Skips tests, names ending in `old.js` (so `fold.js` too), dotfiles, and reload copies. Duplicate message-menu names throw. |
-| `loadEvents(folder, { bust? })` | Import `.js` whose export name is a gateway event. A second export of the same name throws. |
+| `loadEvents(folder, { bust? })` | Import `.js` whose export name is a gateway event, **and** every `use()` value exported from those modules. A second gateway export of the same name throws. |
 | `answerCommand(commands, incoming, bot, ...)` | Builds the command `ctx` and runs the handler. Cooldown and gates are not here. The `Start` dispatcher does those before it calls `answerCommand`. Returns the `Reply`, or `undefined` if the name is not loaded. |
 | `startBot(client, options)` | Register commands on a `BotConnection` and answer them. `Start` builds the Discord client, then calls this. |
-| `isCommand`, `isMenu` | Narrow a `loadCommands` value. |
+| `isCommand`, `isMenu`, `isUse` | Narrow a `loadCommands` / `loadEvents` value. |
 | `isLayout`, `isPoll` | Narrow a reply part in a custom renderer. |
 
 `answerCommand`'s later arguments are the hooks the live dispatcher fills in: guild, transcript, channel send, the interaction ack (`wait`, `edit`, `remove`, `collect`, `flush`), and mod actions. A test that only cares about reply text should use `simulate`. Building that bag yourself means you are the host.
 
-`startBot` options are `commands`, and optionally `commandsFolder`, `eventsFolder`, `guildId`, `timeZone`, `events`, `watch`, `guard`, and `autoDefer`. `watch` only reloads when the folder options are set. The `client` must implement `BotConnection` (`start`, `stop`, `readyUser`, `registerCommands`, `onCommand`, `onUse`, reads, and replies).
+`startBot` options are `commands`, and optionally `commandsFolder`, `eventsFolder`, `guildId`, `timeZone`, `events`, `uses`, `watch`, `guard`, and `autoDefer`. `uses` is the same durable-handler list as `Start({ uses })`. `watch` only reloads when the folder options are set. The `client` must implement `BotConnection` (`start`, `stop`, `readyUser`, `registerCommands`, `onCommand`, `onUse`, reads, and replies).
 
 ## Cooldown book
 

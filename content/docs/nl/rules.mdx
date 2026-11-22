@@ -48,7 +48,7 @@ export const note = command("note", "Schrijf een notitie", async (ctx) => {
 });
 ```
 
-Een submit beantwoordt de modal. Dat is een nieuw interactietoken. Een timeout is `undefined`, en dat antwoord bewerkt de oorspronkelijke interactie. Vouw beide paden niet samen in `sent?.fields`.
+Een submit beantwoordt de modal. Dat is een nieuw interactietoken. Een timeout geeft `undefined` terug — jij moet zelf `edit()` of `reply()` aanroepen; het framework doet dat niet. Vouw beide paden niet samen in `sent?.fields`.
 
 Een formulier kan niet `{ private: true }` zijn, en `ctx.send` kan er geen dragen. [Knoppen, menu's & formulieren](/docs/pieces).
 
@@ -62,7 +62,7 @@ Je mag de layout wel privé maken met `{ private: true }`, en extra `row()`-waar
 
 De interactie heeft één antwoordtoken. Een tweede `reply()` geeft de fout `A command can only reply once.` alleen als er al een antwoord is opgeslagen en je noch `wait()` hebt gedaan, noch een `collect` hebt geflusht. Na `wait()` vult `edit()` of een nieuwe `reply()` de defer. `followup()` voegt een extra bericht toe.
 
-`collect()` flusht het openstaande antwoord vóór het wacht. Na die flush vervangt een nieuwe `reply()` het opgeslagen antwoord. Dat faalt niet. Een formulier-submit wordt op de modal beantwoord. Een knop of menu, en een timeout, bewerken de oorspronkelijke interactie. Een vervanging die alleen tekst is, haalt de knoppenrij niet weg.
+`collect()` flusht het openstaande antwoord vóór het wacht. Na die flush vervangt een nieuwe `reply()` het opgeslagen antwoord. Dat faalt niet. Een formulier-submit wordt op de modal beantwoord. Een knop of menu werkt de oorspronkelijke interactie bij. Een timeout geeft alleen `undefined` terug — je volgende `edit()` of `reply()` gaat naar die oorspronkelijke interactie. Een vervanging die alleen tekst is, haalt de knoppenrij niet weg.
 
 Een tweede `reply()` vóór `wait()` en vóór die flush faalt nog steeds. [Antwoorden](/docs/replies) · [Verzamelaars](/docs/collectors).
 

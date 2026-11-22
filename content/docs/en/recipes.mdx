@@ -144,7 +144,7 @@ export const report = command("report", "File a short report", async (ctx) => {
 });
 ```
 
-A submit is a new interaction. The reply after `collect` answers the modal. A timeout is `undefined`, and that reply edits the original interaction. Do not read `sent?.fields` on the timeout path.
+A submit is a new interaction. The reply after `collect` answers the modal. A timeout returns `undefined` — Draeven does not edit or reply for you; call `edit()` or `reply()` yourself on the original slash interaction. Do not read `sent?.fields` on the timeout path.
 
 [Buttons, menus & forms](/docs/pieces) · [Collectors](/docs/collectors)
 

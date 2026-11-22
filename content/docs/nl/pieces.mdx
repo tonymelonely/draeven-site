@@ -136,7 +136,7 @@ export const note = command("note", "Schrijf een notitie", async (ctx) => {
 });
 ```
 
-Een submit beantwoordt de modal. Een timeout is `undefined`, en dat antwoord bewerkt de oorspronkelijke interactie. Lees `sent?.fields` niet als `sent` ontbreekt.
+Een submit beantwoordt de modal. Een timeout geeft `undefined` terug — Draeven bewerkt of antwoordt niet voor je; roep zelf `edit()` of `reply()` aan. Lees `sent?.fields` niet als `sent` ontbreekt.
 
 Roep niet eerst `wait()` aan en zet geen metadata-`defer` (<Explain topic="form-first">het formulier is het eerste antwoord</Explain>). Discord opent geen modal na een bevestiging.
 

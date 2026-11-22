@@ -858,6 +858,7 @@ const bot = await Start({
 | \`presence\` | Initial status and activity. See [Presence](/docs/presence). |
 | <Explain topic="start-intents">\`intents\`</Explain> | Gateway bitmask. Omitted is \`0\`. \`intentsFor(...events)\` from event names, or \`intentBits(...names)\` from \`intents.*\`. |
 | \`events\` | A handlers object, a folder of compiled modules, or omit to use \`events\` from \`draeven.config\` when that field is set. \`watch\` reloads a folder. An inline object does not load \`use()\`. |
+| \`uses\` | Extra durable \`use()\` handlers in memory. Merged with folder \`use()\` exports when \`events\` is a path. Useful when \`events\` is an inline object (that form never loads \`use()\` from disk). |
 | <Explain topic="start-watch">\`watch\`</Explain> | Default \`false\`. \`true\` reloads the commands folder and an events folder. An in-memory array throws. |
 | \`guard\` | The object \`guard({...})\` returns. Keeps the process alive and logs failures. |
 | <Explain topic="start-alone">\`alone\`</Explain> | Default \`"ask"\`. Also \`true\` or \`false\`. See [One process](/docs/alone). |
@@ -883,7 +884,22 @@ Guild sync shows new commands in that server within seconds. A global sync (no \
 
 \`intentsFor("memberJoin", "message")\` unions the bits those events need, including privileged intents Discord requires. \`intentBits("guilds", "guildMessages")\` ORs named flags when you already know the mask. Event handlers still need the bits their names list ([Events & intents](/docs/events-intents#intents)).
 
-\`events\` as an object is fixed for the process. That object does not load \`use()\`. \`events: "./dist/events"\` loads modules whose export names are the event names, plus \`use()\` handlers in those files. Omit \`events\` and Draeven uses the \`events\` path from \`draeven.config.js\` when the file sets one. \`watch: true\` reloads that folder when the files change.
+\`events\` as an object is fixed for the process. That object does not load \`use()\`. Pass \`uses: [letters]\` for durable handlers in that case, or use \`events: "./dist/events"\` so modules whose export names are event names load together with every \`use()\` in those files. Omit \`events\` and Draeven uses the \`events\` path from \`draeven.config.js\` when the file sets one. \`watch: true\` reloads that folder when the files change. Folder \`use()\` exports and \`Start({ uses })\` are concatenated; an inline \`press\` still wins while that reply is remembered ([Press & submit](/docs/press-handlers#use)).
+
+\`\`\`js
+import { Start, intentsFor } from "@draeven/core";
+import { letters } from "./events/letters.js"; // a use() export
+
+await Start({
+  token: process.env.DISCORD_TOKEN,
+  commands: "./dist/commands",
+  events: {
+    ready: () => console.log("ready"),
+  },
+  uses: [letters],
+  intents: intentsFor("ready"),
+});
+\`\`\`
 
 ## Auto-defer
 
@@ -948,6 +964,7 @@ const bot = await Start({
 | \`presence\` | Beginstatus en activiteit. Zie [Presence](/docs/presence). |
 | <Explain topic="start-intents">\`intents\`</Explain> | Bitmask voor de gateway. Weggelaten is \`0\`. \`intentsFor(...events)\` vanuit eventnamen, of \`intentBits(...names)\` vanuit \`intents.*\`. |
 | \`events\` | Een handlers-object, een map met gecompileerde modules, of weglaten om \`events\` uit \`draeven.config\` te gebruiken als dat veld er staat. \`watch\` herlaadt een map. Een inline object laadt geen \`use()\`. |
+| \`uses\` | Extra duurzame \`use()\`-handlers in het geheugen. Wordt samengevoegd met map-\`use()\`-exports als \`events\` een pad is. Handig als \`events\` een inline object is (die vorm laadt nooit \`use()\` van schijf). |
 | <Explain topic="start-watch">\`watch\`</Explain> | Standaard \`false\`. \`true\` herlaadt de commandomap en een events-map. Een array in het geheugen geeft een foutmelding. |
 | \`guard\` | Het object dat \`guard({...})\` teruggeeft. Houdt het proces in leven en logt fouten. |
 | <Explain topic="start-alone">\`alone\`</Explain> | Standaard \`"ask"\`. Ook \`true\` of \`false\`. Zie [Eén proces](/docs/alone). |
@@ -973,7 +990,22 @@ Guild-sync toont nieuwe commando's binnen seconden in die server. Een globale sy
 
 \`intentsFor("memberJoin", "message")\` voegt de bits samen die die events nodig hebben, inclusief geprivilegieerde intents die Discord eist. \`intentBits("guilds", "guildMessages")\` doet een OR van benoemde vlaggen als je de namen al kent. Event-handlers hebben nog steeds de bits van hun naam nodig ([Events en intents](/docs/events-intents#intents)).
 
-\`events\` als object staat vast voor het proces. Dat object laadt geen \`use()\`. \`events: "./dist/events"\` laadt modules waarvan de exportnaam de eventnaam is, plus \`use()\`-handlers in die bestanden. Laat je \`events\` weg, dan gebruikt Draeven het \`events\`-pad uit \`draeven.config.js\` als het bestand er een zet. \`watch: true\` herlaadt die map als de bestanden veranderen.
+\`events\` als object staat vast voor het proces. Dat object laadt geen \`use()\`. Geef dan \`uses: [letters]\` mee voor duurzame handlers, of gebruik \`events: "./dist/events"\` zodat modules waarvan de exportnaam de eventnaam is samen met elke \`use()\` in die bestanden laden. Laat je \`events\` weg, dan gebruikt Draeven het \`events\`-pad uit \`draeven.config.js\` als het bestand er een zet. \`watch: true\` herlaadt die map als de bestanden veranderen. Map-\`use()\`-exports en \`Start({ uses })\` worden aaneengeschakeld; een inline \`press\` wint nog steeds zolang dat antwoord onthouden wordt ([Press & submit](/docs/press-handlers#use)).
+
+\`\`\`js
+import { Start, intentsFor } from "@draeven/core";
+import { letters } from "./events/letters.js"; // een use()-export
+
+await Start({
+  token: process.env.DISCORD_TOKEN,
+  commands: "./dist/commands",
+  events: {
+    ready: () => console.log("ready"),
+  },
+  uses: [letters],
+  intents: intentsFor("ready"),
+});
+\`\`\`
 
 ## Auto-defer
 
@@ -1143,7 +1175,7 @@ export const report = command("report", "File a short report", async (ctx) => {
 });
 \`\`\`
 
-A submit is a new interaction. The reply after \`collect\` answers the modal. A timeout is \`undefined\`, and that reply edits the original interaction. Do not read \`sent?.fields\` on the timeout path.
+A submit is a new interaction. The reply after \`collect\` answers the modal. A timeout returns \`undefined\` — Draeven does not edit or reply for you; call \`edit()\` or \`reply()\` yourself on the original slash interaction. Do not read \`sent?.fields\` on the timeout path.
 
 [Buttons, menus & forms](/docs/pieces) · [Collectors](/docs/collectors)
 
@@ -1504,7 +1536,7 @@ export const report = command("report", "Dien een korte melding in", async (ctx)
 });
 \`\`\`
 
-Een submit is een nieuwe interactie. Het antwoord na \`collect\` beantwoordt de modal. Een timeout is \`undefined\`, en dat antwoord bewerkt de oorspronkelijke interactie. Lees \`sent?.fields\` niet op het timeout-pad.
+Een submit is een nieuwe interactie. Het antwoord na \`collect\` beantwoordt de modal. Een timeout geeft \`undefined\` terug — Draeven bewerkt of antwoordt niet voor je; roep zelf \`edit()\` of \`reply()\` aan op de oorspronkelijke slash-interactie. Lees \`sent?.fields\` niet op het timeout-pad.
 
 [Knoppen, menu's & formulieren](/docs/pieces) · [Verzamelaars](/docs/collectors)
 
@@ -1927,7 +1959,7 @@ export const note = command("note", "Write a note", async (ctx) => {
 });
 \`\`\`
 
-A submit answers on the modal. That is a new interaction token. A timeout is \`undefined\`, and that reply edits the original interaction. Do not fold both paths into \`sent?.fields\`.
+A submit answers on the modal. That is a new interaction token. A timeout returns \`undefined\` — you must \`edit()\` or \`reply()\` yourself; the framework does not. Do not fold both paths into \`sent?.fields\`.
 
 A form cannot be \`{ private: true }\`, and \`ctx.send\` cannot carry one. [Buttons, menus & forms](/docs/pieces).
 
@@ -1941,7 +1973,7 @@ You can still mark the layout private with \`{ private: true }\`, and you can ap
 
 The interaction has one reply token. A second \`reply()\` throws \`A command can only reply once.\` only when a reply is already stored and you have neither \`wait()\`ed nor flushed a \`collect\`. After \`wait()\`, \`edit()\` or another \`reply()\` fills the defer. \`followup()\` adds another message.
 
-\`collect()\` flushes the pending reply before it waits. After that flush, another \`reply()\` replaces the stored reply. It does not throw. A form submit is answered on the modal. A button or menu press, and a timeout, edit the original interaction. A text-only replacement does not clear the button row.
+\`collect()\` flushes the pending reply before it waits. After that flush, another \`reply()\` replaces the stored reply. It does not throw. A form submit is answered on the modal. A button or menu press updates the original interaction. A timeout only returns \`undefined\` — your next \`edit()\` or \`reply()\` targets that original interaction. A text-only replacement does not clear the button row.
 
 A second \`reply()\` before \`wait()\` and before that flush still throws. [Replies](/docs/replies) · [Collectors](/docs/collectors).
 
@@ -2029,7 +2061,7 @@ export const note = command("note", "Schrijf een notitie", async (ctx) => {
 });
 \`\`\`
 
-Een submit beantwoordt de modal. Dat is een nieuw interactietoken. Een timeout is \`undefined\`, en dat antwoord bewerkt de oorspronkelijke interactie. Vouw beide paden niet samen in \`sent?.fields\`.
+Een submit beantwoordt de modal. Dat is een nieuw interactietoken. Een timeout geeft \`undefined\` terug — jij moet zelf \`edit()\` of \`reply()\` aanroepen; het framework doet dat niet. Vouw beide paden niet samen in \`sent?.fields\`.
 
 Een formulier kan niet \`{ private: true }\` zijn, en \`ctx.send\` kan er geen dragen. [Knoppen, menu's & formulieren](/docs/pieces).
 
@@ -2043,7 +2075,7 @@ Je mag de layout wel privé maken met \`{ private: true }\`, en extra \`row()\`-
 
 De interactie heeft één antwoordtoken. Een tweede \`reply()\` geeft de fout \`A command can only reply once.\` alleen als er al een antwoord is opgeslagen en je noch \`wait()\` hebt gedaan, noch een \`collect\` hebt geflusht. Na \`wait()\` vult \`edit()\` of een nieuwe \`reply()\` de defer. \`followup()\` voegt een extra bericht toe.
 
-\`collect()\` flusht het openstaande antwoord vóór het wacht. Na die flush vervangt een nieuwe \`reply()\` het opgeslagen antwoord. Dat faalt niet. Een formulier-submit wordt op de modal beantwoord. Een knop of menu, en een timeout, bewerken de oorspronkelijke interactie. Een vervanging die alleen tekst is, haalt de knoppenrij niet weg.
+\`collect()\` flusht het openstaande antwoord vóór het wacht. Na die flush vervangt een nieuwe \`reply()\` het opgeslagen antwoord. Dat faalt niet. Een formulier-submit wordt op de modal beantwoord. Een knop of menu werkt de oorspronkelijke interactie bij. Een timeout geeft alleen \`undefined\` terug — je volgende \`edit()\` of \`reply()\` gaat naar die oorspronkelijke interactie. Een vervanging die alleen tekst is, haalt de knoppenrij niet weg.
 
 Een tweede \`reply()\` vóór \`wait()\` en vóór die flush faalt nog steeds. [Antwoorden](/docs/replies) · [Verzamelaars](/docs/collectors).
 
@@ -3899,7 +3931,7 @@ export const note = command("note", "Write a note", async (ctx) => {
 });
 \`\`\`
 
-A submit answers on the modal. A timeout is \`undefined\`, and that reply edits the original interaction. Do not read \`sent?.fields\` when \`sent\` is missing.
+A submit answers on the modal. A timeout returns \`undefined\` — Draeven does not edit or reply for you; call \`edit()\` or \`reply()\` yourself. Do not read \`sent?.fields\` when \`sent\` is missing.
 
 Do not \`wait()\` or set metadata \`defer\` first (<Explain topic="form-first">the form is the first reply</Explain>). Discord will not open a modal after an acknowledgement.
 
@@ -4069,7 +4101,7 @@ export const note = command("note", "Schrijf een notitie", async (ctx) => {
 });
 \`\`\`
 
-Een submit beantwoordt de modal. Een timeout is \`undefined\`, en dat antwoord bewerkt de oorspronkelijke interactie. Lees \`sent?.fields\` niet als \`sent\` ontbreekt.
+Een submit beantwoordt de modal. Een timeout geeft \`undefined\` terug — Draeven bewerkt of antwoordt niet voor je; roep zelf \`edit()\` of \`reply()\` aan. Lees \`sent?.fields\` niet als \`sent\` ontbreekt.
 
 Roep niet eerst \`wait()\` aan en zet geen metadata-\`defer\` (<Explain topic="form-first">het formulier is het eerste antwoord</Explain>). Discord opent geen modal na een bevestiging.
 
@@ -4307,7 +4339,7 @@ export const ask = command("ask", "Ask for a note", async (ctx) => {
 });
 \`\`\`
 
-A submit answers on the modal. A timeout edits the original interaction. Do not read \`submitted?.fields\` when the wait returned \`undefined\`.
+A submit answers on the modal. A timeout returns \`undefined\` — call \`edit()\` or \`reply()\` yourself; the framework does not. Do not read \`submitted?.fields\` when the wait returned \`undefined\`.
 
 \`fieldStyles.short\` is one line (the default). \`fieldStyles.long\` is a paragraph. A form title is 1–45 characters, with 1–5 fields. Field ids must be unique and must not repeat the form id.
 
@@ -4430,7 +4462,7 @@ export const ask = command("ask", "Vraag om een notitie", async (ctx) => {
 });
 \`\`\`
 
-Een submit beantwoordt de modal. Een timeout bewerkt de oorspronkelijke interactie. Lees \`submitted?.fields\` niet als de wachttijd \`undefined\` teruggaf.
+Een submit beantwoordt de modal. Een timeout geeft \`undefined\` terug — roep zelf \`edit()\` of \`reply()\` aan; het framework doet dat niet. Lees \`submitted?.fields\` niet als de wachttijd \`undefined\` teruggaf.
 
 \`fieldStyles.short\` is één regel (de standaard). \`fieldStyles.long\` is een alinea. Een formuliertitel is 1–45 tekens, met 1–5 velden. Veld-ids moeten uniek zijn en mogen de formulier-id niet herhalen.
 

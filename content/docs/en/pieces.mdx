@@ -136,7 +136,7 @@ export const note = command("note", "Write a note", async (ctx) => {
 });
 ```
 
-A submit answers on the modal. A timeout is `undefined`, and that reply edits the original interaction. Do not read `sent?.fields` when `sent` is missing.
+A submit answers on the modal. A timeout returns `undefined` — Draeven does not edit or reply for you; call `edit()` or `reply()` yourself. Do not read `sent?.fields` when `sent` is missing.
 
 Do not `wait()` or set metadata `defer` first (<Explain topic="form-first">the form is the first reply</Explain>). Discord will not open a modal after an acknowledgement.
 

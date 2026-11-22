@@ -144,7 +144,7 @@ export const report = command("report", "Dien een korte melding in", async (ctx)
 });
 ```
 
-Een submit is een nieuwe interactie. Het antwoord na `collect` beantwoordt de modal. Een timeout is `undefined`, en dat antwoord bewerkt de oorspronkelijke interactie. Lees `sent?.fields` niet op het timeout-pad.
+Een submit is een nieuwe interactie. Het antwoord na `collect` beantwoordt de modal. Een timeout geeft `undefined` terug — Draeven bewerkt of antwoordt niet voor je; roep zelf `edit()` of `reply()` aan op de oorspronkelijke slash-interactie. Lees `sent?.fields` niet op het timeout-pad.
 
 [Knoppen, menu's & formulieren](/docs/pieces) · [Verzamelaars](/docs/collectors)
 

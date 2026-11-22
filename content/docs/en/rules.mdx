@@ -48,7 +48,7 @@ export const note = command("note", "Write a note", async (ctx) => {
 });
 ```
 
-A submit answers on the modal. That is a new interaction token. A timeout is `undefined`, and that reply edits the original interaction. Do not fold both paths into `sent?.fields`.
+A submit answers on the modal. That is a new interaction token. A timeout returns `undefined` — you must `edit()` or `reply()` yourself; the framework does not. Do not fold both paths into `sent?.fields`.
 
 A form cannot be `{ private: true }`, and `ctx.send` cannot carry one. [Buttons, menus & forms](/docs/pieces).
 
@@ -62,7 +62,7 @@ You can still mark the layout private with `{ private: true }`, and you can appe
 
 The interaction has one reply token. A second `reply()` throws `A command can only reply once.` only when a reply is already stored and you have neither `wait()`ed nor flushed a `collect`. After `wait()`, `edit()` or another `reply()` fills the defer. `followup()` adds another message.
 
-`collect()` flushes the pending reply before it waits. After that flush, another `reply()` replaces the stored reply. It does not throw. A form submit is answered on the modal. A button or menu press, and a timeout, edit the original interaction. A text-only replacement does not clear the button row.
+`collect()` flushes the pending reply before it waits. After that flush, another `reply()` replaces the stored reply. It does not throw. A form submit is answered on the modal. A button or menu press updates the original interaction. A timeout only returns `undefined` — your next `edit()` or `reply()` targets that original interaction. A text-only replacement does not clear the button row.
 
 A second `reply()` before `wait()` and before that flush still throws. [Replies](/docs/replies) · [Collectors](/docs/collectors).
 

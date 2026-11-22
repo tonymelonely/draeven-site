@@ -21,15 +21,15 @@ Deze exports zijn voor een eigen host of een test die niet wil dat `Start` het p
 | `permissionBitfield(value)` | Namen, een lijst, een cijferstring of `bigint` worden één `bigint`. Onbekende namen geven een foutmelding. |
 | `frame(key, locale, vars)` | Frameworkteksten `cooldown`, `need`, `when`, `owner`, `failed`. Alleen `cooldown` gebruikt `{name}` / `{seconds}`. |
 | `loadCommands(folder, { bust? })` | Importeert `.js`-exports van commando's en menu's. Slaat tests, namen die eindigen op `old.js` (dus ook `fold.js`), dotfiles en reload-kopieën over. Dubbele berichtmenu-namen geven een foutmelding. |
-| `loadEvents(folder, { bust? })` | Importeert `.js` waarvan de exportnaam een gateway-event is. Een tweede export met dezelfde naam geeft een foutmelding. |
+| `loadEvents(folder, { bust? })` | Importeert `.js` waarvan de exportnaam een gateway-event is, **en** elke `use()`-waarde uit die modules. Een tweede gateway-export met dezelfde naam geeft een foutmelding. |
 | `answerCommand(commands, incoming, bot, ...)` | Bouwt de commando-`ctx` en draait de handler. Wachttijd en gates zitten hier niet. De `Start`-dispatcher doet die vóór hij `answerCommand` aanroept. Geeft de `Reply` terug, of `undefined` als de naam niet geladen is. |
 | `startBot(client, options)` | Registreert commando's op een `BotConnection` en beantwoordt ze. `Start` bouwt de Discord-client en roept dit aan. |
-| `isCommand`, `isMenu` | Herkent een commando of menu in de output van `loadCommands`. |
+| `isCommand`, `isMenu`, `isUse` | Herkent een commando, menu of `use()` in loader-output. |
 | `isLayout`, `isPoll` | Herkent een layout of peiling in een eigen renderer. |
 
 De latere argumenten van `answerCommand` zijn de hooks die de live dispatcher invult: guild, transcript, kanaal-send, de interactie-ack (`wait`, `edit`, `remove`, `collect`, `flush`) en mod-acties. Een test die alleen om reply-tekst geeft, gebruikt `simulate`. Die zak zelf bouwen betekent dat jij de host bent.
 
-Opties van `startBot` zijn `commands`, en optioneel `commandsFolder`, `eventsFolder`, `guildId`, `timeZone`, `events`, `watch`, `guard` en `autoDefer`. `watch` herlaadt alleen als de map-opties gezet zijn. De `client` moet `BotConnection` implementeren (`start`, `stop`, `readyUser`, `registerCommands`, `onCommand`, `onUse`, reads en replies).
+Opties van `startBot` zijn `commands`, en optioneel `commandsFolder`, `eventsFolder`, `guildId`, `timeZone`, `events`, `uses`, `watch`, `guard` en `autoDefer`. `uses` is dezelfde duurzame-handlerlijst als `Start({ uses })`. `watch` herlaadt alleen als de map-opties gezet zijn. De `client` moet `BotConnection` implementeren (`start`, `stop`, `readyUser`, `registerCommands`, `onCommand`, `onUse`, reads en replies).
 
 ## Cooldown-boek
 

@@ -103,7 +103,7 @@ Een klassieke embed mag onder een contentregel staan. `layout()` niet — zie hi
 ```js
 return ctx.reply(
   "Let op:",
-  embed({ header: { title: "Details" }, color: colors.blurple })
+  embed({ header: { title: "Gegevens" }, color: colors.blurple })
 );
 ```
 
@@ -155,7 +155,7 @@ export const panel = command("panel", "Toon paneel", async (ctx) =>
         { color: colors.blurple },
         show("Inhoud in een container"),
         beside({
-          text: "Tekst plus een accessory. Discord noemt dit een Section.",
+          text: "Tekst met een naaststuk (accessory). Discord noemt dit een Section.",
           with: thumb("https://cdn.discordapp.com/embed/avatars/0.png"),
         })
       ),

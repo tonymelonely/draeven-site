@@ -15,7 +15,7 @@ Deze exports zijn voor een eigen host of een test die niet wil dat `Start` het p
 | `readCooldown(value)` | Maakt van een metadata-`cooldown` `{ seconds, scope, private }`. Een getal betekent scope `user` en `private: true`. `undefined` blijft `undefined`. |
 | `cooldownKey(name, scope, ids)` | Bouwt `name:user:id`, `name:guild:id` of `name:channel:id`. Geeft `undefined` terug als de guild- of kanaal-id die de scope nodig heeft ontbreekt. |
 | `CooldownBook` | `take(key, seconds)` geeft resterende seconden (minstens 1) of `0` nadat een nieuw venster is opgeslagen. Alleen geheugen. |
-| `CollectorBook` | `wait` is wat `ctx.collect` gebruikt. `take` wint van `press` alleen als id, soort en wie kloppen. `Start` bezit het boek. |
+| `CollectorBook` | `wait` is wat `ctx.collect` gebruikt. `take` wint van `press` alleen als id, soort en wie kloppen. `Start` beheert het boek. |
 | `checkGates(meta, world)` | Geeft `"owner"`, `"need"`, `"when"` of `undefined` terug. Volgorde is owner, dan need, dan when. |
 | `hasPermissions(have, need)` | Waar als elke gevraagde bit gezet is. De Administrator-bit slaagt op zichzelf. |
 | `permissionBitfield(value)` | Namen, een lijst, een cijferstring of `bigint` worden één `bigint`. Onbekende namen geven een foutmelding. |
@@ -27,7 +27,7 @@ Deze exports zijn voor een eigen host of een test die niet wil dat `Start` het p
 | `isCommand`, `isMenu`, `isUse` | Herkent een commando, menu of `use()` in loader-output. |
 | `isLayout`, `isPoll` | Herkent een layout of peiling in een eigen renderer. |
 
-De latere argumenten van `answerCommand` zijn de hooks die de live dispatcher invult: guild, transcript, kanaal-send, de interactie-ack (`wait`, `edit`, `remove`, `collect`, `flush`) en mod-acties. Een test die alleen om reply-tekst geeft, gebruikt `simulate`. Die zak zelf bouwen betekent dat jij de host bent.
+De latere argumenten van `answerCommand` zijn de hooks die de live dispatcher invult: guild, transcript, kanaalbericht versturen, de interactiebevestiging (`wait`, `edit`, `remove`, `collect`, vastleggen vóór collect) en mod-acties. Een test die alleen om reply-tekst geeft, gebruikt `simulate`. Die set hooks zelf bouwen betekent dat jij de host bent.
 
 Opties van `startBot` zijn `commands`, en optioneel `commandsFolder`, `eventsFolder`, `guildId`, `timeZone`, `events`, `uses`, `watch`, `guard` en `autoDefer`. `uses` is dezelfde duurzame-handlerlijst als `Start({ uses })`. `watch` herlaadt alleen als de map-opties gezet zijn. De `client` moet `BotConnection` implementeren (`start`, `stop`, `readyUser`, `registerCommands`, `onCommand`, `onUse`, reads en replies).
 

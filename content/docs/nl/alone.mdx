@@ -4,7 +4,7 @@ description: Voorkom dat een tweede Start() het token deelt.
 order: 74
 ---
 
-Twee Node-processen met hetzelfde bot-token vechten om de gateway-sessie en overschrijven elkaars commando's. `Start` roept eerst `claimAlone` aan. De standaardmodus is `"ask"`.
+Twee Node-processen met hetzelfde bot-token concurreren om de gateway-sessie en overschrijven elkaars commando's. `Start` roept eerst `claimAlone` aan. De standaardmodus is `"ask"`.
 
 Het lockbestand is `.draeven.pid` in de projectroot (`process.cwd()`). Het bevat de pid en het scriptpad. Draeven zoekt ook naar andere `node`-processen die hetzelfde script draaien.
 
@@ -23,9 +23,9 @@ await Start({
 |-----------|--------|
 | `"ask"` (standaard) | Als er een levende pid is en stdin een TTY is, vraagt Draeven of die gestopt moet worden. Ja stopt hem en gaat door. Nee geeft een foutmelding. |
 | `true` | Stop de andere pid en ga door. Geen vraag. |
-| `false` | Niet kijken. Twee processen mogen, en ze zullen botsen. |
+| `false` | Niet kijken. Twee processen mogen, en ze komen in conflict. |
 
-Op een non-TTY (CI, een servicebeheerder, veel Windows-taakrunners) vraagt `"ask"` **niet**. Een levende sibling faalt en zegt dat je hem moet stoppen of `alone: true` moet meegeven.
+Op een non-TTY (CI, een servicebeheerder, veel Windows-taakrunners) vraagt `"ask"` **niet**. Een levende andere proces faalt en zegt dat je hem moet stoppen of `alone: true` moet meegeven.
 
 <Warn fix="alone: false alleen met process-supervisor; alone: true om het oude proces te vervangen." href="/docs/why-failing">
 Zet `alone: false` alleen als een supervisor al garandeert dat er één proces is. Zet `alone: true` als een nieuwe deploy de oude moet vervangen.
@@ -46,7 +46,7 @@ Zet `alone: false` alleen als een supervisor al garandeert dat er één proces i
 
 - Een gecrasht proces kan een oud bestand achterlaten. Draeven negeert een pid die niet leeft, en schrijft daarna zijn eigen bestand.
 - `root` is standaard de werkmap. Twee checkouts die uit verschillende mappen starten delen geen lock, en kunnen nog steeds een token delen.
-- Het stoppen van een sibling wacht maximaal 3 seconden tot hij afsluit.
+- Het stoppen van een andere proces wacht maximaal 3 seconden tot hij afsluit.
 
 ## Verder
 

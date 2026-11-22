@@ -63,7 +63,7 @@ export const report = userMenu("Rapporteer", { defer: { private: true } }, async
 );
 ```
 
-De menucontext heeft `reply`, `wait`, `edit`, lookups, `author` en `locale`. Geen slash-opties, geen `followup`, geen `collect` en geen moderatiehelpers. `reply(form())` werkt vanuit een menu. Een formulier is niet beperkt tot slash-commando's. Menu-`reply` neemt geen `poll()`, `layout()` of een `{ private: true }`-optieobject. Dat tweede argument moet een embed zijn. Voor een efemeer menu roep je `await ctx.wait({ private: true })` aan en daarna `edit`, of zet je `defer: { private: true }` in metadata.
+De menucontext heeft `reply`, `wait`, `edit`, lookups, `author` en `locale`. Geen slash-opties, geen `followup`, geen `collect` en geen moderatiehulpfuncties. `reply(form())` werkt vanuit een menu. Een formulier is niet beperkt tot slash-commando's. Menu-`reply` neemt geen `poll()`, `layout()` of een `{ private: true }`-optieobject. Dat tweede argument moet een embed zijn. Voor een privé-menu roep je `await ctx.wait({ private: true })` aan en daarna `edit`, of zet je `defer: { private: true }` in metadata.
 
 Menu-`need` krijgt geen `memberPermissions`. De rechtenbits staan op `0`. Elke `need` die niet nul is blokkeert altijd, ook `Administrator`. Gebruik `ownerOnly` of `when` als je een gate nodig hebt.
 

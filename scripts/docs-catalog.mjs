@@ -81,13 +81,13 @@ Het pad van \`Start()\` naar een antwoord is [Hoe het in elkaar zit](/docs/archi
 
 ## Wat je krijgt
 
-- **Eén context.** Opties, lookups, antwoorden, verzamelaars en moderatiehelpers zitten op \`ctx\`.
+- **Eén context.** Opties, lookups, antwoorden, verzamelaars en moderatiehulpfuncties zitten op \`ctx\`.
 - **Declaratieve commando's.** Exporteer \`command()\`, \`userMenu()\` of \`messageMenu()\`. Draeven registreert ze.
 - **Verbonden blijven tijdens het bewerken.** \`Start({ watch: true })\` herlaadt gecompileerde commando's zonder de gateway te sluiten.
 - **De handler offline testen.** \`simulate()\` draait een commando zonder token.
 
 <Note>
-Draeven praat met Discord via \`@draeven/discord\` (gateway en REST). Je installeert normaal alleen \`@draeven/core\`.
+Draeven communiceert met Discord via \`@draeven/discord\` (gateway en REST). Je installeert normaal alleen \`@draeven/core\`.
 </Note>
 
 ## Packages
@@ -99,7 +99,7 @@ Draeven praat met Discord via \`@draeven/discord\` (gateway en REST). Je install
 | \`@draeven/bridge\` | Optionele owner-desk voor *jouw* proces |
 | \`create-draeven\` | \`npm create draeven@latest\` |
 
-De open-source doos is het framework plus een optionele owner-desk. Een gehost guild-dashboard is een apart product en zit er niet bij.
+Het open-source pakket is het framework plus een optionele owner-desk. Een gehost guild-dashboard is een apart product en zit er niet bij.
 
 ## Hoe een commando loopt
 
@@ -548,7 +548,7 @@ const bot = await Start({
   intents: intentsFor("ready"),
   presence: {
     status: "online",
-    activity: { kind: "watching", text: "slash commands" },
+    activity: { kind: "watching", text: "slash-commando's" },
   },
 });
 
@@ -563,7 +563,7 @@ console.log(\`Klaar — \${bot.commands.length} commando('s) geladen.\`);
 pnpm dev
 \`\`\`
 
-Dat bouwt één keer en draait daarna \`tsc -w\` naast de bot. Bewerk \`src/commands\`, sla op, en de nieuwe \`.js\` wordt opgepakt terwijl de gateway open blijft ([Hot-reload en guard](/docs/hot-reload-guard)).
+Dat bouwt één keer en draait daarna \`tsc -w\` naast de bot. Bewerk \`src/commands\`, sla op, en de nieuwe \`.js\` wordt ingeladen terwijl de gateway open blijft ([Hot-reload en guard](/docs/hot-reload-guard)).
 
 ## Een commando met een optie
 
@@ -940,7 +940,7 @@ const bot = await Start({
   timeZone: "Europe/Amsterdam",
   presence: {
     status: "online",
-    activity: { kind: "watching", text: "slash commands" },
+    activity: { kind: "watching", text: "slash-commando's" },
   },
   intents: intentsFor("ready", "message"),
   events: "./dist/events",
@@ -990,7 +990,7 @@ Guild-sync toont nieuwe commando's binnen seconden in die server. Een globale sy
 
 \`intentsFor("memberJoin", "message")\` voegt de bits samen die die events nodig hebben, inclusief geprivilegieerde intents die Discord eist. \`intentBits("guilds", "guildMessages")\` doet een OR van benoemde vlaggen als je de namen al kent. Event-handlers hebben nog steeds de bits van hun naam nodig ([Events en intents](/docs/events-intents#intents)).
 
-\`events\` als object staat vast voor het proces. Dat object laadt geen \`use()\`. Geef dan \`uses: [letters]\` mee voor duurzame handlers, of gebruik \`events: "./dist/events"\` zodat modules waarvan de exportnaam de eventnaam is samen met elke \`use()\` in die bestanden laden. Laat je \`events\` weg, dan gebruikt Draeven het \`events\`-pad uit \`draeven.config.js\` als het bestand er een zet. \`watch: true\` herlaadt die map als de bestanden veranderen. Map-\`use()\`-exports en \`Start({ uses })\` worden aaneengeschakeld; een inline \`press\` wint nog steeds zolang dat antwoord onthouden wordt ([Press & submit](/docs/press-handlers#use)).
+\`events\` als object staat vast voor het proces. Dat object laadt geen \`use()\`. Geef dan \`uses: [letters]\` mee voor duurzame handlers, of gebruik \`events: "./dist/events"\` zodat modules waarvan de exportnaam de eventnaam is samen met elke \`use()\` in die bestanden laden. Laat je \`events\` weg, dan gebruikt Draeven het \`events\`-pad uit \`draeven.config.js\` als het bestand er een zet. \`watch: true\` herlaadt die map als de bestanden veranderen. Map-\`use()\`-exports en \`Start({ uses })\` worden samengevoegd; een inline \`press\` wint nog steeds zolang dat antwoord onthouden wordt ([Press & submit](/docs/press-handlers#use)).
 
 \`\`\`js
 import { Start, intentsFor } from "@draeven/core";
@@ -1009,7 +1009,7 @@ await Start({
 
 ## Auto-defer
 
-Discord geeft de handler ongeveer 3 seconden. De standaard <Explain topic="auto-defer">auto-defer</Explain> vuurt na 2 seconden, zodat een trage \`await\` alsnog bevestigt. \`autoDefer: 800\` stelt eerder uit. Waarden onder 500 worden 500. Waarden boven 2500 worden 2500. \`autoDefer: false\` op \`Start\` zet het uit voor elk commando. Eén commando kan nog \`autoDefer: false\` in zijn eigen metadata zetten ([Antwoorden](/docs/replies)).
+Discord geeft de handler ongeveer 3 seconden. De standaard <Explain topic="auto-defer">auto-defer</Explain> gaat af na 2 seconden, zodat een trage \`await\` alsnog bevestigt. \`autoDefer: 800\` stelt eerder uit. Waarden onder 500 worden 500. Waarden boven 2500 worden 2500. \`autoDefer: false\` op \`Start\` zet het uit voor elk commando. Eén commando kan nog \`autoDefer: false\` in zijn eigen metadata zetten ([Antwoorden](/docs/replies)).
 
 <Note>
 \`timeZone\` verandert \`time()\`-stempels in een embed niet. Die renderen in de zone van de lezer. De startzone is alleen de terugval voor een transcript.
@@ -1531,7 +1531,7 @@ export const report = command("report", "Dien een korte melding in", async (ctx)
     seconds: 180,
   });
 
-  if (!sent) return ctx.reply("Timeout.");
+  if (!sent) return ctx.reply("Tijd verstreken.");
   return ctx.reply(\`\${sent.fields.title}\\n\${sent.fields.body}\`);
 });
 \`\`\`
@@ -1694,7 +1694,7 @@ export const choose = command("choose", "Vraagt ja of nee en wacht op een druk",
   const pick = await collect({ ids: ["choose-yes", "choose-no"], seconds: 30 });
 
   if (!pick) {
-    return reply("Timeout.");
+    return reply("Tijd verstreken.");
   }
 
   return reply(pick.id === "choose-yes" ? "Je koos ja." : "Je koos nee.");
@@ -1731,7 +1731,7 @@ export const ask = command("ask", "Opent een kort formulier en wacht op het antw
   const submitted = await collect({ ids: "ask-form", kind: "submit", seconds: 120 });
 
   if (!submitted) {
-    return reply("Timeout.");
+    return reply("Tijd verstreken.");
   }
 
   return reply(\`Genoteerd: \${submitted.fields.note ?? ""}\`);
@@ -1743,7 +1743,7 @@ export const ask = command("ask", "Opent een kort formulier en wacht op het antw
 ## Valkuilen
 
 - Het wachttijdboek zit in het procesgeheugen. Een herstart wist het. \`simulate()\` past wachttijden niet toe.
-- Een tweede \`reply()\` faalt alleen als er al een antwoord is opgeslagen en je noch \`wait()\` hebt gedaan, noch een \`collect\` hebt geflusht. Na \`wait()\` vult \`edit()\` of een nieuwe \`reply()\` de defer. Na een collect-flush vervangt een nieuwe \`reply()\` het opgeslagen antwoord.
+- Een tweede \`reply()\` faalt alleen als er al een antwoord is opgeslagen en je noch \`wait()\` hebt gedaan, noch het antwoord vóór \`collect()\` hebt vastgelegd. Na \`wait()\` vult \`edit()\` of een nieuwe \`reply()\` het uitgestelde antwoord. Na het vastleggen vóór \`collect()\` vervangt een nieuwe \`reply()\` het opgeslagen antwoord.
 - Een \`form()\` na \`wait()\`, \`defer\` of \`transcript()\` geeft een foutmelding. De modal moet de eerste bevestiging zijn.
 - \`embed()\` heeft geen titel op de wortel. Zet die in \`header: { title }\`.
 - \`layout()\` deelt het antwoord niet met tekst, een embed, een peiling of een canvas-afbeelding.
@@ -2017,13 +2017,13 @@ A missing folder throws \`Cannot read commands folder\`. A folder that only has 
       title: "Vuistregels",
       description: "Harde regels die als [Draeven]-fout verschijnen als je ze breekt.",
       body: `
-Dit zijn de grenzen die Draeven in code afdwingt. Breek je er een, dan begint de throw met \`[Draeven]\`. Elke sectie linkt de gids die de vorm toont die wél werkt. Dezelfde regels staan op een rij bij [Fouten & debuggen](/docs/debugging).
+Dit zijn de grenzen die Draeven in code afdwingt. Breek je er een, dan begint de foutmelding met \`[Draeven]\`. Elke sectie linkt de gids die de vorm toont die wél werkt. Dezelfde regels staan op een rij bij [Fouten & debuggen](/docs/debugging).
 
 ## Bevestig binnen ongeveer 3 seconden
 
-Discord laat de interactie vallen na ongeveer 3 seconden. <Explain topic="auto-defer">Auto-defer</Explain> vuurt na 2 seconden, zodat een trage \`await\` alsnog bevestigt. Laat het aan, tenzij dit commando een formulier moet openen.
+Discord laat de interactie vallen na ongeveer 3 seconden. <Explain topic="auto-defer">Auto-defer</Explain> gaat af na 2 seconden, zodat een trage \`await\` alsnog bevestigt. Laat het aan, tenzij dit commando een formulier moet openen.
 
-\`Start({ autoDefer: false })\` zet het uit voor elk commando. Een getal wordt geklemd op 500–2500 ms. \`autoDefer: false\` op één commando zet het alleen voor dat commando uit. \`defer: true\` in metadata bevestigt meteen, vóór de handler. \`defer: { private: true }\` doet dat efemeer.
+\`Start({ autoDefer: false })\` zet het uit voor elk commando. Een getal wordt geklemd op 500–2500 ms. \`autoDefer: false\` op één commando zet het alleen voor dat commando uit. \`defer: true\` in metadata bevestigt meteen, vóór de handler. \`defer: { private: true }\` doet dat privé (alleen voor de aanroeper).
 
 Weet je dat het werk traag is, roep dan zelf \`wait()\` aan en daarna \`edit()\`:
 
@@ -2041,7 +2041,7 @@ export const slow = command("slow", "Duurt even", async (ctx) => {
 
 ## Het formulier is het eerste antwoord
 
-Een modal moet de eerste bevestiging zijn. <Explain topic="form-first">Een form() kan niet na een defer</Explain>. Roep geen \`wait()\` aan, zet geen \`defer\` in metadata, en roep geen \`transcript()\` aan vóór \`form()\`. Een auto-defer die al is afgegaan telt ook: het token is dan al verbruikt. Discord opent daarna geen modal, en flush geeft de fout \`A form cannot follow wait()\`.
+Een modal moet de eerste bevestiging zijn. <Explain topic="form-first">Een form() kan niet na een defer</Explain>. Roep geen \`wait()\` aan, zet geen \`defer\` in metadata, en roep geen \`transcript()\` aan vóór \`form()\`. Een auto-defer die al is afgegaan telt ook: het token is dan al verbruikt. Discord opent daarna geen modal, en dan geeft \`form()\` de fout \`A form cannot follow wait()\`.
 
 \`\`\`js
 import { command, fieldStyles, form } from "@draeven/core";
@@ -2056,7 +2056,7 @@ export const note = command("note", "Schrijf een notitie", async (ctx) => {
   );
 
   const sent = await ctx.collect({ ids: "note-form", kind: "submit", seconds: 120 });
-  if (!sent) return ctx.reply("Timeout.");
+  if (!sent) return ctx.reply("Tijd verstreken.");
   return ctx.reply(sent.fields.body);
 });
 \`\`\`
@@ -2073,11 +2073,11 @@ Je mag de layout wel privé maken met \`{ private: true }\`, en extra \`row()\`-
 
 ## Eén antwoordtoken
 
-De interactie heeft één antwoordtoken. Een tweede \`reply()\` geeft de fout \`A command can only reply once.\` alleen als er al een antwoord is opgeslagen en je noch \`wait()\` hebt gedaan, noch een \`collect\` hebt geflusht. Na \`wait()\` vult \`edit()\` of een nieuwe \`reply()\` de defer. \`followup()\` voegt een extra bericht toe.
+De interactie heeft één antwoordtoken. Een tweede \`reply()\` geeft de fout \`A command can only reply once.\` alleen als er al een antwoord is opgeslagen en je noch \`wait()\` hebt gedaan, noch het antwoord vóór \`collect()\` hebt vastgelegd. Na \`wait()\` vult \`edit()\` of een nieuwe \`reply()\` het uitgestelde antwoord. \`followup()\` voegt een extra bericht toe.
 
-\`collect()\` flusht het openstaande antwoord vóór het wacht. Na die flush vervangt een nieuwe \`reply()\` het opgeslagen antwoord. Dat faalt niet. Een formulier-submit wordt op de modal beantwoord. Een knop of menu werkt de oorspronkelijke interactie bij. Een timeout geeft alleen \`undefined\` terug — je volgende \`edit()\` of \`reply()\` gaat naar die oorspronkelijke interactie. Een vervanging die alleen tekst is, haalt de knoppenrij niet weg.
+\`collect()\` legt het openstaande antwoord vast vóór het wacht. Na dat vastleggen vervangt een nieuwe \`reply()\` het opgeslagen antwoord. Dat faalt niet. Een formulier-submit wordt op de modal beantwoord. Een knop of menu werkt de oorspronkelijke interactie bij. Een timeout geeft alleen \`undefined\` terug — je volgende \`edit()\` of \`reply()\` gaat naar die oorspronkelijke interactie. Een vervanging die alleen tekst is, haalt de knoppenrij niet weg.
 
-Een tweede \`reply()\` vóór \`wait()\` en vóór die flush faalt nog steeds. [Antwoorden](/docs/replies) · [Verzamelaars](/docs/collectors).
+Een tweede \`reply()\` vóór \`wait()\` en vóór dat vastleggen faalt nog steeds. [Antwoorden](/docs/replies) · [Verzamelaars](/docs/collectors).
 
 ## ctx.collect tegenover press
 
@@ -2218,7 +2218,7 @@ Gates, wachttijden, vertalingen en defer horen in \`CommandMeta\`, niet in het o
 export const secret = command(
   "secret",
   "Alleen de servereigenaar",
-  async (ctx) => ctx.reply("ok"),
+  async (ctx) => ctx.reply("oké"),
   {
     ownerOnly: true,
     defer: { private: true },
@@ -2236,7 +2236,7 @@ export const secret = command(
 | \`when\` | Vóór de handler. \`false\` blokkeert. |
 | \`cooldown\` | Vóór de handler. Wacht in het geheugen ([Wachttijden](/docs/cooldowns)). |
 | \`locales\` | Registratie. Vertaalde naam en beschrijving. |
-| \`defer\` | \`true\` is publiek. \`{ private: true }\` is efemeer. |
+| \`defer\` | \`true\` is publiek. \`{ private: true }\` is privé (alleen voor de aanroeper). |
 | \`autoDefer\` | \`false\` zet de veiligheids-defer van 2s uit voor dit commando. |
 | \`nsfw\` | Alleen in leeftijdsbegrensde kanalen. |
 | \`places\` | \`"guild"\`, \`"bot dm"\`, \`"private"\`. |
@@ -2252,7 +2252,7 @@ Details: [Rechten](/docs/permissions).
 | Opties | Eén eigenschap per sleutel, al opgelost |
 | Lookups | \`getUser\`, \`getMember\`, \`getBot\`, \`getGuild\`, \`getChannel\`, \`getRole\`, \`getRoles\`, \`getFile\` |
 | Antwoorden | \`reply\`, \`followup\`, \`wait\`, \`edit\`, \`remove\`, \`transcript\` |
-| Kanaalbericht | \`send(channel, ...)\` — niet efemeer |
+| Kanaalbericht | \`send(channel, ...)\` — niet privé |
 | Componenten | \`collect\` — geen package-import |
 | Moderatie | \`timeout\`, \`kick\`, \`ban\`, \`purge\`, \`pin\`, \`unpin\`, \`react\`, \`editMessage\`, \`deleteMessage\`, \`moveVoice\` |
 
@@ -2265,7 +2265,7 @@ Optienamen volgen hetzelfde patroon als commandonamen, en deze sleutels zijn ger
 ## Valkuilen
 
 - De \`Reply\` van \`ctx.reply()\` teruggeven is genoeg. Je hoeft niet nog een keer te versturen.
-- \`reply()\` geeft de fout \`A command can only reply once.\` alleen als er al een antwoord is opgeslagen en je noch \`wait()\` hebt gedaan, noch een \`collect\` hebt geflusht. Na \`wait()\` vul je met \`edit()\` of een nieuwe \`reply()\`. Na een collect-flush vervangt een nieuwe \`reply()\` het opgeslagen antwoord. Gebruik \`followup()\` voor een extra bericht.
+- \`reply()\` geeft de fout \`A command can only reply once.\` alleen als er al een antwoord is opgeslagen en je noch \`wait()\` hebt gedaan, noch het antwoord vóór \`collect()\` hebt vastgelegd. Na \`wait()\` vul je met \`edit()\` of een nieuwe \`reply()\`. Na het vastleggen vóór \`collect()\` vervangt een nieuwe \`reply()\` het opgeslagen antwoord. Gebruik \`followup()\` voor een extra bericht.
 - Traag werk hoort \`await ctx.wait()\` en daarna \`ctx.edit(...)\`, of leunt op de standaard auto-defer na 2 seconden ([Antwoorden](/docs/replies)).
 
 ## Verder
@@ -2532,21 +2532,21 @@ Leaf descriptions follow the same 1–100 rule. Leaf and group names follow \`^[
       title: "Subcommando's",
       description: "Platte subs en één groepsniveau.",
       body: `
-Subcommando's splitsen één slash-naam in bladeren: \`/mod kick\`, \`/mod ban\`. Discord staat opties op het blad toe, en **één** groepsniveau onder de parent (\`/mod user ban\`). Gebruik ze als meerdere acties een naam delen. Losse tools blijven aparte top-level commando's.
+Subcommando's splitsen één slash-naam in eindpunten: \`/mod kick\`, \`/mod ban\`. Discord staat opties op zo'n eindpunt (leaf) toe, en **één** groepsniveau onder de parent (\`/mod user ban\`). Gebruik ze als meerdere acties een naam delen. Losse tools blijven aparte top-level commando's.
 
 \`command()\` krijgt een map van \`sub()\` en \`group()\` in plaats van een handler. De parent heeft **geen** eigen \`run\`.
 
 <DocMedia id="subcommands" />
 
-## Platte bladeren
+## Platte subcommando's
 
 \`sub(description, options?, run, locales?)\` — eerst de beschrijving, dan opties, dan de handler. Het vierde argument is alleen \`{ locales }\`. Geen \`need\` en geen \`cooldown\`.
 
-\`timeout(user, 0)\` heft een timeout op. Beide bladeren delen de parent-gate: \`need\`, \`ownerOnly\`, \`when\`, \`cooldown\` en \`defer\` staan op \`command()\` en gelden voor elk blad.
+\`timeout(user, 0)\` heft een timeout op. Beide subcommando's delen de parent-gate: \`need\`, \`ownerOnly\`, \`when\`, \`cooldown\` en \`defer\` staan op \`command()\` en gelden voor elk eindpunt.
 
 ## Eén groep
 
-\`group(description, { blad: sub(...) })\` nest één niveau. Een groep bevat alleen \`sub()\`, geen groepen. Dat registreert \`/mod user kick\`. \`locales\` mag een string zijn (alleen beschrijving) of \`{ description, name }\`.
+\`group(description, { kick: sub(...) })\` nest één niveau. Een groep bevat alleen \`sub()\`, geen groepen. Dat registreert \`/mod user kick\`. \`locales\` mag een string zijn (alleen beschrijving) of \`{ description, name }\`.
 
 <Compare id="sub-shapes-nl" />
 
@@ -2564,13 +2564,13 @@ Geef niet \`group({ kick: sub(...) })\` met één object. \`group\` wil eerst ee
 
 ## Als gates verschillen
 
-\`need\` kan niet per blad verschillen. Als kick \`KickMembers\` nodig heeft en ban \`BanMembers\`, registreer je twee commando's. Een gedeelde \`ModerateMembers\` op de parent is prima als elk blad een timeout is.
+\`need\` kan niet per subcommando verschillen. Als kick \`KickMembers\` nodig heeft en ban \`BanMembers\`, registreer je twee commando's. Een gedeelde \`ModerateMembers\` op de parent is prima als elk eindpunt een timeout is.
 
 ## Valkuilen
 
 - Opties op de parent \`command()\` mogen niet als het derde argument een sub-map is.
 - Een groep zonder subs geeft een foutmelding. Een groep die weer een groep bevat geeft een foutmelding.
-- \`cooldown: 10\` op de parent geldt voor de hele naam \`/mod\`, niet per blad.
+- \`cooldown: 10\` op de parent geldt voor de hele naam \`/mod\`, niet per subcommando.
 
 ## Verder
 
@@ -2726,7 +2726,7 @@ export const report = userMenu("Rapporteer", { defer: { private: true } }, async
 );
 \`\`\`
 
-De menucontext heeft \`reply\`, \`wait\`, \`edit\`, lookups, \`author\` en \`locale\`. Geen slash-opties, geen \`followup\`, geen \`collect\` en geen moderatiehelpers. \`reply(form())\` werkt vanuit een menu. Een formulier is niet beperkt tot slash-commando's. Menu-\`reply\` neemt geen \`poll()\`, \`layout()\` of een \`{ private: true }\`-optieobject. Dat tweede argument moet een embed zijn. Voor een efemeer menu roep je \`await ctx.wait({ private: true })\` aan en daarna \`edit\`, of zet je \`defer: { private: true }\` in metadata.
+De menucontext heeft \`reply\`, \`wait\`, \`edit\`, lookups, \`author\` en \`locale\`. Geen slash-opties, geen \`followup\`, geen \`collect\` en geen moderatiehulpfuncties. \`reply(form())\` werkt vanuit een menu. Een formulier is niet beperkt tot slash-commando's. Menu-\`reply\` neemt geen \`poll()\`, \`layout()\` of een \`{ private: true }\`-optieobject. Dat tweede argument moet een embed zijn. Voor een privé-menu roep je \`await ctx.wait({ private: true })\` aan en daarna \`edit\`, of zet je \`defer: { private: true }\` in metadata.
 
 Menu-\`need\` krijgt geen \`memberPermissions\`. De rechtenbits staan op \`0\`. Elke \`need\` die niet nul is blokkeert altijd, ook \`Administrator\`. Gebruik \`ownerOnly\` of \`when\` als je een gate nodig hebt.
 
@@ -3063,7 +3063,7 @@ Subcommando's kunnen geen eigen \`need\` dragen. Zet de gate op de parent \`comm
 ## Valkuilen
 
 - \`Administrator\` slaagt voor \`hasPermissions\` en \`need\`. Draeven behandelt de Administrator-bit (\`1 << 3\`) als elk recht.
-- De auto-defer-timer start ná de gates. Een trage \`when()\` wordt niet gedefered. Houd de gate snel, anders kan de interactie verlopen vóór de handler start ([Antwoorden](/docs/replies)).
+- De auto-defer-timer start ná de gates. Een trage \`when()\` krijgt geen auto-defer. Houd de gate snel, anders kan de interactie verlopen vóór de handler start ([Antwoorden](/docs/replies)).
 - \`hasPermissions(have, need)\` is geëxporteerd als je rechtenbits zelf vergelijkt. Het commandopad roept het al aan voor \`need\`.
 
 ## Verder
@@ -3150,13 +3150,13 @@ One \`cooldown\` on the parent covers every leaf under that slash name. You cann
     },
     nl: {
       title: "Wachttijden",
-      description: "Wachttijd per commando voor een user, kanaal of guild.",
+      description: "Wachttijd per commando voor een gebruiker, kanaal of guild.",
       body: `
 Wachttijd in het geheugen per commandonaam — niet Discords rate limit. Nog koel → privé \`frame("cooldown")\`, \`run\` overgeslagen.
 
 <WhenToUse topic="cooldowns" />
 
-Sleutel is \`name:scope:id\` (slash + menu met dezelfde naam delen een emmer).
+Sleutel is \`name:scope:id\` (slash + menu met dezelfde naam delen dezelfde cooldown-sleutel).
 
 ## Seconden
 
@@ -3178,7 +3178,7 @@ export const ping = command(
 ## Scope
 
 \`\`\`js
-export const spam = command("spam", "Niet doen", async (ctx) => ctx.reply("ok"), {
+export const spam = command("spam", "Niet doen", async (ctx) => ctx.reply("oké"), {
   cooldown: { seconds: 30, scope: "guild", private: true },
 });
 \`\`\`
@@ -3214,7 +3214,7 @@ Eén \`cooldown\` op de parent dekt elk blad onder die slash-naam. Je kunt geen 
 - \`take()\` draait vóór de gates. Een mislukte \`need\`, \`ownerOnly\` of \`when\` heeft de wachttijd al verbruikt.
 - Guild-scope zonder guild-id levert geen sleutel, dus het commando draait. Gebruik \`guild\` niet als DM-limiet.
 - Een druk commando met \`scope: "user"\` laat de rest van de server tegelijk aanroepen. Gebruik \`channel\` of \`guild\` als dat uitmaakt.
-- De wachttekst is standaard efemeer, dus mods in het kanaal zien hem niet.
+- De wachttekst is standaard privé (alleen voor de aanroeper), dus mods in het kanaal zien hem niet.
 
 ## Verder
 
@@ -3309,7 +3309,7 @@ Set \`locale: "nl"\` on \`simulate()\` when you want to assert \`say()\` output.
       body: `
 Discord stuurt de locale van de aanroeper mee (\`en-US\`, \`nl\`, \`nl-NL\`). Draeven zet die op \`ctx.locale\`. Je vertaalt drie verschillende lagen. Ze delen geen woordenboek.
 
-Gebruik dit als hetzelfde commando in meer dan één taal verschijnt. Gateteksten van het framework zijn al tweetalig (Engels en Nederlands).
+Gebruik dit als hetzelfde commando in meer dan één taal verschijnt. Teksten bij geblokkeerde gates van het framework zijn al tweetalig (Engels en Nederlands).
 
 ## Drie lagen
 
@@ -3449,7 +3449,7 @@ A chosen \`user()\` option is the \`User\` already. Call \`getMember\` and \`get
 `,
     },
     nl: {
-      title: "Lookups",
+      title: "Opzoeken (lookups)",
       description: "Gebruikers, leden, guilds, kanalen, rollen en bestanden op ctx.",
       body: `
 Een optie \`user()\`, \`channel()\`, \`role()\` of \`file()\` is al het object. Lookups zijn voor de aanroeper, de bot, en ids die geen optie waren. Het zijn methodes op \`ctx\`. Importeer geen lookup-helper.
@@ -3721,15 +3721,15 @@ If the first reply was private, keep later copy private yourself when you pass o
       title: "Antwoorden & follow-ups",
       description: "reply, wait, edit, followup en remove.",
       body: `
-Bevestig binnen ongeveer **3 seconden**. Daarna zo’n 15 minuten voor follow-ups. Methodes op \`ctx\`: \`reply\`, \`wait\`, \`edit\`, \`followup\`, \`remove\`.
+Bevestig binnen ongeveer **3 seconden**. Daarna zo’n 15 minuten voor follow-ups. Methoden op \`ctx\`: \`reply\`, \`wait\`, \`edit\`, \`followup\`, \`remove\`.
 
-<Explain topic="auto-defer">Auto-defer</Explain> vuurt na 2 seconden, tenzij je het uitzet.
+<Explain topic="auto-defer">Auto-defer</Explain> gaat af na 2 seconden, tenzij je het uitzet.
 
 ## Welke methode
 
 | Methode | Wanneer |
 |---------|---------|
-| \`reply(...)\` | Slaat het antwoord op. Een tweede aanroep faalt alleen als er al een antwoord is opgeslagen en je noch hebt gewacht, noch een collect hebt geflusht. Na \`wait()\` vult \`edit()\` of een nieuwe \`reply()\` het. Na een collect-flush vervangt een nieuwe \`reply()\` het. |
+| \`reply(...)\` | Slaat het antwoord op. Een tweede aanroep faalt alleen als er al een antwoord is opgeslagen en je noch hebt gewacht, noch het antwoord vóór \`collect()\` hebt vastgelegd. Na \`wait()\` vult \`edit()\` of een nieuwe \`reply()\` het. Na het vastleggen vóór \`collect()\` vervangt een nieuwe \`reply()\` het. |
 | \`wait({ private? })\` | Bevestigen zonder inhoud. Nodig vóór \`edit\` als je nog niet hebt geantwoord. |
 | \`edit(...)\` | Het uitgestelde of al verstuurde antwoord vervangen. |
 | \`followup(...)\` | Nog een bericht na het eerste antwoord. Geeft een promise terug. |
@@ -3747,7 +3747,7 @@ Bij een trage handler roep je \`await ctx.wait()\` (publiek) of \`await ctx.wait
 \`CommandMeta\` ondersteunt nog \`defer: true\` of \`defer: { private: true }\` om vóór de handler te bevestigen. Gebruik liever \`wait()\` + \`edit()\` in de handler ([Commando's](/docs/commands)).
 </Note>
 
-## Reply vs kanaal-send
+## Reply vs kanaalbericht versturen
 
 Interactie-antwoorden blijven op het slash-token. \`ctx.send\` plaatst een gewoon kanaalbericht en kan niet privé zijn.
 
@@ -3782,7 +3782,7 @@ Was het eerste antwoord privé, geef latere tekst zelf privé mee als je opties 
 
 ## Valkuilen
 
-- Een tweede \`reply()\` geeft de fout "A command can only reply once." alleen als er een antwoord is opgeslagen en je noch \`wait()\` hebt gedaan, noch een collect hebt geflusht. Na \`wait()\` vult \`edit()\` of een nieuwe \`reply()\` de defer. Na een collect-flush vervangt een nieuwe \`reply()\` het opgeslagen antwoord.
+- Een tweede \`reply()\` geeft de fout "A command can only reply once." alleen als er een antwoord is opgeslagen en je noch \`wait()\` hebt gedaan, noch het antwoord vóór \`collect()\` hebt vastgelegd. Na \`wait()\` vult \`edit()\` of een nieuwe \`reply()\` het uitgestelde antwoord. Na het vastleggen vóór \`collect()\` vervangt een nieuwe \`reply()\` het opgeslagen antwoord.
 - \`simulate()\` heeft geen interactietoken, dus \`wait()\`, \`edit()\`, \`remove()\` en \`collect()\` geven een foutmelding. \`reply()\` geeft nog steeds het \`Reply\`-object terug.
 - \`ctx.reply(...)\` teruggeven uit de handler is de gewone vorm. Er is geen aparte helper om de interactie te versturen.
 
@@ -3991,7 +3991,7 @@ export const confirm = command("confirm", "Ja of nee", async (ctx) => {
   });
 
   const pick = await ctx.collect({ ids: ["yes", "no"], seconds: 30 });
-  if (!pick) return ctx.edit("Timeout.");
+  if (!pick) return ctx.edit("Tijd verstreken.");
   return ctx.edit(pick.id === "yes" ? "Gewist." : "Gehouden.");
 });
 \`\`\`
@@ -4025,7 +4025,7 @@ Gebruik de pijltjes (of de tabs) voor kleuren, id, emoji, disabled, press, links
 
 Er zijn **vier** kleuren: \`blurple\` (standaard), \`grey\`, \`green\`, \`red\`.
 
-- **TypeScript:** typ \`color: "\` en de union toont de vier namen (zoals IntelliSense na een punt).
+- **TypeScript:** typ \`color: "\` en het union-type toont de vier namen (zoals IntelliSense na een punt).
 - **JS of TS:** importeer \`buttonColors\` en gebruik \`buttonColors.green\` — een echte property-lijst na \`.\`, ook in plain JavaScript.
 
 \`color\` wijst toe naar Discord’s button-styles. Er is geen \`ButtonStyle.Primary\`; schrijf \`color: "blurple"\` of \`buttonColors.blurple\`.
@@ -4066,7 +4066,7 @@ export const route = command("route", "Kies een kanaal", async (ctx) => {
   });
 
   const chosen = await ctx.collect({ ids: "log", seconds: 60 });
-  if (!chosen) return ctx.edit("Timeout.");
+  if (!chosen) return ctx.edit("Tijd verstreken.");
   return ctx.edit(\`Kanaal \${chosen.values[0]}\`);
 });
 \`\`\`
@@ -4096,7 +4096,7 @@ export const note = command("note", "Schrijf een notitie", async (ctx) => {
   );
 
   const sent = await ctx.collect({ ids: "note-form", kind: "submit", seconds: 120 });
-  if (!sent) return ctx.reply("Timeout.");
+  if (!sent) return ctx.reply("Tijd verstreken.");
   return ctx.reply(sent.fields.body);
 });
 \`\`\`
@@ -4380,7 +4380,7 @@ Kies het juiste pad: **collect** laat dit commando doorgaan; inline **press** / 
 <WhenToUse topic="collectors" />
 <DocTour id="collect" />
 
-Geen waiter → \`PressContext\` / \`use()\` ([Press & submit](/docs/press-handlers)). Timeout → \`undefined\`. Wijzig met \`ctx.edit\` (geen \`.update\`).
+Geen lopende \`collect\` → \`PressContext\` / \`use()\` ([Press & submit](/docs/press-handlers)). Timeout → \`undefined\`. Wijzig met \`ctx.edit\` (geen \`.update\`).
 
 <DocMedia id="collectors" />
 
@@ -4402,7 +4402,7 @@ export const confirm = command("confirm", "Ja of nee", async (ctx) => {
   });
 
   const pick = await ctx.collect({ ids: ["yes", "no"], seconds: 30 });
-  if (!pick) return ctx.edit("Timeout.");
+  if (!pick) return ctx.edit("Tijd verstreken.");
   return ctx.edit(\`Gekozen: \${pick.id}\`);
 });
 \`\`\`
@@ -4432,7 +4432,7 @@ export const pick = command("pick", "Kies een tool", async (ctx) => {
   });
 
   const chosen = await ctx.collect({ ids: "tool", seconds: 30 });
-  return ctx.reply(chosen?.values[0] ?? "Timeout.");
+  return ctx.reply(chosen?.values[0] ?? "Tijd verstreken.");
 });
 \`\`\`
 
@@ -4449,7 +4449,7 @@ export const ask = command("ask", "Vraag om een notitie", async (ctx) => {
   ctx.reply(
     form({
       id: "ask-form",
-      title: "Details",
+      title: "Gegevens",
       fields: [
         { id: "note", label: "Notitie", style: fieldStyles.long, required: true },
       ],
@@ -4457,7 +4457,7 @@ export const ask = command("ask", "Vraag om een notitie", async (ctx) => {
   );
 
   const submitted = await ctx.collect({ ids: "ask-form", kind: "submit", seconds: 120 });
-  if (!submitted) return ctx.reply("Timeout.");
+  if (!submitted) return ctx.reply("Tijd verstreken.");
   return ctx.reply(submitted.fields.note);
 });
 \`\`\`
@@ -4789,7 +4789,7 @@ Een klassieke embed mag onder een contentregel staan. \`layout()\` niet — zie 
 \`\`\`js
 return ctx.reply(
   "Let op:",
-  embed({ header: { title: "Details" }, color: colors.blurple })
+  embed({ header: { title: "Gegevens" }, color: colors.blurple })
 );
 \`\`\`
 
@@ -4841,7 +4841,7 @@ export const panel = command("panel", "Toon paneel", async (ctx) =>
         { color: colors.blurple },
         show("Inhoud in een container"),
         beside({
-          text: "Tekst plus een accessory. Discord noemt dit een Section.",
+          text: "Tekst met een naaststuk (accessory). Discord noemt dit een Section.",
           with: thumb("https://cdn.discordapp.com/embed/avatars/0.png"),
         })
       ),
@@ -5004,7 +5004,7 @@ Een canvas-afbeelding deelt een antwoord niet met \`layout()\`. \`layout()\` is 
 | \`pixel(x, y)\` | Lees één pixel. |
 | \`png()\` | PNG-bytes. |
 
-Coördinaten en maten zijn gehele getallen. Een gebroken breedte faalt voordat er iets getekend is.
+Coördinaten en maten zijn gehele getallen. Een niet-gehele breedte faalt voordat er iets getekend is.
 
 ## Valkuilen
 
@@ -5107,7 +5107,7 @@ import { command, poll } from "@draeven/core";
 export const ship = command("ship", "Vraag de community", async (ctx) =>
   ctx.reply(
     poll({
-      question: "Shippen?",
+      question: "Nu uitrollen?",
       answers: ["Ja", "Nog niet"],
       hours: 24,
     })
@@ -5402,7 +5402,7 @@ export const save = command("save", "Sla dit kanaal op", async (ctx) => {
 });
 \`\`\`
 
-De aanroep stelt de interactie uit als je dat nog niet deed, en haalt daarna de geschiedenis op. De notitie wordt het bericht, bijvoorbeeld \`12 messages from #general.\` (framework-Engels — Discord-notitie). De bestandsnaam volgt het kanaal, zoals \`general.html\`.
+De aanroep stelt de interactie uit als je dat nog niet deed, en haalt daarna de geschiedenis op. De notitie wordt het bericht, bijvoorbeeld \`12 messages from #general.\` (Engelse Discord-notitie). De bestandsnaam volgt het kanaal, zoals \`general.html\`.
 
 ## Opties
 
@@ -5684,7 +5684,7 @@ export function memberJoin(member) {
 }
 \`\`\`
 
-Het commando dat \`hangman_A\` plaatst laat \`press\` weg. Deze \`use()\`-handler bezit de id (ook op [Press & submit](/docs/press-handlers#use)):
+Het commando dat \`hangman_A\` plaatst laat \`press\` weg. Deze \`use()\`-handler is eigenaar van de id (ook op [Press & submit](/docs/press-handlers#use)):
 
 \`\`\`js
 import { button, row, use } from "@draeven/core";
@@ -5824,7 +5824,7 @@ const bot = await Start({
   token: process.env.DISCORD_TOKEN,
   presence: {
     status: "online",
-    activity: { kind: "watching", text: "slash commands" },
+    activity: { kind: "watching", text: "slash-commando's" },
   },
 });
 \`\`\`
@@ -5961,7 +5961,7 @@ Channel messages need View Channel and Send Messages on the bot. \`send\` does n
       title: "Berichten sturen",
       description: "Plaats in een kanaal met bot.send of ctx.send.",
       body: `
-\`ctx.reply\` beantwoordt de slash-interactie. Het kan efemeer zijn, en het sterft met het interactietoken. Om in een kanaal te plaatsen vanuit een timer, een join-event, of een commando dat ook in een logkanaal moet praten, gebruik je \`bot.send\` of \`ctx.send\`.
+\`ctx.reply\` beantwoordt de slash-interactie. Het kan privé zijn (alleen voor de aanroeper), en het sterft met het interactietoken. Om in een kanaal te plaatsen vanuit een timer, een join-event, of een commando dat ook in een logkanaal moet praten, gebruik je \`bot.send\` of \`ctx.send\`.
 
 Beide nemen een kanaal-id (of \`{ id }\`) en dezelfde lichamen als een antwoord: een string, \`embed()\`, \`poll()\`, \`layout()\`, een rij of een canvas. Geen van beide kan een \`form()\` plaatsen, en geen van beide kan privé zijn. Een \`layout()\` mag ook hier niet samen met tekst, een embed of een peiling. \`memberJoin\` geeft \`member.id\` en \`member.name\`, niet \`member.user\`.
 
@@ -6109,7 +6109,7 @@ process.on("SIGINT", async () => {
 | \`onMessage\` | Gateway-berichten. De message-intent moet aan staan. |
 | \`onEvent(name, handler)\` | Elk gateway-event dat deze verbinding blootgeeft. Geeft een afmeldfunctie terug. |
 
-Een map met eventmodules is het gewone pad ([Events en intents](/docs/events-intents)). \`onMemberJoin\` en \`onEvent\` zijn voor het startbestand, nadat \`Start\` is teruggekomen. \`onMemberJoin(handler)\` is suiker voor \`onEvent("memberJoin", handler)\` — kies wat het duidelijkst leest.
+Een map met eventmodules is het gewone pad ([Events en intents](/docs/events-intents)). \`onMemberJoin\` en \`onEvent\` zijn voor het startbestand, nadat \`Start\` is teruggekomen. \`onMemberJoin(handler)\` is een verkorte vorm van \`onEvent("memberJoin", handler)\` — kies wat het duidelijkst leest.
 
 ## Voorbeeld
 
@@ -6204,7 +6204,7 @@ On the live slash path, an uncaught error becomes a user-visible line: a short \
       title: "Fouten & debuggen",
       description: "Veelvoorkomende [Draeven]-fouten en wat ze betekenen.",
       body: `
-Voor symptoom, oorzaak en oplossing in één tabel, open [Problemen oplossen](/docs/troubleshooting). Als een aanroep faalt, begint het bericht met \`[Draeven]\` en noemt het de regel. Lees die zin vóór je hem inpakt. Deze pagina koppelt de fouten die het eerst opduiken aan de gidsectie die ze oplost. De regels zelf staan uitgeschreven bij [Vuistregels](/docs/rules).
+Voor symptoom, oorzaak en oplossing in één tabel, open [Problemen oplossen](/docs/troubleshooting). Als een aanroep faalt, begint het bericht met \`[Draeven]\` en noemt het de regel. Lees die zin vóór je de fout afvangt. Deze pagina koppelt de fouten die het eerst opduiken aan de gidssectie die ze oplost. De regels zelf staan uitgeschreven bij [Vuistregels](/docs/rules).
 
 ## Uitgewerkt voorbeeld
 
@@ -6229,7 +6229,7 @@ export const profile = command("profile", "Laadt een profiel", async (ctx) => {
 | Discord toont dat de interactie faalde na ongeveer 3 seconden | De handler bevestigde niet op tijd. | Laat auto-defer aan, of roep \`wait()\` aan / zet \`defer\` vóór traag werk. [Antwoorden](/docs/replies). |
 | \`A form cannot follow wait()\` | De modal moet de eerste bevestiging zijn. | Geen \`wait\`, \`defer\` in metadata, of \`transcript\` vóór \`form()\` (<Explain topic="form-first">formulier eerst</Explain>). [Knoppen, menu's & formulieren](/docs/pieces). |
 | \`A layout cannot mix with text, embeds, or polls.\` | \`layout()\` is het hele antwoord. | Geef er geen tekst, embed, peiling of canvas-afbeelding naast mee (<Explain topic="layout-mix">niet mengen</Explain>). [Embeds en layout](/docs/embeds-layout). |
-| \`A command can only reply once.\` | Er was al een antwoord opgeslagen, en je hebt noch \`wait()\` gedaan, noch een collect geflusht. | Na \`wait()\` gebruik je \`edit()\` of een nieuwe \`reply()\`. Na een collect-flush vervangt een nieuwe \`reply()\` het opgeslagen antwoord. \`followup()\` voegt een bericht toe. [Antwoorden](/docs/replies). |
+| \`A command can only reply once.\` | Er was al een antwoord opgeslagen, en je hebt noch \`wait()\` gedaan, noch het antwoord vóór \`collect()\` vastgelegd. | Na \`wait()\` gebruik je \`edit()\` of een nieuwe \`reply()\`. Na het vastleggen vóór \`collect()\` vervangt een nieuwe \`reply()\` het opgeslagen antwoord. \`followup()\` voegt een bericht toe. [Antwoorden](/docs/replies). |
 | \`Unknown user …\` | \`getUser\` kent alleen gebruikers die Discord op deze interactie meestuurde. | Geef het optie-object of \`author\` mee, niet een id die je zelf verzon. [Lookups](/docs/lookups). |
 | \`watch: true needs commands from a folder path or draeven.config.\` | Een array in het geheugen kan niet worden bekeken. | Geef een mappad of \`draeven.config.js\`. [Configbestand](/docs/config). |
 | \`Another bot is already running\`, en er werd niets gevraagd | \`alone: "ask"\` vraagt alleen op een TTY. | Onder PM2 of systemd geef je \`alone: true\`. [Eén proces](/docs/alone). |
@@ -6238,7 +6238,7 @@ export const profile = command("profile", "Laadt een profiel", async (ctx) => {
 
 ## Als de handler faalt
 
-Op het live slash-pad wordt een ongecatchte fout een zichtbare regel: een korte \`[Draeven]\`-message (prefix eraf) als die past, anders \`frame("failed", locale)\` (“The command failed.” / “Het command is mislukt.”). Press-handlers buiten \`collect\` antwoorden met de Engelse string \`The command failed.\` — zij roepen \`frame("failed")\` niet aan.
+Op het live slash-pad wordt een ongecatchte fout een zichtbare regel: een korte \`[Draeven]\`-message (prefix eraf) als die past, anders \`frame("failed", locale)\` (“The command failed.” / “Het commando is mislukt.”). Press-handlers buiten \`collect\` antwoorden met de Engelse string \`The command failed.\` — zij roepen \`frame("failed")\` niet aan.
 
 ## Valkuilen
 
@@ -6394,7 +6394,7 @@ await Start({
 | \`file\` | Verplicht als \`via\` \`"file"\` bevat |
 | \`uptime\` | Zet uptime op de ready-regel, en als laatste regel van een rapport. Het zet geen prefix op elke regel. |
 
-\`of: "process"\` luistert naar \`uncaughtException\` en \`unhandledRejection\`. \`of: "commands"\` meldt throws uit slash-handlers. \`of: "events"\` meldt throws uit gateway-handlers.
+\`of: "process"\` luistert naar \`uncaughtException\` en \`unhandledRejection\`. \`of: "commands"\` meldt fouten uit slash-handlers. \`of: "events"\` meldt fouten uit gateway-handlers.
 
 <Warn fix="Geef channel als snowflake-string als via channel is." href="/docs/why-failing">
 \`via: "channel"\` zonder \`channel\` faalt al bij \`guard()\`. De kanaal-id is een snowflake-string waarin de bot mag plaatsen.
@@ -6518,7 +6518,7 @@ import { command, simulate } from "@draeven/core";
 
 const ping = command("ping", "Checkt de bot", async (ctx) => ctx.reply("pong"));
 
-const reply = await simulate(ping, { author: { id: "1", name: "Tester" } });
+const reply = await simulate(ping, { author: { id: "1", name: "Testgebruiker" } });
 assert.equal(reply.text, "pong");
 \`\`\`
 
@@ -6646,7 +6646,7 @@ Set \`alone: false\` only when a supervisor already guarantees one process. Set 
       title: "Één proces",
       description: "Voorkom dat een tweede Start() het token deelt.",
       body: `
-Twee Node-processen met hetzelfde bot-token vechten om de gateway-sessie en overschrijven elkaars commando's. \`Start\` roept eerst \`claimAlone\` aan. De standaardmodus is \`"ask"\`.
+Twee Node-processen met hetzelfde bot-token concurreren om de gateway-sessie en overschrijven elkaars commando's. \`Start\` roept eerst \`claimAlone\` aan. De standaardmodus is \`"ask"\`.
 
 Het lockbestand is \`.draeven.pid\` in de projectroot (\`process.cwd()\`). Het bevat de pid en het scriptpad. Draeven zoekt ook naar andere \`node\`-processen die hetzelfde script draaien.
 
@@ -6665,9 +6665,9 @@ await Start({
 |-----------|--------|
 | \`"ask"\` (standaard) | Als er een levende pid is en stdin een TTY is, vraagt Draeven of die gestopt moet worden. Ja stopt hem en gaat door. Nee geeft een foutmelding. |
 | \`true\` | Stop de andere pid en ga door. Geen vraag. |
-| \`false\` | Niet kijken. Twee processen mogen, en ze zullen botsen. |
+| \`false\` | Niet kijken. Twee processen mogen, en ze komen in conflict. |
 
-Op een non-TTY (CI, een servicebeheerder, veel Windows-taakrunners) vraagt \`"ask"\` **niet**. Een levende sibling faalt en zegt dat je hem moet stoppen of \`alone: true\` moet meegeven.
+Op een non-TTY (CI, een servicebeheerder, veel Windows-taakrunners) vraagt \`"ask"\` **niet**. Een levende andere proces faalt en zegt dat je hem moet stoppen of \`alone: true\` moet meegeven.
 
 <Warn fix="alone: false alleen met process-supervisor; alone: true om het oude proces te vervangen." href="/docs/why-failing">
 Zet \`alone: false\` alleen als een supervisor al garandeert dat er één proces is. Zet \`alone: true\` als een nieuwe deploy de oude moet vervangen.
@@ -6688,7 +6688,7 @@ Zet \`alone: false\` alleen als een supervisor al garandeert dat er één proces
 
 - Een gecrasht proces kan een oud bestand achterlaten. Draeven negeert een pid die niet leeft, en schrijft daarna zijn eigen bestand.
 - \`root\` is standaard de werkmap. Twee checkouts die uit verschillende mappen starten delen geen lock, en kunnen nog steeds een token delen.
-- Het stoppen van een sibling wacht maximaal 3 seconden tot hij afsluit.
+- Het stoppen van een andere proces wacht maximaal 3 seconden tot hij afsluit.
 
 ## Verder
 
@@ -6873,7 +6873,7 @@ Members, channels, roles, kick, ban, and timeout need a selected guild. The desk
     },
     nl: {
       title: "Bridge en desk",
-      description: "Owner-ops-UI — embedded (bot+UI), bridge (alleen API), of desk (UI → BRIDGE_URL).",
+      description: "Beheerders-UI — embedded (bot+UI), bridge (alleen API), of desk (UI → BRIDGE_URL).",
       body: `
 \`@draeven/bridge\` is een optionele HTTP-UI voor degene die **deze** bot draait. Hij toont status en owner-acties tegen jouw proces. Het is geen gehost moderatiepaneel voor elke guild die de bot uitnodigt. Guild-mods blijven slash-commando's gebruiken, zoals \`/ban\`.
 
@@ -7257,7 +7257,7 @@ Note the command name, the \`[Draeven]\` text, Node's version, and \`version\` f
       title: "Bekende limieten",
       description: "Wat deze beta niet voor je oplost.",
       body: `
-Draeven 0.1.9 is een beta. Deze grenzen zijn bewust. Eraan stoten is geen ontbrekende import. Het runtime-pad is [Hoe het in elkaar zit](/docs/architecture). De namenkaart vanuit discord.js is [Vanuit discord.js](/docs/from-discordjs). Symptomen opzoeken doe je bij [Problemen oplossen](/docs/troubleshooting).
+Draeven 0.1.9 is een beta. Deze grenzen zijn bewust. Tegen deze limieten aanlopen is geen ontbrekende import. Het runtime-pad is [Hoe het in elkaar zit](/docs/architecture). De namenkaart vanuit discord.js is [Vanuit discord.js](/docs/from-discordjs). Symptomen opzoeken doe je bij [Problemen oplossen](/docs/troubleshooting).
 
 ## Framework
 
@@ -7273,7 +7273,7 @@ Draeven 0.1.9 is een beta. Deze grenzen zijn bewust. Eraan stoten is geen ontbre
 | \`embed()\`, geen \`card()\` | De publieke API is \`embed()\` en \`reply(embed)\`. De interne \`Message\`-zak bewaart de embed nog op \`card\`. Gebruik \`reply(embed(...))\` of \`reply({ text, rows })\`. Verzin geen \`card()\`. |
 
 <Note>
-\`Message.card\` is de oude veldnaam in de antwoordzak. De gidsen leren \`embed()\` en \`reply({ text, rows })\`. Er is geen \`card()\`-helper.
+\`Message.card\` is de oude veldnaam in het interne antwoordobject. De gidsen leren \`embed()\` en \`reply({ text, rows })\`. Er is geen \`card()\`-helper.
 </Note>
 
 ## Discord
@@ -7340,8 +7340,8 @@ When a call throws, the message starts with \`[Draeven]\`. [Errors & debugging](
 `,
     },
     nl: {
-      title: "Changelog",
-      description: "Changelog voor de docs bij @draeven/core 0.1.9.",
+      title: "Wijzigingenlog",
+      description: "Wijzigingen in de docs bij @draeven/core 0.1.9.",
       body: `
 Docs-revisie voor core 0.1.9. Zie ook [Hoe het in elkaar zit](/docs/architecture), [Vanuit discord.js](/docs/from-discordjs) en [Problemen oplossen](/docs/troubleshooting).
 

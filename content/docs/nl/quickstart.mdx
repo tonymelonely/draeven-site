@@ -34,7 +34,7 @@ const bot = await Start({
   intents: intentsFor("ready"),
   presence: {
     status: "online",
-    activity: { kind: "watching", text: "slash commands" },
+    activity: { kind: "watching", text: "slash-commando's" },
   },
 });
 
@@ -49,7 +49,7 @@ console.log(`Klaar — ${bot.commands.length} commando('s) geladen.`);
 pnpm dev
 ```
 
-Dat bouwt één keer en draait daarna `tsc -w` naast de bot. Bewerk `src/commands`, sla op, en de nieuwe `.js` wordt opgepakt terwijl de gateway open blijft ([Hot-reload en guard](/docs/hot-reload-guard)).
+Dat bouwt één keer en draait daarna `tsc -w` naast de bot. Bewerk `src/commands`, sla op, en de nieuwe `.js` wordt ingeladen terwijl de gateway open blijft ([Hot-reload en guard](/docs/hot-reload-guard)).
 
 ## Een commando met een optie
 

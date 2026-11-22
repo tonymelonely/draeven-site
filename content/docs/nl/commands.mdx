@@ -22,7 +22,7 @@ Gates, wachttijden, vertalingen en defer horen in `CommandMeta`, niet in het opt
 export const secret = command(
   "secret",
   "Alleen de servereigenaar",
-  async (ctx) => ctx.reply("ok"),
+  async (ctx) => ctx.reply("oké"),
   {
     ownerOnly: true,
     defer: { private: true },
@@ -40,7 +40,7 @@ export const secret = command(
 | `when` | Vóór de handler. `false` blokkeert. |
 | `cooldown` | Vóór de handler. Wacht in het geheugen ([Wachttijden](/docs/cooldowns)). |
 | `locales` | Registratie. Vertaalde naam en beschrijving. |
-| `defer` | `true` is publiek. `{ private: true }` is efemeer. |
+| `defer` | `true` is publiek. `{ private: true }` is privé (alleen voor de aanroeper). |
 | `autoDefer` | `false` zet de veiligheids-defer van 2s uit voor dit commando. |
 | `nsfw` | Alleen in leeftijdsbegrensde kanalen. |
 | `places` | `"guild"`, `"bot dm"`, `"private"`. |
@@ -56,7 +56,7 @@ Details: [Rechten](/docs/permissions).
 | Opties | Eén eigenschap per sleutel, al opgelost |
 | Lookups | `getUser`, `getMember`, `getBot`, `getGuild`, `getChannel`, `getRole`, `getRoles`, `getFile` |
 | Antwoorden | `reply`, `followup`, `wait`, `edit`, `remove`, `transcript` |
-| Kanaalbericht | `send(channel, ...)` — niet efemeer |
+| Kanaalbericht | `send(channel, ...)` — niet privé |
 | Componenten | `collect` — geen package-import |
 | Moderatie | `timeout`, `kick`, `ban`, `purge`, `pin`, `unpin`, `react`, `editMessage`, `deleteMessage`, `moveVoice` |
 
@@ -69,7 +69,7 @@ Optienamen volgen hetzelfde patroon als commandonamen, en deze sleutels zijn ger
 ## Valkuilen
 
 - De `Reply` van `ctx.reply()` teruggeven is genoeg. Je hoeft niet nog een keer te versturen.
-- `reply()` geeft de fout `A command can only reply once.` alleen als er al een antwoord is opgeslagen en je noch `wait()` hebt gedaan, noch een `collect` hebt geflusht. Na `wait()` vul je met `edit()` of een nieuwe `reply()`. Na een collect-flush vervangt een nieuwe `reply()` het opgeslagen antwoord. Gebruik `followup()` voor een extra bericht.
+- `reply()` geeft de fout `A command can only reply once.` alleen als er al een antwoord is opgeslagen en je noch `wait()` hebt gedaan, noch het antwoord vóór `collect()` hebt vastgelegd. Na `wait()` vul je met `edit()` of een nieuwe `reply()`. Na het vastleggen vóór `collect()` vervangt een nieuwe `reply()` het opgeslagen antwoord. Gebruik `followup()` voor een extra bericht.
 - Traag werk hoort `await ctx.wait()` en daarna `ctx.edit(...)`, of leunt op de standaard auto-defer na 2 seconden ([Antwoorden](/docs/replies)).
 
 ## Verder

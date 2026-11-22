@@ -4,21 +4,21 @@ description: Platte subs en één groepsniveau.
 order: 22
 ---
 
-Subcommando's splitsen één slash-naam in bladeren: `/mod kick`, `/mod ban`. Discord staat opties op het blad toe, en **één** groepsniveau onder de parent (`/mod user ban`). Gebruik ze als meerdere acties een naam delen. Losse tools blijven aparte top-level commando's.
+Subcommando's splitsen één slash-naam in eindpunten: `/mod kick`, `/mod ban`. Discord staat opties op zo'n eindpunt (leaf) toe, en **één** groepsniveau onder de parent (`/mod user ban`). Gebruik ze als meerdere acties een naam delen. Losse tools blijven aparte top-level commando's.
 
 `command()` krijgt een map van `sub()` en `group()` in plaats van een handler. De parent heeft **geen** eigen `run`.
 
 <DocMedia id="subcommands" />
 
-## Platte bladeren
+## Platte subcommando's
 
 `sub(description, options?, run, locales?)` — eerst de beschrijving, dan opties, dan de handler. Het vierde argument is alleen `{ locales }`. Geen `need` en geen `cooldown`.
 
-`timeout(user, 0)` heft een timeout op. Beide bladeren delen de parent-gate: `need`, `ownerOnly`, `when`, `cooldown` en `defer` staan op `command()` en gelden voor elk blad.
+`timeout(user, 0)` heft een timeout op. Beide subcommando's delen de parent-gate: `need`, `ownerOnly`, `when`, `cooldown` en `defer` staan op `command()` en gelden voor elk eindpunt.
 
 ## Eén groep
 
-`group(description, { blad: sub(...) })` nest één niveau. Een groep bevat alleen `sub()`, geen groepen. Dat registreert `/mod user kick`. `locales` mag een string zijn (alleen beschrijving) of `{ description, name }`.
+`group(description, { kick: sub(...) })` nest één niveau. Een groep bevat alleen `sub()`, geen groepen. Dat registreert `/mod user kick`. `locales` mag een string zijn (alleen beschrijving) of `{ description, name }`.
 
 <Compare id="sub-shapes-nl" />
 
@@ -36,13 +36,13 @@ Geef niet `group({ kick: sub(...) })` met één object. `group` wil eerst een be
 
 ## Als gates verschillen
 
-`need` kan niet per blad verschillen. Als kick `KickMembers` nodig heeft en ban `BanMembers`, registreer je twee commando's. Een gedeelde `ModerateMembers` op de parent is prima als elk blad een timeout is.
+`need` kan niet per subcommando verschillen. Als kick `KickMembers` nodig heeft en ban `BanMembers`, registreer je twee commando's. Een gedeelde `ModerateMembers` op de parent is prima als elk eindpunt een timeout is.
 
 ## Valkuilen
 
 - Opties op de parent `command()` mogen niet als het derde argument een sub-map is.
 - Een groep zonder subs geeft een foutmelding. Een groep die weer een groep bevat geeft een foutmelding.
-- `cooldown: 10` op de parent geldt voor de hele naam `/mod`, niet per blad.
+- `cooldown: 10` op de parent geldt voor de hele naam `/mod`, niet per subcommando.
 
 ## Verder
 

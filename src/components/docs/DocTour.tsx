@@ -241,7 +241,7 @@ if (!pick) return ctx.reply("Timed out.");`,
         title: "seconds",
         lead: "Standaard 60. 0, negatief of non-finite geeft een foutmelding. Timeout wordt `undefined`.",
         code: `const pick = await ctx.collect({ ids: "yes", seconds: 20 });
-if (!pick) return ctx.reply("Timeout.");`,
+if (!pick) return ctx.reply("Tijd verstreken.");`,
       },
     },
   ],

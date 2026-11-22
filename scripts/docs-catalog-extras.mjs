@@ -97,7 +97,7 @@ Stuck? Ask in Discord **#help** once the invite is live, or open [Why is this fa
     },
     nl: {
       title: "Starter-bots",
-      description: "Copy-paste starters voor mod, tickets en welkom.",
+      description: "Kant-en-klare starters voor mod, tickets en welkom.",
       body: `
 Drie kleine bots met dezelfde conventies: \`ping\` voor health, \`greet\` als je een optie nodig hebt, en \`Start({ guildId })\` terwijl je itereert.
 
@@ -154,7 +154,7 @@ export const ticket = command("ticket", "Open een supportticket", async (ctx) =>
     rows: [row(button({ id: "open", label: "Openen" }))],
   });
   const click = await ctx.collect({ ids: "open", seconds: 30 });
-  if (!click) return ctx.edit("Time-out.");
+  if (!click) return ctx.edit("Tijd verstreken.");
   return ctx.edit("Ticket genoteerd — een moderator volgt op.");
 });
 \`\`\`
@@ -256,7 +256,7 @@ Vormen naast elkaar blijven op de spiekbrief. Als iets breekt tijdens de migrati
       title: "Waarom faalt dit?",
       description: "Symptoom → oorzaak → de gids die het oplost.",
       body: `
-**Begin hier** als je een concrete fout hebt en het kortste pad naar een fix wilt. Plak een \`[Draeven]\`-regel in het vak, of scan de symptoomkaart. [Problemen oplossen](/docs/troubleshooting) is dezelfde matrix met een korte handleiding. Detail over throw-tekst (exacte berichten, wat ze betekenen) staat bij [Fouten & debuggen](/docs/debugging).
+**Begin hier** als je een concrete fout hebt en het kortste pad naar een fix wilt. Plak een \`[Draeven]\`-regel in het vak, of scan de symptoomkaart. [Problemen oplossen](/docs/troubleshooting) is dezelfde matrix met een korte handleiding. Detail over foutteksten (exacte berichten, wat ze betekenen) staat bij [Fouten & debuggen](/docs/debugging).
 
 <ErrorPaste />
 
@@ -294,7 +294,7 @@ Group the terms by path while you browse:
       title: "Glossarium",
       description: "ctx, wait, leaf, use() en andere Draeven-woorden.",
       body: `
-Korte definities met een deep-link naar de gids die het concept bezit.
+Korte definities met een directe link naar de gids die het onderwerp behandelt.
 
 Groepeer de termen per pad terwijl je bladert:
 

@@ -68,11 +68,11 @@ When a stage fails, start at [Troubleshooting](/docs/troubleshooting). Working s
       title: "Hoe het in elkaar zit",
       description: "Het pad van Start() naar een antwoord, een press of een gateway-event.",
       body: `
-Eén \`Start()\` bezit het proces. Slash-commando's nemen de linker tak. Gateway-events nemen de rechter tak. Een commandohandler ziet \`ctx\`. Een eventhandler ziet de payload van dat event.
+Eén \`Start()\` beheert het proces. Slash-commando's nemen de linker tak. Gateway-events nemen de rechter tak. Een commandohandler ziet \`ctx\`. Een eventhandler ziet de payload van dat event.
 
 <FlowDiagram id="architecture" />
 
-| Stap | Wat het doorgeeft |
+| Stap | Wat er wordt doorgegeven |
 |------|-------------------|
 | \`Start()\` | Geladen commando's, de gateway en de lopende bot-handle |
 | \`loadCommands\` / \`loadEvents\` | Gecompileerde \`.js\` als commando's en eventhandlers |
@@ -110,15 +110,15 @@ De functie op \`command()\`, \`userMenu()\` of \`messageMenu()\` draait hier. Hi
 
 ## reply, edit, wait, collect
 
-Een tweede \`reply()\` faalt alleen als er al een antwoord is opgeslagen en je noch hebt gewacht, noch een collect hebt geflusht. \`wait\` stelt het antwoord uit (defer). Daarna vult \`edit()\` of een nieuwe \`reply()\` het bericht. \`collect\` blijft in dit commando tot een knop, menu of formulier binnenkomt, of tot de wachttijd afloopt ([Antwoorden](/docs/replies), [Verzamelaars](/docs/collectors)).
+Een tweede \`reply()\` faalt alleen als er al een antwoord is opgeslagen en je noch hebt gewacht, noch het antwoord vóór \`collect()\` hebt vastgelegd. \`wait\` stelt het antwoord uit (defer). Daarna vult \`edit()\` of een nieuwe \`reply()\` het bericht. \`collect\` blijft in dit commando tot een knop, menu of formulier binnenkomt, of tot de wachttijd afloopt ([Antwoorden](/docs/replies), [Verzamelaars](/docs/collectors)).
 
 ## press / submit
 
-Een passende \`collect\` draait eerst. Anders gebruikt Draeven de inline \`press\` of \`submit\` die op die id is onthouden, dan een \`use()\` uit de events-map, dan de tekst \`Received.\` (framework-Engels — letterlijke fallback). De handler antwoordt op een eigen context ([Press & submit](/docs/press-handlers)).
+Een passende \`collect\` draait eerst. Anders gebruikt Draeven de inline \`press\` of \`submit\` die op die id is onthouden, dan een \`use()\` uit de events-map, dan de tekst \`Received.\` (Engelse frameworktekst). De handler antwoordt op een eigen context ([Press & submit](/docs/press-handlers)).
 
 ## Gateway-events
 
-Joins, berichten en reacties zijn gateway-dispatches, los van het slash-pad. \`intentsFor\` maakt van de eventnamen het bitmasker dat Discord eist. \`bot.onEvent\`, of een functie uit de events-map, ontvangt de payload ([Events en intents](/docs/events-intents), [Bot-handle](/docs/bot-handle)).
+Joins, berichten en reacties zijn gateway-events, los van het slash-pad. \`intentsFor\` maakt van de eventnamen het bitmasker dat Discord eist. \`bot.onEvent\`, of een functie uit de events-map, ontvangt de payload ([Events en intents](/docs/events-intents), [Bot-handle](/docs/bot-handle)).
 
 <Tip>
 Als een stap faalt, begin bij [Problemen oplossen](/docs/troubleshooting). Werkende vormen voor de handlertak staan bij [Recepten](/docs/recipes).
@@ -225,7 +225,7 @@ Echte vormen. Links typisch discord.js. Rechts Draeven.
 discord.js haalt de rij weg met \`components: []\`. Een Draeven-\`edit\` die alleen tekst is, houdt de knoppen. \`rows: []\` valt weg, dus er gaat geen \`components: []\` mee. \`remove()\` verwijdert het antwoord.
 
 <Warn fix="Eén library per token — haal discord.js uit dit proces." href="/docs/why-failing">
-Installeer discord.js niet naast Draeven voor dezelfde bot. Twee clients op één token vechten om de gateway.
+Installeer discord.js niet naast Draeven voor dezelfde bot. Twee clients op één token concurreren om de gateway.
 </Warn>
 
 Klaar om echt te migreren? Gebruik de [Migratie-checklist](/docs/migration-checklist).

@@ -1,6 +1,6 @@
 ---
 title: Press & submit
-description: press en submit op een element. use() voor handlers die een herstart overleven.
+description: press en submit op een element; use() voor handlers die een herstart overleven.
 order: 44
 ---
 
@@ -27,7 +27,7 @@ Zet `press` op knoppen/menu’s/kiezers, `submit` op formulieren. `link()` / `sk
 | lookups | `getUser`, `getMember`, `getGuild`, `getChannel` en de rest uit [Lookups](/docs/lookups). |
 | `reply` | Eén keer. Een string, een `embed()`, beide, een rij, een formulier, een peiling, een layout, een canvas, of `{ text, rows }`. |
 
-`id` is die custom id. `messageId` staat er als Discord het bericht meestuurde. Roep `reply` precies één keer aan. Een tweede reply geeft de fout `[Draeven] A command can only reply once.` (framework-Engels — letterlijke fouttekst). Terugkeren zonder `reply` geeft de fout `[Draeven] The command did not reply.` (zelfde: letterlijke frameworktekst).
+`id` is die custom id. `messageId` staat er als Discord het bericht meestuurde. Roep `reply` precies één keer aan. Een tweede reply geeft de fout `[Draeven] A command can only reply once.` (Engelse frameworkfout). Terugkeren zonder `reply` geeft de fout `[Draeven] The command did not reply.` (zelfde: Engelse frameworkfout).
 
 ## Press en collect
 
@@ -50,7 +50,7 @@ export const later = command("later", "Een knop die zelf antwoordt", async (ctx)
   });
 });
 
-export const stay = command("stay", "De verzamelaar pakt deze press", async (ctx) => {
+export const stay = command("stay", "De verzamelaar vangt deze druk op", async (ctx) => {
   await ctx.wait();
   await ctx.edit({
     text: "Deze press blijft in het commando.",
@@ -151,9 +151,9 @@ export const letters = use({
 | `"hangman_A"` | Precies die id |
 | `"hangman_*"` | Prefix. `*` alleen aan het eind |
 | `["yes", "no"]` | Een van die exacte ids |
-| `(id) => boolean` | Je eigen test. Geef `true` terug om de id te pakken |
+| `(id) => boolean` | Je eigen test. Geef `true` terug om de id te matchen |
 
-`kind` is standaard `"press"`. Geef `"submit"` mee voor een formulier. Een `"press"`-handler pakt presses. Een `"submit"`-handler pakt formulier-submits.
+`kind` is standaard `"press"`. Geef `"submit"` mee voor een formulier. Een `"press"`-handler handelt knopdrukken. Een `"submit"`-handler pakt formulier-submits.
 
 ## Als collect wint
 
@@ -168,7 +168,7 @@ Als er niets wacht, kiest Draeven de volgende match in deze volgorde:
 
 1. De inline `press` of `submit` die op die custom id is onthouden.
 2. Een `use()` uit de events-map.
-3. De tekst `Received.` (framework-Engels — letterlijke fallback)
+3. De tekst `Received.` (Engelse frameworktekst)
 
 De onthouden functie wint van `use()` als beide kloppen. Dat geheugen duurt tot het proces stopt. `use()` wordt bij de volgende start opnieuw geladen.
 

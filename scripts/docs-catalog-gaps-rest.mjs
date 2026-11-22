@@ -191,7 +191,7 @@ Do not share one id between a live \`collect()\` and a \`press\` you expect to r
     },
     nl: {
       title: "Press & submit",
-      description: "press en submit op een element. use() voor handlers die een herstart overleven.",
+      description: "press en submit op een element; use() voor handlers die een herstart overleven.",
       body: `
 Inline \`press\` voor een eenmalige knop. \`use()\` in de events-map als het een herstart moet overleven.
 
@@ -216,7 +216,7 @@ Zet \`press\` op knoppen/menu’s/kiezers, \`submit\` op formulieren. \`link()\`
 | lookups | \`getUser\`, \`getMember\`, \`getGuild\`, \`getChannel\` en de rest uit [Lookups](/docs/lookups). |
 | \`reply\` | Eén keer. Een string, een \`embed()\`, beide, een rij, een formulier, een peiling, een layout, een canvas, of \`{ text, rows }\`. |
 
-\`id\` is die custom id. \`messageId\` staat er als Discord het bericht meestuurde. Roep \`reply\` precies één keer aan. Een tweede reply geeft de fout \`[Draeven] A command can only reply once.\` (framework-Engels — letterlijke fouttekst). Terugkeren zonder \`reply\` geeft de fout \`[Draeven] The command did not reply.\` (zelfde: letterlijke frameworktekst).
+\`id\` is die custom id. \`messageId\` staat er als Discord het bericht meestuurde. Roep \`reply\` precies één keer aan. Een tweede reply geeft de fout \`[Draeven] A command can only reply once.\` (Engelse frameworkfout). Terugkeren zonder \`reply\` geeft de fout \`[Draeven] The command did not reply.\` (zelfde: Engelse frameworkfout).
 
 ## Press en collect
 
@@ -239,7 +239,7 @@ export const later = command("later", "Een knop die zelf antwoordt", async (ctx)
   });
 });
 
-export const stay = command("stay", "De verzamelaar pakt deze press", async (ctx) => {
+export const stay = command("stay", "De verzamelaar vangt deze druk op", async (ctx) => {
   await ctx.wait();
   await ctx.edit({
     text: "Deze press blijft in het commando.",
@@ -340,9 +340,9 @@ export const letters = use({
 | \`"hangman_A"\` | Precies die id |
 | \`"hangman_*"\` | Prefix. \`*\` alleen aan het eind |
 | \`["yes", "no"]\` | Een van die exacte ids |
-| \`(id) => boolean\` | Je eigen test. Geef \`true\` terug om de id te pakken |
+| \`(id) => boolean\` | Je eigen test. Geef \`true\` terug om de id te matchen |
 
-\`kind\` is standaard \`"press"\`. Geef \`"submit"\` mee voor een formulier. Een \`"press"\`-handler pakt presses. Een \`"submit"\`-handler pakt formulier-submits.
+\`kind\` is standaard \`"press"\`. Geef \`"submit"\` mee voor een formulier. Een \`"press"\`-handler handelt knopdrukken. Een \`"submit"\`-handler pakt formulier-submits.
 
 ## Als collect wint
 
@@ -357,7 +357,7 @@ Als er niets wacht, kiest Draeven de volgende match in deze volgorde:
 
 1. De inline \`press\` of \`submit\` die op die custom id is onthouden.
 2. Een \`use()\` uit de events-map.
-3. De tekst \`Received.\` (framework-Engels — letterlijke fallback)
+3. De tekst \`Received.\` (Engelse frameworktekst)
 
 De onthouden functie wint van \`use()\` als beide kloppen. Dat geheugen duurt tot het proces stopt. \`use()\` wordt bij de volgende start opnieuw geladen.
 
@@ -473,7 +473,7 @@ await Start({
 `,
     },
     nl: {
-      title: "Gateway event-payloads",
+      title: "Gateway-events: payloads",
       description: "Elke GatewayEventName en het object dat je handler krijgt.",
       body: `
 Registreer events met camelCase-namen op \`Start\` of \`bot.onEvent\` — zie [Events en intents](/docs/events-intents#inline). Deze pagina is de **vorm** van elk argument: een Draeven-object, niet de ruwe JSON van Discord en geen discord.js-\`GuildMember\` / \`Message\`.
@@ -617,7 +617,7 @@ Do not mix this client with discord.js in the same process. There is no \`Client
     },
     nl: {
       title: "@draeven/discord",
-      description: "De low-level client onder Start, en wanneer je hem importeert.",
+      description: "De onderliggende client onder Start, en wanneer je hem importeert.",
       body: `
 \`@draeven/discord\` is de gateway- en REST-client waar \`@draeven/core\` al van afhangt. Een applicatiebot installeert \`@draeven/core\` en roept \`Start()\` aan. Je opent dit pakket als je payload-types leest, \`version\` controleert, of een host bouwt die geen \`Start\` gebruikt. De bot-handle die je normaal bewaart is de return van \`Start\` ([Bot-handle](/docs/bot-handle)). Hoe dat onder \`Start\` zit, staat bij [Hoe het in elkaar zit](/docs/architecture).
 
@@ -631,7 +631,7 @@ Pakketversies staan los van elkaar: dit pakket publiceert \`"0.1.5"\`, terwijl d
 | \`intents\`, \`intentBits\`, \`intentsFor\`, \`eventIntents\` | Intent-namen en het bitmask voor [gateway-events](/docs/gateway-events#payloads). |
 | \`gatewayEventNames\`, \`gatewayEventReaders\` | Elke \`GatewayEventName\`, plus de Discord-\`t\`-string en reader. |
 | \`GatewayReady\`, \`GatewayGuild\`, \`GatewayChannel\`, \`GatewayRole\`, \`GatewayMember\`, \`GatewayBan\`, \`GatewayMessage\`, \`GatewayMessageDelete\`, \`GatewayMessageBulkDelete\`, \`GatewayReaction\`, \`GatewayReactionClear\`, \`GatewayReactionClearEmoji\`, \`GatewayVoice\`, \`GatewayInvite\`, \`GatewayTyping\`, \`GatewayPresence\`, \`GatewaySchedule\`, \`GatewayPollVote\`, \`GatewayEvents\`, \`GatewayEventName\` | Payload-types. |
-| \`DiscordClient\` | De sessie: \`start\`, \`stop\`, \`setPresence\`, \`registerCommands\`, \`onCommand\`, \`onMenu\`, \`onSuggest\`, \`onUse\`, \`onEvent\`, \`onDispatch\`, replies, en de moderatiehelpers die \`Start\` gebruikt. |
+| \`DiscordClient\` | De sessie: \`start\`, \`stop\`, \`setPresence\`, \`registerCommands\`, \`onCommand\`, \`onMenu\`, \`onSuggest\`, \`onUse\`, \`onEvent\`, \`onDispatch\`, replies, en de moderatiehulpfuncties die \`Start\` gebruikt. |
 | \`DiscordClientOptions\` | \`token\`, optionele \`presence\`, \`intents\`, en gateway-overrides die alleen voor tests zijn. |
 | Interactie-types | \`IncomingCommand\`, \`IncomingMenu\`, \`IncomingSuggest\`, \`IncomingUse\` en de optievormen (alleen types). Value-helpers die nu geëxporteerd worden: \`readIncomingMenu\`, \`readIncomingSuggest\`. |
 | \`EPHEMERAL\`, \`normalizeEmoji\`, \`createdAtFromId\` | Vlagbit, emoji-pad, snowflake-tijd. |
@@ -648,10 +648,10 @@ De gegenereerde referentie van dit pakket is [/reference/discord](/reference/dis
 - Kanaalberichten: aanmaken, bewerken, wissen, purge, pin, unpin, reageren.
 - Leden: timeout, kick, ban, voice verplaatsen.
 
-App-code hoort via \`ctx\`, \`bot.send\` en de mod-helpers op de commandocontext te gaan. Open geen tweede Discord-client naast \`Start\` — twee sessies op één token vechten om identify en heartbeats.
+App-code hoort via \`ctx\`, \`bot.send\` en de mod-helpers op de commandocontext te gaan. Open geen tweede Discord-client naast \`Start\` — twee sessies op één token concurreren om identify en heartbeats.
 
 <Warn fix="Eén library per token — meng discord.js niet in dit proces." href="/docs/why-failing">
-Meng deze client niet met discord.js in hetzelfde proces. Er is geen \`Client\`, geen \`EmbedBuilder\`, en geen gedeelde gateway-sessie. Twee libraries op één token vechten om identify en heartbeats.
+Meng deze client niet met discord.js in hetzelfde proces. Er is geen \`Client\`, geen \`EmbedBuilder\`, en geen gedeelde gateway-sessie. Twee libraries op één token concurreren om identify en heartbeats.
 </Warn>
 
 ## Valkuilen
@@ -730,12 +730,12 @@ The ready line looks like \`[Draeven] Guard ready. uptime 0s\` when \`uptime\` i
 `,
     },
     nl: {
-      title: "Error-guard",
+      title: "Foutafhandeling (guard)",
       description: "guard({ via, of, channel, file, uptime }) en formatUptime.",
       body: `
 \`guard()\` zorgt dat één throw het proces niet doodt, en schrijft de fout waar je vraagt. Geef het resultaat aan \`Start({ guard })\`. Hot reload is een aparte schakelaar; de korte vorm naast \`watch\` staat bij [Hot-reload en guard](/docs/hot-reload-guard). Deze pagina is de volledige optielijst.
 
-\`Start\` roept \`attach\` aan zodra het kan sturen. Throws uit commando's, throws uit event-handlers, \`uncaughtException\` en \`unhandledRejection\` gaan dan door \`report\` als \`of\` die bron bevat. Zonder guard print Draeven nog steeds \`[Draeven] commands error.\` of \`[Draeven] events error.\` naar de console.
+\`Start\` roept \`attach\` aan zodra het kan sturen. Fouten uit commando's, throws uit event-handlers, \`uncaughtException\` en \`unhandledRejection\` gaan dan door \`report\` als \`of\` die bron bevat. Zonder guard print Draeven nog steeds \`[Draeven] commands error.\` of \`[Draeven] events error.\` naar de console.
 
 ## Opties
 
@@ -884,7 +884,7 @@ Deze exports zijn voor een eigen host of een test die niet wil dat \`Start\` het
 | \`readCooldown(value)\` | Maakt van een metadata-\`cooldown\` \`{ seconds, scope, private }\`. Een getal betekent scope \`user\` en \`private: true\`. \`undefined\` blijft \`undefined\`. |
 | \`cooldownKey(name, scope, ids)\` | Bouwt \`name:user:id\`, \`name:guild:id\` of \`name:channel:id\`. Geeft \`undefined\` terug als de guild- of kanaal-id die de scope nodig heeft ontbreekt. |
 | \`CooldownBook\` | \`take(key, seconds)\` geeft resterende seconden (minstens 1) of \`0\` nadat een nieuw venster is opgeslagen. Alleen geheugen. |
-| \`CollectorBook\` | \`wait\` is wat \`ctx.collect\` gebruikt. \`take\` wint van \`press\` alleen als id, soort en wie kloppen. \`Start\` bezit het boek. |
+| \`CollectorBook\` | \`wait\` is wat \`ctx.collect\` gebruikt. \`take\` wint van \`press\` alleen als id, soort en wie kloppen. \`Start\` beheert het boek. |
 | \`checkGates(meta, world)\` | Geeft \`"owner"\`, \`"need"\`, \`"when"\` of \`undefined\` terug. Volgorde is owner, dan need, dan when. |
 | \`hasPermissions(have, need)\` | Waar als elke gevraagde bit gezet is. De Administrator-bit slaagt op zichzelf. |
 | \`permissionBitfield(value)\` | Namen, een lijst, een cijferstring of \`bigint\` worden één \`bigint\`. Onbekende namen geven een foutmelding. |
@@ -896,7 +896,7 @@ Deze exports zijn voor een eigen host of een test die niet wil dat \`Start\` het
 | \`isCommand\`, \`isMenu\`, \`isUse\` | Herkent een commando, menu of \`use()\` in loader-output. |
 | \`isLayout\`, \`isPoll\` | Herkent een layout of peiling in een eigen renderer. |
 
-De latere argumenten van \`answerCommand\` zijn de hooks die de live dispatcher invult: guild, transcript, kanaal-send, de interactie-ack (\`wait\`, \`edit\`, \`remove\`, \`collect\`, \`flush\`) en mod-acties. Een test die alleen om reply-tekst geeft, gebruikt \`simulate\`. Die zak zelf bouwen betekent dat jij de host bent.
+De latere argumenten van \`answerCommand\` zijn de hooks die de live dispatcher invult: guild, transcript, kanaalbericht versturen, de interactiebevestiging (\`wait\`, \`edit\`, \`remove\`, \`collect\`, vastleggen vóór collect) en mod-acties. Een test die alleen om reply-tekst geeft, gebruikt \`simulate\`. Die set hooks zelf bouwen betekent dat jij de host bent.
 
 Opties van \`startBot\` zijn \`commands\`, en optioneel \`commandsFolder\`, \`eventsFolder\`, \`guildId\`, \`timeZone\`, \`events\`, \`uses\`, \`watch\`, \`guard\` en \`autoDefer\`. \`uses\` is dezelfde duurzame-handlerlijst als \`Start({ uses })\`. \`watch\` herlaadt alleen als de map-opties gezet zijn. De \`client\` moet \`BotConnection\` implementeren (\`start\`, \`stop\`, \`readyUser\`, \`registerCommands\`, \`onCommand\`, \`onUse\`, reads en replies).
 

@@ -18,7 +18,7 @@ import { command, simulate } from "@draeven/core";
 
 const ping = command("ping", "Checkt de bot", async (ctx) => ctx.reply("pong"));
 
-const reply = await simulate(ping, { author: { id: "1", name: "Tester" } });
+const reply = await simulate(ping, { author: { id: "1", name: "Testgebruiker" } });
 assert.equal(reply.text, "pong");
 ```
 

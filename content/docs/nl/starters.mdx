@@ -1,6 +1,6 @@
 ---
 title: Starter-bots
-description: Copy-paste starters voor mod, tickets en welkom.
+description: Kant-en-klare starters voor mod, tickets en welkom.
 order: 13
 ---
 
@@ -59,7 +59,7 @@ export const ticket = command("ticket", "Open een supportticket", async (ctx) =>
     rows: [row(button({ id: "open", label: "Openen" }))],
   });
   const click = await ctx.collect({ ids: "open", seconds: 30 });
-  if (!click) return ctx.edit("Time-out.");
+  if (!click) return ctx.edit("Tijd verstreken.");
   return ctx.edit("Ticket genoteerd — een moderator volgt op.");
 });
 ```

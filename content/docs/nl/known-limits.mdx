@@ -4,7 +4,7 @@ description: Wat deze beta niet voor je oplost.
 order: 90
 ---
 
-Draeven 0.1.9 is een beta. Deze grenzen zijn bewust. Eraan stoten is geen ontbrekende import. Het runtime-pad is [Hoe het in elkaar zit](/docs/architecture). De namenkaart vanuit discord.js is [Vanuit discord.js](/docs/from-discordjs). Symptomen opzoeken doe je bij [Problemen oplossen](/docs/troubleshooting).
+Draeven 0.1.9 is een beta. Deze grenzen zijn bewust. Tegen deze limieten aanlopen is geen ontbrekende import. Het runtime-pad is [Hoe het in elkaar zit](/docs/architecture). De namenkaart vanuit discord.js is [Vanuit discord.js](/docs/from-discordjs). Symptomen opzoeken doe je bij [Problemen oplossen](/docs/troubleshooting).
 
 ## Framework
 
@@ -20,7 +20,7 @@ Draeven 0.1.9 is een beta. Deze grenzen zijn bewust. Eraan stoten is geen ontbre
 | `embed()`, geen `card()` | De publieke API is `embed()` en `reply(embed)`. De interne `Message`-zak bewaart de embed nog op `card`. Gebruik `reply(embed(...))` of `reply({ text, rows })`. Verzin geen `card()`. |
 
 <Note>
-`Message.card` is de oude veldnaam in de antwoordzak. De gidsen leren `embed()` en `reply({ text, rows })`. Er is geen `card()`-helper.
+`Message.card` is de oude veldnaam in het interne antwoordobject. De gidsen leren `embed()` en `reply({ text, rows })`. Er is geen `card()`-helper.
 </Note>
 
 ## Discord

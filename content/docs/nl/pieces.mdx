@@ -26,7 +26,7 @@ export const confirm = command("confirm", "Ja of nee", async (ctx) => {
   });
 
   const pick = await ctx.collect({ ids: ["yes", "no"], seconds: 30 });
-  if (!pick) return ctx.edit("Timeout.");
+  if (!pick) return ctx.edit("Tijd verstreken.");
   return ctx.edit(pick.id === "yes" ? "Gewist." : "Gehouden.");
 });
 ```
@@ -60,7 +60,7 @@ Gebruik de pijltjes (of de tabs) voor kleuren, id, emoji, disabled, press, links
 
 Er zijn **vier** kleuren: `blurple` (standaard), `grey`, `green`, `red`.
 
-- **TypeScript:** typ `color: "` en de union toont de vier namen (zoals IntelliSense na een punt).
+- **TypeScript:** typ `color: "` en het union-type toont de vier namen (zoals IntelliSense na een punt).
 - **JS of TS:** importeer `buttonColors` en gebruik `buttonColors.green` — een echte property-lijst na `.`, ook in plain JavaScript.
 
 `color` wijst toe naar Discord’s button-styles. Er is geen `ButtonStyle.Primary`; schrijf `color: "blurple"` of `buttonColors.blurple`.
@@ -101,7 +101,7 @@ export const route = command("route", "Kies een kanaal", async (ctx) => {
   });
 
   const chosen = await ctx.collect({ ids: "log", seconds: 60 });
-  if (!chosen) return ctx.edit("Timeout.");
+  if (!chosen) return ctx.edit("Tijd verstreken.");
   return ctx.edit(`Kanaal ${chosen.values[0]}`);
 });
 ```
@@ -131,7 +131,7 @@ export const note = command("note", "Schrijf een notitie", async (ctx) => {
   );
 
   const sent = await ctx.collect({ ids: "note-form", kind: "submit", seconds: 120 });
-  if (!sent) return ctx.reply("Timeout.");
+  if (!sent) return ctx.reply("Tijd verstreken.");
   return ctx.reply(sent.fields.body);
 });
 ```

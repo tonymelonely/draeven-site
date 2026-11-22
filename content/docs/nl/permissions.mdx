@@ -64,7 +64,7 @@ Subcommando's kunnen geen eigen `need` dragen. Zet de gate op de parent `command
 ## Valkuilen
 
 - `Administrator` slaagt voor `hasPermissions` en `need`. Draeven behandelt de Administrator-bit (`1 << 3`) als elk recht.
-- De auto-defer-timer start ná de gates. Een trage `when()` wordt niet gedefered. Houd de gate snel, anders kan de interactie verlopen vóór de handler start ([Antwoorden](/docs/replies)).
+- De auto-defer-timer start ná de gates. Een trage `when()` krijgt geen auto-defer. Houd de gate snel, anders kan de interactie verlopen vóór de handler start ([Antwoorden](/docs/replies)).
 - `hasPermissions(have, need)` is geëxporteerd als je rechtenbits zelf vergelijkt. Het commandopad roept het al aan voor `need`.
 
 ## Verder

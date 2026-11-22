@@ -20,7 +20,7 @@ order: 64
 | `onMessage` | Gateway-berichten. De message-intent moet aan staan. |
 | `onEvent(name, handler)` | Elk gateway-event dat deze verbinding blootgeeft. Geeft een afmeldfunctie terug. |
 
-Een map met eventmodules is het gewone pad ([Events en intents](/docs/events-intents)). `onMemberJoin` en `onEvent` zijn voor het startbestand, nadat `Start` is teruggekomen. `onMemberJoin(handler)` is suiker voor `onEvent("memberJoin", handler)` — kies wat het duidelijkst leest.
+Een map met eventmodules is het gewone pad ([Events en intents](/docs/events-intents)). `onMemberJoin` en `onEvent` zijn voor het startbestand, nadat `Start` is teruggekomen. `onMemberJoin(handler)` is een verkorte vorm van `onEvent("memberJoin", handler)` — kies wat het duidelijkst leest.
 
 ## Voorbeeld
 

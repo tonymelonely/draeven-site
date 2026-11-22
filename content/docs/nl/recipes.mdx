@@ -139,7 +139,7 @@ export const report = command("report", "Dien een korte melding in", async (ctx)
     seconds: 180,
   });
 
-  if (!sent) return ctx.reply("Timeout.");
+  if (!sent) return ctx.reply("Tijd verstreken.");
   return ctx.reply(`${sent.fields.title}\n${sent.fields.body}`);
 });
 ```
@@ -302,7 +302,7 @@ export const choose = command("choose", "Vraagt ja of nee en wacht op een druk",
   const pick = await collect({ ids: ["choose-yes", "choose-no"], seconds: 30 });
 
   if (!pick) {
-    return reply("Timeout.");
+    return reply("Tijd verstreken.");
   }
 
   return reply(pick.id === "choose-yes" ? "Je koos ja." : "Je koos nee.");
@@ -339,7 +339,7 @@ export const ask = command("ask", "Opent een kort formulier en wacht op het antw
   const submitted = await collect({ ids: "ask-form", kind: "submit", seconds: 120 });
 
   if (!submitted) {
-    return reply("Timeout.");
+    return reply("Tijd verstreken.");
   }
 
   return reply(`Genoteerd: ${submitted.fields.note ?? ""}`);
@@ -351,7 +351,7 @@ export const ask = command("ask", "Opent een kort formulier en wacht op het antw
 ## Valkuilen
 
 - Het wachttijdboek zit in het procesgeheugen. Een herstart wist het. `simulate()` past wachttijden niet toe.
-- Een tweede `reply()` faalt alleen als er al een antwoord is opgeslagen en je noch `wait()` hebt gedaan, noch een `collect` hebt geflusht. Na `wait()` vult `edit()` of een nieuwe `reply()` de defer. Na een collect-flush vervangt een nieuwe `reply()` het opgeslagen antwoord.
+- Een tweede `reply()` faalt alleen als er al een antwoord is opgeslagen en je noch `wait()` hebt gedaan, noch het antwoord vóór `collect()` hebt vastgelegd. Na `wait()` vult `edit()` of een nieuwe `reply()` het uitgestelde antwoord. Na het vastleggen vóór `collect()` vervangt een nieuwe `reply()` het opgeslagen antwoord.
 - Een `form()` na `wait()`, `defer` of `transcript()` geeft een foutmelding. De modal moet de eerste bevestiging zijn.
 - `embed()` heeft geen titel op de wortel. Zet die in `header: { title }`.
 - `layout()` deelt het antwoord niet met tekst, een embed, een peiling of een canvas-afbeelding.

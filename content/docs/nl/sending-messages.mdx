@@ -4,7 +4,7 @@ description: Plaats in een kanaal met bot.send of ctx.send.
 order: 63
 ---
 
-`ctx.reply` beantwoordt de slash-interactie. Het kan efemeer zijn, en het sterft met het interactietoken. Om in een kanaal te plaatsen vanuit een timer, een join-event, of een commando dat ook in een logkanaal moet praten, gebruik je `bot.send` of `ctx.send`.
+`ctx.reply` beantwoordt de slash-interactie. Het kan privé zijn (alleen voor de aanroeper), en het sterft met het interactietoken. Om in een kanaal te plaatsen vanuit een timer, een join-event, of een commando dat ook in een logkanaal moet praten, gebruik je `bot.send` of `ctx.send`.
 
 Beide nemen een kanaal-id (of `{ id }`) en dezelfde lichamen als een antwoord: een string, `embed()`, `poll()`, `layout()`, een rij of een canvas. Geen van beide kan een `form()` plaatsen, en geen van beide kan privé zijn. Een `layout()` mag ook hier niet samen met tekst, een embed of een peiling. `memberJoin` geeft `member.id` en `member.name`, niet `member.user`.
 

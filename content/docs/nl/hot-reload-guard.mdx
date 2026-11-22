@@ -63,7 +63,7 @@ await Start({
 | `file` | Verplicht als `via` `"file"` bevat |
 | `uptime` | Zet uptime op de ready-regel, en als laatste regel van een rapport. Het zet geen prefix op elke regel. |
 
-`of: "process"` luistert naar `uncaughtException` en `unhandledRejection`. `of: "commands"` meldt throws uit slash-handlers. `of: "events"` meldt throws uit gateway-handlers.
+`of: "process"` luistert naar `uncaughtException` en `unhandledRejection`. `of: "commands"` meldt fouten uit slash-handlers. `of: "events"` meldt fouten uit gateway-handlers.
 
 <Warn fix="Geef channel als snowflake-string als via channel is." href="/docs/why-failing">
 `via: "channel"` zonder `channel` faalt al bij `guard()`. De kanaal-id is een snowflake-string waarin de bot mag plaatsen.

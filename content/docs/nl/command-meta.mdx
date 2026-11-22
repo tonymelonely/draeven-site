@@ -22,10 +22,10 @@ Laat een veld weg om de standaard van Draeven of Discord te houden. Een leeg obj
 | <Explain topic="command-install">`install`</Explain> | `"guild"`, `"user"` | Integratietypes `0` en `1`. Weglaten houdt de standaard van Discord. |
 | `cooldown` | getal of `{ seconds, scope?, private? }` | Wachttijd in het geheugen vóór `run`. Zie [Wachttijden](/docs/cooldowns). |
 | `locales` | record van Discord-locale naar `{ name?, description? }` | Registratieteksten, niet `say()`. Zie [Taalvarianten](/docs/locales). |
-| <Explain topic="command-need">`need`</Explain> | hetzelfde type als `permissions` | Runtime-gate. De rechtenbits van het lid op de interactie moeten elke bit bevatten. |
-| `ownerOnly` | `boolean` | Runtime-gate. `author.id` moet de guild-owner-id zijn. |
-| `when` | `(ctx) => boolean` | Runtime-gate. Geef `false` terug om te blokkeren. `ctx` heeft `author`, `locale` en lookups, geen `reply`. |
-| <Explain topic="command-defer">`defer`</Explain> | `true` of `{ private?: boolean }` | Defer vóór de handler. `true` is publiek. `{ private: true }` is efemeer. |
+| <Explain topic="command-need">`need`</Explain> | hetzelfde type als `permissions` | Gate tijdens uitvoering. De rechtenbits van het lid op de interactie moeten elke bit bevatten. |
+| `ownerOnly` | `boolean` | Gate tijdens uitvoering. `author.id` moet de guild-owner-id zijn. |
+| `when` | `(ctx) => boolean` | Gate tijdens uitvoering. Geef `false` terug om te blokkeren. `ctx` heeft `author`, `locale` en lookups, geen `reply`. |
+| <Explain topic="command-defer">`defer`</Explain> | `true` of `{ private?: boolean }` | Defer vóór de handler. `true` is publiek. `{ private: true }` is privé (alleen voor de aanroeper). |
 | `autoDefer` | `boolean` | `false` zet de auto-defer van 2 seconden uit voor dit commando alleen. `true` overschrijft `Start({ autoDefer: false })` niet. |
 
 `hasPermissions` behandelt de Administrator-bit als vrijstelling voor `need`. Discord moet die bit wel op de interactie zetten. `permissionBitfield` geeft de fout `[Draeven] Unknown permission …` voor een naam die niet in de lijst hieronder staat. Een string van cijfers zijn ruwe rechtenbits.

@@ -1,6 +1,6 @@
 ---
 title: Wachttijden
-description: Wachttijd per commando voor een user, kanaal of guild.
+description: Wachttijd per commando voor een gebruiker, kanaal of guild.
 order: 27
 ---
 
@@ -8,7 +8,7 @@ Wachttijd in het geheugen per commandonaam — niet Discords rate limit. Nog koe
 
 <WhenToUse topic="cooldowns" />
 
-Sleutel is `name:scope:id` (slash + menu met dezelfde naam delen een emmer).
+Sleutel is `name:scope:id` (slash + menu met dezelfde naam delen dezelfde cooldown-sleutel).
 
 ## Seconden
 
@@ -30,7 +30,7 @@ export const ping = command(
 ## Scope
 
 ```js
-export const spam = command("spam", "Niet doen", async (ctx) => ctx.reply("ok"), {
+export const spam = command("spam", "Niet doen", async (ctx) => ctx.reply("oké"), {
   cooldown: { seconds: 30, scope: "guild", private: true },
 });
 ```
@@ -66,7 +66,7 @@ Eén `cooldown` op de parent dekt elk blad onder die slash-naam. Je kunt geen wa
 - `take()` draait vóór de gates. Een mislukte `need`, `ownerOnly` of `when` heeft de wachttijd al verbruikt.
 - Guild-scope zonder guild-id levert geen sleutel, dus het commando draait. Gebruik `guild` niet als DM-limiet.
 - Een druk commando met `scope: "user"` laat de rest van de server tegelijk aanroepen. Gebruik `channel` of `guild` als dat uitmaakt.
-- De wachttekst is standaard efemeer, dus mods in het kanaal zien hem niet.
+- De wachttekst is standaard privé (alleen voor de aanroeper), dus mods in het kanaal zien hem niet.
 
 ## Verder
 

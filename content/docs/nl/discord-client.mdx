@@ -1,6 +1,6 @@
 ---
 title: @draeven/discord
-description: De low-level client onder Start, en wanneer je hem importeert.
+description: De onderliggende client onder Start, en wanneer je hem importeert.
 order: 65
 ---
 
@@ -16,7 +16,7 @@ Pakketversies staan los van elkaar: dit pakket publiceert `"0.1.5"`, terwijl dez
 | `intents`, `intentBits`, `intentsFor`, `eventIntents` | Intent-namen en het bitmask voor [gateway-events](/docs/gateway-events#payloads). |
 | `gatewayEventNames`, `gatewayEventReaders` | Elke `GatewayEventName`, plus de Discord-`t`-string en reader. |
 | `GatewayReady`, `GatewayGuild`, `GatewayChannel`, `GatewayRole`, `GatewayMember`, `GatewayBan`, `GatewayMessage`, `GatewayMessageDelete`, `GatewayMessageBulkDelete`, `GatewayReaction`, `GatewayReactionClear`, `GatewayReactionClearEmoji`, `GatewayVoice`, `GatewayInvite`, `GatewayTyping`, `GatewayPresence`, `GatewaySchedule`, `GatewayPollVote`, `GatewayEvents`, `GatewayEventName` | Payload-types. |
-| `DiscordClient` | De sessie: `start`, `stop`, `setPresence`, `registerCommands`, `onCommand`, `onMenu`, `onSuggest`, `onUse`, `onEvent`, `onDispatch`, replies, en de moderatiehelpers die `Start` gebruikt. |
+| `DiscordClient` | De sessie: `start`, `stop`, `setPresence`, `registerCommands`, `onCommand`, `onMenu`, `onSuggest`, `onUse`, `onEvent`, `onDispatch`, replies, en de moderatiehulpfuncties die `Start` gebruikt. |
 | `DiscordClientOptions` | `token`, optionele `presence`, `intents`, en gateway-overrides die alleen voor tests zijn. |
 | Interactie-types | `IncomingCommand`, `IncomingMenu`, `IncomingSuggest`, `IncomingUse` en de optievormen (alleen types). Value-helpers die nu geëxporteerd worden: `readIncomingMenu`, `readIncomingSuggest`. |
 | `EPHEMERAL`, `normalizeEmoji`, `createdAtFromId` | Vlagbit, emoji-pad, snowflake-tijd. |
@@ -33,10 +33,10 @@ De gegenereerde referentie van dit pakket is [/reference/discord](/reference/dis
 - Kanaalberichten: aanmaken, bewerken, wissen, purge, pin, unpin, reageren.
 - Leden: timeout, kick, ban, voice verplaatsen.
 
-App-code hoort via `ctx`, `bot.send` en de mod-helpers op de commandocontext te gaan. Open geen tweede Discord-client naast `Start` — twee sessies op één token vechten om identify en heartbeats.
+App-code hoort via `ctx`, `bot.send` en de mod-helpers op de commandocontext te gaan. Open geen tweede Discord-client naast `Start` — twee sessies op één token concurreren om identify en heartbeats.
 
 <Warn fix="Eén library per token — meng discord.js niet in dit proces." href="/docs/why-failing">
-Meng deze client niet met discord.js in hetzelfde proces. Er is geen `Client`, geen `EmbedBuilder`, en geen gedeelde gateway-sessie. Twee libraries op één token vechten om identify en heartbeats.
+Meng deze client niet met discord.js in hetzelfde proces. Er is geen `Client`, geen `EmbedBuilder`, en geen gedeelde gateway-sessie. Twee libraries op één token concurreren om identify en heartbeats.
 </Warn>
 
 ## Valkuilen

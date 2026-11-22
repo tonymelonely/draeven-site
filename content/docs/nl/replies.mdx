@@ -4,15 +4,15 @@ description: reply, wait, edit, followup en remove.
 order: 40
 ---
 
-Bevestig binnen ongeveer **3 seconden**. Daarna zo’n 15 minuten voor follow-ups. Methodes op `ctx`: `reply`, `wait`, `edit`, `followup`, `remove`.
+Bevestig binnen ongeveer **3 seconden**. Daarna zo’n 15 minuten voor follow-ups. Methoden op `ctx`: `reply`, `wait`, `edit`, `followup`, `remove`.
 
-<Explain topic="auto-defer">Auto-defer</Explain> vuurt na 2 seconden, tenzij je het uitzet.
+<Explain topic="auto-defer">Auto-defer</Explain> gaat af na 2 seconden, tenzij je het uitzet.
 
 ## Welke methode
 
 | Methode | Wanneer |
 |---------|---------|
-| `reply(...)` | Slaat het antwoord op. Een tweede aanroep faalt alleen als er al een antwoord is opgeslagen en je noch hebt gewacht, noch een collect hebt geflusht. Na `wait()` vult `edit()` of een nieuwe `reply()` het. Na een collect-flush vervangt een nieuwe `reply()` het. |
+| `reply(...)` | Slaat het antwoord op. Een tweede aanroep faalt alleen als er al een antwoord is opgeslagen en je noch hebt gewacht, noch het antwoord vóór `collect()` hebt vastgelegd. Na `wait()` vult `edit()` of een nieuwe `reply()` het. Na het vastleggen vóór `collect()` vervangt een nieuwe `reply()` het. |
 | `wait({ private? })` | Bevestigen zonder inhoud. Nodig vóór `edit` als je nog niet hebt geantwoord. |
 | `edit(...)` | Het uitgestelde of al verstuurde antwoord vervangen. |
 | `followup(...)` | Nog een bericht na het eerste antwoord. Geeft een promise terug. |
@@ -30,7 +30,7 @@ Bij een trage handler roep je `await ctx.wait()` (publiek) of `await ctx.wait({ 
 `CommandMeta` ondersteunt nog `defer: true` of `defer: { private: true }` om vóór de handler te bevestigen. Gebruik liever `wait()` + `edit()` in de handler ([Commando's](/docs/commands)).
 </Note>
 
-## Reply vs kanaal-send
+## Reply vs kanaalbericht versturen
 
 Interactie-antwoorden blijven op het slash-token. `ctx.send` plaatst een gewoon kanaalbericht en kan niet privé zijn.
 
@@ -65,7 +65,7 @@ Was het eerste antwoord privé, geef latere tekst zelf privé mee als je opties 
 
 ## Valkuilen
 
-- Een tweede `reply()` geeft de fout "A command can only reply once." alleen als er een antwoord is opgeslagen en je noch `wait()` hebt gedaan, noch een collect hebt geflusht. Na `wait()` vult `edit()` of een nieuwe `reply()` de defer. Na een collect-flush vervangt een nieuwe `reply()` het opgeslagen antwoord.
+- Een tweede `reply()` geeft de fout "A command can only reply once." alleen als er een antwoord is opgeslagen en je noch `wait()` hebt gedaan, noch het antwoord vóór `collect()` hebt vastgelegd. Na `wait()` vult `edit()` of een nieuwe `reply()` het uitgestelde antwoord. Na het vastleggen vóór `collect()` vervangt een nieuwe `reply()` het opgeslagen antwoord.
 - `simulate()` heeft geen interactietoken, dus `wait()`, `edit()`, `remove()` en `collect()` geven een foutmelding. `reply()` geeft nog steeds het `Reply`-object terug.
 - `ctx.reply(...)` teruggeven uit de handler is de gewone vorm. Er is geen aparte helper om de interactie te versturen.
 

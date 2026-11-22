@@ -9,6 +9,12 @@ import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 
+/** Match `code` in MDX or \`code\` inside catalog template literals. */
+function code(name) {
+  const esc = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return `(?:\\\\\`|\`)${esc}(?:\\\\\`|\`)`;
+}
+
 function rewriteProse(text) {
   let out = text;
 
@@ -68,6 +74,166 @@ function rewriteProse(text) {
   out = out.replace(/Timeout resolvet undefined/g, "Timeout wordt `undefined`");
   out = out.replace(/Timeout resolvet \\`undefined\\`/g, "Timeout wordt \\`undefined\\`");
 
+  // Detect catalog escapes so replacements keep \\` where needed.
+  const tick = out.includes("\\`") ? "\\`" : "`";
+  const C = (n) => `${tick}${n}${tick}`;
+
+  // Flush / collect calques (EN “flush” → NL “vastleggen”)
+  out = out.replace(
+    new RegExp(
+      `noch hebt gewacht, noch een ${code("collect")} hebt geflusht`,
+      "g"
+    ),
+    `noch hebt gewacht, noch het antwoord vóór ${C("collect()")} hebt vastgelegd`
+  );
+  out = out.replace(
+    new RegExp(
+      `noch ${code("wait()")} hebt gedaan, noch een ${code("collect")} hebt geflusht`,
+      "g"
+    ),
+    `noch ${C("wait()")} hebt gedaan, noch het antwoord vóór ${C("collect()")} hebt vastgelegd`
+  );
+  out = out.replace(
+    new RegExp(`noch een ${code("collect")} hebt geflusht`, "g"),
+    `noch het antwoord vóór ${C("collect()")} hebt vastgelegd`
+  );
+  out = out.replace(
+    /noch een collect hebt geflusht/g,
+    `noch het antwoord vóór ${C("collect()")} hebt vastgelegd`
+  );
+  out = out.replace(
+    new RegExp(`Na een collect-flush`, "g"),
+    `Na het vastleggen vóór ${C("collect()")}`
+  );
+  out = out.replace(
+    /collect-flush/g,
+    `vastleggen vóór ${C("collect()")}`
+  );
+  out = out.replace(
+    new RegExp(
+      `${code("collect()")} flusht het openstaande antwoord vóór het wacht`,
+      "g"
+    ),
+    `${C("collect()")} legt het openstaande antwoord vast vóór het wacht`
+  );
+  out = out.replace(/Na die flush/g, "Na dat vastleggen");
+  out = out.replace(/vóór die flush/g, "vóór dat vastleggen");
+  out = out.replace(
+    /en flush geeft de fout/g,
+    `en dan geeft ${C("form()")} de fout`
+  );
+  out = out.replace(
+    new RegExp(`,\\s*${code("flush")}\\)`, "g"),
+    ", vastleggen vóór collect)"
+  );
+
+  // Defer / ephemeral / fire
+  out = out.replace(
+    new RegExp(
+      `vult ${code("edit()")} of een nieuwe ${code("reply()")} de defer`,
+      "g"
+    ),
+    `vult ${C("edit()")} of een nieuwe ${C("reply()")} het uitgestelde antwoord`
+  );
+  out = out.replace(/wordt niet gedefered/g, "krijgt geen auto-defer");
+  out = out.replace(/is gedefered/g, "is al uitgesteld");
+  out = out.replace(/Auto-defer vuurt/g, "Auto-defer gaat af");
+  out = out.replace(
+    new RegExp(`<Explain topic="auto-defer">Auto-defer</Explain> vuurt`, "g"),
+    '<Explain topic="auto-defer">Auto-defer</Explain> gaat af'
+  );
+  out = out.replace(
+    new RegExp(
+      `auto-defer</Explain> vuurt`,
+      "g"
+    ),
+    "auto-defer</Explain> gaat af"
+  );
+  out = out.replace(/vuurt na/g, "gaat af na");
+  out = out.replace(/vuurt eerder/g, "gaat eerder af");
+  out = out.replace(/doet dat efemeer/g, "doet dat privé (alleen voor de aanroeper)");
+  out = out.replace(/Voor een efemeer menu/g, "Voor een privé-menu");
+  out = out.replace(
+    /is standaard efemeer/g,
+    "is standaard privé (alleen voor de aanroeper)"
+  );
+  out = out.replace(
+    /Het kan efemeer zijn/g,
+    "Het kan privé zijn (alleen voor de aanroeper)"
+  );
+  out = out.replace(/— niet efemeer/g, "— niet privé");
+  out = out.replace(/ is efemeer\./g, " is privé (alleen voor de aanroeper).");
+  out = out.replace(/ is efemeer</g, " is privé (alleen voor de aanroeper)<");
+  out = out.replace(/ is efemeer$/gm, " is privé (alleen voor de aanroeper)");
+  out = out.replace(/\befemeer\b/g, "privé");
+
+  // Waiter / ownership / bags
+  out = out.replace(
+    /Geen waiter →/g,
+    `Geen lopende ${C("collect")} →`
+  );
+  out = out.replace(/\bwaiter\b/g, "lopende collect");
+  out = out.replace(
+    new RegExp(`${code("Start")} bezit het boek`, "g"),
+    `${C("Start")} beheert het boek`
+  );
+  out = out.replace(
+    new RegExp(`Eén ${code("Start()")} bezit het proces`, "g"),
+    `Eén ${C("Start()")} beheert het proces`
+  );
+  out = out.replace(/Die zak zelf bouwen/g, "Die set hooks zelf bouwen");
+  out = out.replace(
+    new RegExp(`geen ${code("bot")}-zak`, "g"),
+    `geen ${C("bot")}-veld`
+  );
+  out = out.replace(/in de antwoordzak/g, "in het interne antwoordobject");
+  out = out.replace(/kanaal-send/g, "kanaalbericht versturen");
+  out = out.replace(/de interactie-ack/g, "de interactiebevestiging");
+  out = out.replace(/worden aaneengeschakeld/g, "worden samengevoegd");
+  out = out.replace(/vechten om/g, "concurreren om");
+  out = out.replace(/zullen botsen/g, "komen in conflict");
+  out = out.replace(/\bsibling\b/g, "andere proces");
+  out = out.replace(/is suiker voor/g, "is een verkorte vorm van");
+  out = out.replace(/delen een emmer/g, "delen dezelfde cooldown-sleutel");
+  out = out.replace(/de union toont/g, "het union-type toont");
+  out = out.replace(/Een aankoop-control/g, "Een aankoopknop");
+  out = out.replace(/deep-link/g, "directe link");
+  out = out.replace(/die het concept bezit/g, "die het onderwerp behandelt");
+  out = out.replace(/handler bezit de id/g, "handler is eigenaar van de id");
+  out = out.replace(
+    new RegExp(`Deze ${code("use()")}-handler bezit de id`, "g"),
+    `Deze ${C("use()")}-handler is eigenaar van de id`
+  );
+  out = out.replace(/De open-source doos/g, "Het open-source pakket");
+  out = out.replace(/Draeven praat met Discord/g, "Draeven communiceert met Discord");
+  out = out.replace(/moderatiehelpers/g, "moderatiehulpfuncties");
+  out = out.replace(/Eraan stoten/g, "Tegen deze limieten aanlopen");
+  out = out.replace(/Een gebroken breedte/g, "Een niet-gehele breedte");
+  out = out.replace(/Methodes op/g, "Methoden op");
+  out = out.replace(/\bThrows\b/g, "Fouten");
+  out = out.replace(/meldt throws/g, "meldt fouten");
+  out = out.replace(/vóór je hem inpakt/g, "vóór je de fout afvangt");
+  out = out.replace(/gidsectie/g, "gidssectie");
+  out = out.replace(/Het command is mislukt/g, "Het commando is mislukt");
+  out = out.replace(/Detail over throw-tekst/g, "Detail over foutteksten");
+  out = out.replace(/begint de throw met/g, "begint de foutmelding met");
+  out = out.replace(/gateway-dispatches/g, "gateway-events");
+  out = out.replace(/Wat het doorgeeft/g, "Wat er wordt doorgegeven");
+  out = out.replace(/Runtime-gate/g, "Gate tijdens uitvoering");
+  out = out.replace(/Gateteksten/g, "Teksten bij geblokkeerde gates");
+  out = out.replace(/Copy-paste starters/g, "Kant-en-klare starters");
+  out = out.replace(/Owner-ops-UI/g, "Beheerders-UI");
+  out = out.replace(/De low-level client/g, "De onderliggende client");
+  out = out.replace(/voor een user,/g, "voor een gebruiker,");
+  out = out.replace(/pakt deze press/g, "vangt deze druk op");
+  out = out.replace(/pakt presses/g, "handelt knopdrukken");
+  out = out.replace(/om de id te pakken/g, "om de id te matchen");
+  out = out.replace(/wordt opgepakt/g, "wordt ingeladen");
+  out = out.replace(/framework-Engels — letterlijke fouttekst/g, "Engelse frameworkfout");
+  out = out.replace(/framework-Engels — letterlijke fallback/g, "Engelse frameworktekst");
+  out = out.replace(/\(zelfde: letterlijke frameworktekst\)/g, "(zelfde: Engelse frameworkfout)");
+  out = out.replace(/\(framework-Engels — Discord-notitie\)/g, "(Engelse Discord-notitie)");
+
   // Mild punctuation around identifiers (space before/after stray dots)
   out = out.replace(/commando-\s+`/g, "commando-`");
   out = out.replace(/`\s+\.\s+/g, "`. ");
@@ -119,8 +285,10 @@ function rewriteNlCodeStrings(text) {
     ["Posts letter buttons.", "Plaatst letterknoppen."],
     ['"Pick a letter."', '"Kies een letter."'],
     ['"You picked **A**."', '"Je koos **A**."'],
-    ['"Timed out."', '"Timeout."'],
-    ['"Timed out"', '"Timeout"'],
+    ['"Timed out."', '"Tijd verstreken."'],
+    ['"Timed out"', '"Tijd verstreken"'],
+    ['"Timeout."', '"Tijd verstreken."'],
+    ['"Time-out."', '"Tijd verstreken."'],
     ['"Yes or no"', '"Ja of nee"'],
     ['"Pick a channel"', '"Kies een kanaal"'],
     ['"Delete the last report?"', '"Het laatste rapport wissen?"'],
@@ -130,6 +298,13 @@ function rewriteNlCodeStrings(text) {
     ['label: "Keep"', 'label: "Houden"'],
     ['label: "Yes"', 'label: "Ja"'],
     ['label: "No"', 'label: "Nee"'],
+    ['title: "Details"', 'title: "Gegevens"'],
+    ['header: { title: "Details" }', 'header: { title: "Gegevens" }'],
+    ['text: "slash commands"', 'text: "slash-commando\'s"'],
+    ['question: "Shippen?"', 'question: "Nu uitrollen?"'],
+    ['name: "Tester"', 'name: "Testgebruiker"'],
+    ['ctx.reply("pong")', 'ctx.reply("pong")'],
+    ['ctx.reply("ok")', 'ctx.reply("oké")'],
     ['"Checks whether the bot is alive"', '"Checkt of de bot leeft"'],
     ['"Alive?"', '"Leeft?"'],
     ['"Timed out via /mute"', '"Timeout via /mute"'],
@@ -165,6 +340,10 @@ function rewriteNlCodeStrings(text) {
     ['"Minutes?"', '"Minuten?"'],
     ['"Member"', '"Lid"'],
     ['"Via /mod timeout"', '"Via /mod timeout"'],
+    [
+      'text: "Tekst plus een accessory. Discord noemt dit een Section."',
+      'text: "Tekst met een naaststuk (accessory). Discord noemt dit een Section."',
+    ],
   ];
 
   for (const [from, to] of pairs) {

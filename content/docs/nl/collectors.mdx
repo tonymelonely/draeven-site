@@ -12,7 +12,7 @@ Kies het juiste pad: **collect** laat dit commando doorgaan; inline **press** / 
 <WhenToUse topic="collectors" />
 <DocTour id="collect" />
 
-Geen waiter → `PressContext` / `use()` ([Press & submit](/docs/press-handlers)). Timeout → `undefined`. Wijzig met `ctx.edit` (geen `.update`).
+Geen lopende `collect` → `PressContext` / `use()` ([Press & submit](/docs/press-handlers)). Timeout → `undefined`. Wijzig met `ctx.edit` (geen `.update`).
 
 <DocMedia id="collectors" />
 
@@ -34,7 +34,7 @@ export const confirm = command("confirm", "Ja of nee", async (ctx) => {
   });
 
   const pick = await ctx.collect({ ids: ["yes", "no"], seconds: 30 });
-  if (!pick) return ctx.edit("Timeout.");
+  if (!pick) return ctx.edit("Tijd verstreken.");
   return ctx.edit(`Gekozen: ${pick.id}`);
 });
 ```
@@ -64,7 +64,7 @@ export const pick = command("pick", "Kies een tool", async (ctx) => {
   });
 
   const chosen = await ctx.collect({ ids: "tool", seconds: 30 });
-  return ctx.reply(chosen?.values[0] ?? "Timeout.");
+  return ctx.reply(chosen?.values[0] ?? "Tijd verstreken.");
 });
 ```
 
@@ -81,7 +81,7 @@ export const ask = command("ask", "Vraag om een notitie", async (ctx) => {
   ctx.reply(
     form({
       id: "ask-form",
-      title: "Details",
+      title: "Gegevens",
       fields: [
         { id: "note", label: "Notitie", style: fieldStyles.long, required: true },
       ],
@@ -89,7 +89,7 @@ export const ask = command("ask", "Vraag om een notitie", async (ctx) => {
   );
 
   const submitted = await ctx.collect({ ids: "ask-form", kind: "submit", seconds: 120 });
-  if (!submitted) return ctx.reply("Timeout.");
+  if (!submitted) return ctx.reply("Tijd verstreken.");
   return ctx.reply(submitted.fields.note);
 });
 ```

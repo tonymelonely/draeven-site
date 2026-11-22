@@ -4,13 +4,13 @@ description: Harde regels die als [Draeven]-fout verschijnen als je ze breekt.
 order: 10
 ---
 
-Dit zijn de grenzen die Draeven in code afdwingt. Breek je er een, dan begint de throw met `[Draeven]`. Elke sectie linkt de gids die de vorm toont die wél werkt. Dezelfde regels staan op een rij bij [Fouten & debuggen](/docs/debugging).
+Dit zijn de grenzen die Draeven in code afdwingt. Breek je er een, dan begint de foutmelding met `[Draeven]`. Elke sectie linkt de gids die de vorm toont die wél werkt. Dezelfde regels staan op een rij bij [Fouten & debuggen](/docs/debugging).
 
 ## Bevestig binnen ongeveer 3 seconden
 
-Discord laat de interactie vallen na ongeveer 3 seconden. <Explain topic="auto-defer">Auto-defer</Explain> vuurt na 2 seconden, zodat een trage `await` alsnog bevestigt. Laat het aan, tenzij dit commando een formulier moet openen.
+Discord laat de interactie vallen na ongeveer 3 seconden. <Explain topic="auto-defer">Auto-defer</Explain> gaat af na 2 seconden, zodat een trage `await` alsnog bevestigt. Laat het aan, tenzij dit commando een formulier moet openen.
 
-`Start({ autoDefer: false })` zet het uit voor elk commando. Een getal wordt geklemd op 500–2500 ms. `autoDefer: false` op één commando zet het alleen voor dat commando uit. `defer: true` in metadata bevestigt meteen, vóór de handler. `defer: { private: true }` doet dat efemeer.
+`Start({ autoDefer: false })` zet het uit voor elk commando. Een getal wordt geklemd op 500–2500 ms. `autoDefer: false` op één commando zet het alleen voor dat commando uit. `defer: true` in metadata bevestigt meteen, vóór de handler. `defer: { private: true }` doet dat privé (alleen voor de aanroeper).
 
 Weet je dat het werk traag is, roep dan zelf `wait()` aan en daarna `edit()`:
 
@@ -28,7 +28,7 @@ export const slow = command("slow", "Duurt even", async (ctx) => {
 
 ## Het formulier is het eerste antwoord
 
-Een modal moet de eerste bevestiging zijn. <Explain topic="form-first">Een form() kan niet na een defer</Explain>. Roep geen `wait()` aan, zet geen `defer` in metadata, en roep geen `transcript()` aan vóór `form()`. Een auto-defer die al is afgegaan telt ook: het token is dan al verbruikt. Discord opent daarna geen modal, en flush geeft de fout `A form cannot follow wait()`.
+Een modal moet de eerste bevestiging zijn. <Explain topic="form-first">Een form() kan niet na een defer</Explain>. Roep geen `wait()` aan, zet geen `defer` in metadata, en roep geen `transcript()` aan vóór `form()`. Een auto-defer die al is afgegaan telt ook: het token is dan al verbruikt. Discord opent daarna geen modal, en dan geeft `form()` de fout `A form cannot follow wait()`.
 
 ```js
 import { command, fieldStyles, form } from "@draeven/core";
@@ -43,7 +43,7 @@ export const note = command("note", "Schrijf een notitie", async (ctx) => {
   );
 
   const sent = await ctx.collect({ ids: "note-form", kind: "submit", seconds: 120 });
-  if (!sent) return ctx.reply("Timeout.");
+  if (!sent) return ctx.reply("Tijd verstreken.");
   return ctx.reply(sent.fields.body);
 });
 ```
@@ -60,11 +60,11 @@ Je mag de layout wel privé maken met `{ private: true }`, en extra `row()`-waar
 
 ## Eén antwoordtoken
 
-De interactie heeft één antwoordtoken. Een tweede `reply()` geeft de fout `A command can only reply once.` alleen als er al een antwoord is opgeslagen en je noch `wait()` hebt gedaan, noch een `collect` hebt geflusht. Na `wait()` vult `edit()` of een nieuwe `reply()` de defer. `followup()` voegt een extra bericht toe.
+De interactie heeft één antwoordtoken. Een tweede `reply()` geeft de fout `A command can only reply once.` alleen als er al een antwoord is opgeslagen en je noch `wait()` hebt gedaan, noch het antwoord vóór `collect()` hebt vastgelegd. Na `wait()` vult `edit()` of een nieuwe `reply()` het uitgestelde antwoord. `followup()` voegt een extra bericht toe.
 
-`collect()` flusht het openstaande antwoord vóór het wacht. Na die flush vervangt een nieuwe `reply()` het opgeslagen antwoord. Dat faalt niet. Een formulier-submit wordt op de modal beantwoord. Een knop of menu werkt de oorspronkelijke interactie bij. Een timeout geeft alleen `undefined` terug — je volgende `edit()` of `reply()` gaat naar die oorspronkelijke interactie. Een vervanging die alleen tekst is, haalt de knoppenrij niet weg.
+`collect()` legt het openstaande antwoord vast vóór het wacht. Na dat vastleggen vervangt een nieuwe `reply()` het opgeslagen antwoord. Dat faalt niet. Een formulier-submit wordt op de modal beantwoord. Een knop of menu werkt de oorspronkelijke interactie bij. Een timeout geeft alleen `undefined` terug — je volgende `edit()` of `reply()` gaat naar die oorspronkelijke interactie. Een vervanging die alleen tekst is, haalt de knoppenrij niet weg.
 
-Een tweede `reply()` vóór `wait()` en vóór die flush faalt nog steeds. [Antwoorden](/docs/replies) · [Verzamelaars](/docs/collectors).
+Een tweede `reply()` vóór `wait()` en vóór dat vastleggen faalt nog steeds. [Antwoorden](/docs/replies) · [Verzamelaars](/docs/collectors).
 
 ## ctx.collect tegenover press
 

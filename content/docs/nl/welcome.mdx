@@ -16,13 +16,13 @@ Het pad van `Start()` naar een antwoord is [Hoe het in elkaar zit](/docs/archite
 
 ## Wat je krijgt
 
-- **Eén context.** Opties, lookups, antwoorden, verzamelaars en moderatiehelpers zitten op `ctx`.
+- **Eén context.** Opties, lookups, antwoorden, verzamelaars en moderatiehulpfuncties zitten op `ctx`.
 - **Declaratieve commando's.** Exporteer `command()`, `userMenu()` of `messageMenu()`. Draeven registreert ze.
 - **Verbonden blijven tijdens het bewerken.** `Start({ watch: true })` herlaadt gecompileerde commando's zonder de gateway te sluiten.
 - **De handler offline testen.** `simulate()` draait een commando zonder token.
 
 <Note>
-Draeven praat met Discord via `@draeven/discord` (gateway en REST). Je installeert normaal alleen `@draeven/core`.
+Draeven communiceert met Discord via `@draeven/discord` (gateway en REST). Je installeert normaal alleen `@draeven/core`.
 </Note>
 
 ## Packages
@@ -34,7 +34,7 @@ Draeven praat met Discord via `@draeven/discord` (gateway en REST). Je installee
 | `@draeven/bridge` | Optionele owner-desk voor *jouw* proces |
 | `create-draeven` | `npm create draeven@latest` |
 
-De open-source doos is het framework plus een optionele owner-desk. Een gehost guild-dashboard is een apart product en zit er niet bij.
+Het open-source pakket is het framework plus een optionele owner-desk. Een gehost guild-dashboard is een apart product en zit er niet bij.
 
 ## Hoe een commando loopt
 

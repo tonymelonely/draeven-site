@@ -1,12 +1,12 @@
 ---
-title: Error-guard
+title: Foutafhandeling (guard)
 description: guard({ via, of, channel, file, uptime }) en formatUptime.
 order: 71
 ---
 
 `guard()` zorgt dat één throw het proces niet doodt, en schrijft de fout waar je vraagt. Geef het resultaat aan `Start({ guard })`. Hot reload is een aparte schakelaar; de korte vorm naast `watch` staat bij [Hot-reload en guard](/docs/hot-reload-guard). Deze pagina is de volledige optielijst.
 
-`Start` roept `attach` aan zodra het kan sturen. Throws uit commando's, throws uit event-handlers, `uncaughtException` en `unhandledRejection` gaan dan door `report` als `of` die bron bevat. Zonder guard print Draeven nog steeds `[Draeven] commands error.` of `[Draeven] events error.` naar de console.
+`Start` roept `attach` aan zodra het kan sturen. Fouten uit commando's, throws uit event-handlers, `uncaughtException` en `unhandledRejection` gaan dan door `report` als `of` die bron bevat. Zonder guard print Draeven nog steeds `[Draeven] commands error.` of `[Draeven] events error.` naar de console.
 
 ## Opties
 

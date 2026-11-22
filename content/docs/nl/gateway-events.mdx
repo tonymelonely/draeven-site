@@ -4,13 +4,27 @@ description: Elke GatewayEventName en het object dat je handler krijgt.
 order: 61
 ---
 
-`Start` en `bot.onEvent` geven je een Draeven-object, niet de ruwe dispatch van Discord. Namen zijn camelCase. De `t`-waarde hieronder is het gateway-event dat `gatewayEventReaders` koppelt. Geef dezelfde namen aan `intentsFor` ([Events en intents](/docs/events-intents)). De types komen uit `@draeven/core` en uit [`@draeven/discord`](/docs/discord-client).
+Registreer events met camelCase-namen op `Start` of `bot.onEvent` — zie [Events en intents](/docs/events-intents#inline). Deze pagina is de **vorm** van elk argument: een Draeven-object, niet de ruwe JSON van Discord en geen discord.js-`GuildMember` / `Message`.
 
-Een handler die faalt, meldt de guard als `of` `"events"` bevat. Een payload die Draeven niet kan lezen valt weg, en de handler draait niet.
+De kolom Discord `t` is de gateway-naam (`GUILD_MEMBER_ADD`, …). Geef de **linker** kolom door aan <Explain topic="intents-for">`intentsFor`</Explain>, niet de `t`-string. Types komen uit `@draeven/core` en [`@draeven/discord`](/docs/discord-client).
+
+Als een handler een fout geeft, meldt de [guard](/docs/guard) die als `of` `"events"` bevat. Een payload die Draeven niet kan lezen valt weg — de handler draait niet.
 
 <Note>Afgestemd op @draeven/core **0.1.9**. Veldnamen op deze pagina horen bij die release.</Note>
 
-## Payloads
+<h2 id="from-djs">discord.js → Draeven-namen</h2>
+
+| discord.js-event | Draeven |
+|------------------|---------|
+| `guildMemberAdd` / `guildMemberRemove` | `memberJoin` / `memberLeave` |
+| `messageCreate` / `messageUpdate` / `messageDelete` | `message` / `messageEdit` / `messageDelete` |
+| `messageReactionAdd` | `reactionAdd` |
+| `voiceStateUpdate` | `voiceUpdate` |
+| `presenceUpdate` | `presenceUpdate` (zelfde idee; vlakke payload) |
+
+Hoe je ze aansluit en welke intents je nodig hebt: [Events en intents](/docs/events-intents#from-djs).
+
+<h2 id="payloads">Payloads</h2>
 
 | Event | Payload | Discord `t` |
 |-------|---------|----------------|
@@ -39,7 +53,7 @@ Een handler die faalt, meldt de guard als `of` `"events"` bevat. Een payload die
 
 Er zit geen geneste `user` op een lid. `author.name` is de profielnaam, niet `username`. `joinedAt` is een `Date` als Discord `joined_at` stuurde.
 
-## Voorbeeld
+<h2 id="example">Voorbeeld</h2>
 
 ```js
 import { Start, intentsFor } from "@draeven/core";
@@ -61,15 +75,19 @@ await Start({
 });
 ```
 
-`gatewayEventNames` is de volledige lijst, in dezelfde volgorde als de reader-map. `intentsFor()` zonder namen geeft een foutmelding. Een onbekende naam geeft de fout `[Draeven Discord] Unknown event …`.
+`gatewayEventNames` is de volledige lijst, in dezelfde volgorde als de reader-map. Registreren en intents: [Events en intents](/docs/events-intents#names). `intentsFor()` zonder namen geeft een foutmelding. Een onbekende naam geeft de fout `[Draeven Discord] Unknown event …`.
 
 <Note>
-`ready` en `resumed` hebben geen intent-bits nodig. `memberJoin`, `message` (inhoud) en `presenceUpdate` hebben privileged intents nodig die in het portal aan staan. `intentsFor` zet die bits; het portal moet ze nog toestaan.
+`ready` en `resumed` hebben geen intent-bits nodig. `memberJoin`, `message` (inhoud) en `presenceUpdate` vragen geprivilegieerde intents in het portal ([App aanmaken](/docs/creating-app)). `intentsFor` zet die bits; het portal moet ze nog toestaan.
 </Note>
 
-## Valkuilen
+<h2 id="pitfalls">Valkuilen</h2>
 
 - `roleDelete` bevat de rolnaam niet. De delete-payload van Discord heeft alleen de rol-id, dus `name` is een lege string.
 - `memberLeave` is dunner dan `memberJoin`. Lees `nick` of `roleIds` niet van een leave.
 - `message.content` is leeg als de Message Content-intent uit staat. De handler draait nog wel.
 - `voiceUpdate` zonder `channelId` is een gebruiker die voice verlaat. De andere vlaggen staan er alleen als Discord ze stuurde.
+
+## Verder
+
+- [Events en intents](/docs/events-intents#from-djs) · [Bot-handle](/docs/bot-handle) · [@draeven/discord](/docs/discord-client) · [Berichten sturen](/docs/sending-messages) · [Guard](/docs/guard)

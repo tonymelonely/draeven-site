@@ -213,7 +213,16 @@ export function extractHeadings(markdown: string): Array<{ id: string; text: str
   const slugger = new GithubSlugger();
   const headings: Array<{ id: string; text: string; level: number }> = [];
   for (const line of markdown.split(/\r?\n/)) {
-    const match = /^(#{2,3})\s+(.+)$/.exec(line.trim());
+    const trimmed = line.trim();
+    const html = /^<h([23])(?:\s+[^>]*?\bid=["']([^"']+)["'][^>]*)?>(.+?)<\/h\1>$/i.exec(trimmed);
+    if (html) {
+      const text = html[3]!.replace(/<[^>]+>/g, "").replace(/[`*_]/g, "").trim();
+      const id = html[2] || slugger.slug(text);
+      if (html[2]) slugger.slug(text); // keep slugger in sync when id is explicit
+      headings.push({ id, text, level: Number(html[1]) });
+      continue;
+    }
+    const match = /^(#{2,3})\s+(.+)$/.exec(trimmed);
     if (!match) continue;
     const text = match[2]!.replace(/[`*_]/g, "").trim();
     headings.push({ id: slugger.slug(text), text, level: match[1]!.length });

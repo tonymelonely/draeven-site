@@ -4,13 +4,27 @@ description: Every GatewayEventName and the object your handler receives.
 order: 61
 ---
 
-`Start` and `bot.onEvent` hand you a Draeven object, not Discord's raw dispatch. Names are camelCase. The `t` value below is the gateway event `gatewayEventReaders` matches. Pass the same names to `intentsFor` ([Events & intents](/docs/events-intents)). The types are exported from `@draeven/core` and from [`@draeven/discord`](/docs/discord-client).
+Register events with camelCase names on `Start` or `bot.onEvent` — see [Events & intents](/docs/events-intents#inline). This page is the **shape** of each argument: a Draeven object, not Discord’s raw JSON and not a discord.js `GuildMember` / `Message`.
 
-A handler that throws is reported by the guard when `of` includes `"events"`. A payload Draeven cannot read is dropped, and the handler does not run.
+The Discord `t` column is the gateway opcode name (`GUILD_MEMBER_ADD`, …). Pass the **left** column to <Explain topic="intents-for">`intentsFor`</Explain>, not the `t` string. Types ship from `@draeven/core` and [`@draeven/discord`](/docs/discord-client).
+
+If a handler throws, the [guard](/docs/guard) reports it when `of` includes `"events"`. A payload Draeven cannot read is dropped — the handler does not run.
 
 <Note>Aligned with @draeven/core **0.1.9**. Field names on this page match that release.</Note>
 
-## Payloads
+<h2 id="from-djs">discord.js → Draeven names</h2>
+
+| discord.js event | Draeven |
+|------------------|---------|
+| `guildMemberAdd` / `guildMemberRemove` | `memberJoin` / `memberLeave` |
+| `messageCreate` / `messageUpdate` / `messageDelete` | `message` / `messageEdit` / `messageDelete` |
+| `messageReactionAdd` | `reactionAdd` |
+| `voiceStateUpdate` | `voiceUpdate` |
+| `presenceUpdate` | `presenceUpdate` (same idea; flat payload) |
+
+How to wire them and which intents you need: [Events & intents](/docs/events-intents#from-djs).
+
+<h2 id="payloads">Payloads</h2>
 
 | Event | Payload | Discord `t` |
 |-------|---------|----------------|
@@ -39,7 +53,7 @@ A handler that throws is reported by the guard when `of` includes `"events"`. A 
 
 There is no nested `user` on a member. `author.name` is the profile name, not `username`. `joinedAt` is a `Date` when Discord sent `joined_at`.
 
-## Example
+<h2 id="example">Example</h2>
 
 ```js
 import { Start, intentsFor } from "@draeven/core";
@@ -61,15 +75,19 @@ await Start({
 });
 ```
 
-`gatewayEventNames` is the full list, in the same order as the reader map. `intentsFor()` with no names throws. An unknown name throws `[Draeven Discord] Unknown event …`.
+`gatewayEventNames` is the full list, in the same order as the reader map. Registering and intents: [Events & intents](/docs/events-intents#names). `intentsFor()` with no names throws. An unknown name throws `[Draeven Discord] Unknown event …`.
 
 <Note>
-`ready` and `resumed` need no intent bits. `memberJoin`, `message` (content), and `presenceUpdate` need privileged intents toggled in the portal. `intentsFor` includes those bits; the portal still has to allow them.
+`ready` and `resumed` need no intent bits. `memberJoin`, `message` (content), and `presenceUpdate` need privileged intents toggled in the portal ([Creating an app](/docs/creating-app)). `intentsFor` includes those bits; the portal still has to allow them.
 </Note>
 
-## Pitfalls
+<h2 id="pitfalls">Pitfalls</h2>
 
 - `roleDelete` does not include the role name. Discord's delete payload only has the role id, so `name` is an empty string.
 - `memberLeave` is thinner than `memberJoin`. Do not read `nick` or `roleIds` off a leave.
 - `message.content` is empty when the Message Content intent is off. The handler still runs.
 - `voiceUpdate` with no `channelId` is a user leaving voice. The other flags are only set when Discord sent them.
+
+## Related
+
+- [Events & intents](/docs/events-intents#from-djs) · [Bot handle](/docs/bot-handle) · [@draeven/discord](/docs/discord-client) · [Sending messages](/docs/sending-messages) · [Guard](/docs/guard)

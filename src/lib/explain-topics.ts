@@ -1222,14 +1222,14 @@ embed({ color: colors.teal, header: { title: "Teal" } });`,
   },
   "intents-for": {
     title: "intentsFor",
-    lead: "Voeg de gateway-bits samen die een lijst camelCase-events nodig heeft.",
+    lead: "Zet de gateway-bits aan die je camelCase-events nodig hebben — zonder zelf te tellen.",
     blocks: [
       {
         type: "ul",
         items: [
           'intentsFor("ready") is 0. intentsFor() zonder namen geeft een foutmelding',
-          "Geprivilegieerde events hebben nog steeds de bijbehorende portaalschakelaar nodig",
-          "Liever dit dan een masker met de hand. intentBits is voor als je de vlagnaam al kent",
+          "Geprivilegieerde events (leden, message content, presence) moeten ook in het portal aan staan",
+          "Gebruik dit liever dan zelf bits optellen. intentBits is er als je de vlagnaam al kent",
         ],
       },
     ],

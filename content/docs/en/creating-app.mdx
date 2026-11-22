@@ -48,7 +48,7 @@ await Start({
 
 Omit `guildId` only when you are ready for a global rollout.
 
-## Privileged intents
+<h2 id="privileged-intents">Privileged intents</h2>
 
 Enable a privileged intent in the **Bot** tab only when a handler needs it. Portal and code must match. Portal off means Discord will not deliver the events. Omit `intents` and the bitmask is `0`. Discord does not dispatch those gateway events. You do not get empty payloads.
 

@@ -104,7 +104,7 @@ form({
 
 Pickers (`people`, `roles`, `channels`, `mentions`) use `press` the same way as `menu`: selected ids arrive on `values`.
 
-## use() in the events folder
+<h2 id="use">use() in the events folder</h2>
 
 `use({ ids, kind?, run })` is a durable component handler. It lives in the events folder, the same place as `export function memberJoin`. `Start` loads it with that folder. It survives a restart. It is separate from a discord.js `InteractionCreate` listener.
 

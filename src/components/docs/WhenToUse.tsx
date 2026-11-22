@@ -27,8 +27,8 @@ const TOPICS: Record<Topic, { en: Copy; nl: Copy }> = {
     nl: {
       title: "Wanneer gebruik je dit",
       yes: [
-        "Iets gebeurt buiten een slash-run (join, bericht, reactie).",
-        "Een knoppenpaneel moet na een herstart nog werken (`use()`).",
+        "Iets gebeurt buiten een slash-commando (join, bericht, reactie).",
+        "Een knoppenpaneel moet na een herstart van de bot nog werken (`use()`).",
       ],
       no: [
         "Hetzelfde commando moet op één klik wachten — dat is `collect`.",

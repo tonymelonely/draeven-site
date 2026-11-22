@@ -7,19 +7,19 @@ export const GUIDE_CHECKS: Record<string, ChecklistItem[]> = {
       id: "intents",
       en: "`intentsFor(...)` lists every event you handle.",
       nl: "`intentsFor(...)` noemt elk event dat je afhandelt.",
-      href: "/docs/events-intents",
+      href: "/docs/events-intents#intents",
     },
     {
       id: "portal",
       en: "Privileged intents are on in the Developer Portal.",
-      nl: "Privileged intents staan aan in het Developer Portal.",
-      href: "/docs/creating-app",
+      nl: "Geprivilegieerde intents staan aan in het Developer Portal.",
+      href: "/docs/creating-app#privileged-intents",
     },
     {
       id: "use",
       en: "Durable buttons use `use()` in the events folder.",
       nl: "Duurzame knoppen gebruiken `use()` in de events-map.",
-      href: "/docs/press-handlers",
+      href: "/docs/press-handlers#use",
     },
   ],
   replies: [

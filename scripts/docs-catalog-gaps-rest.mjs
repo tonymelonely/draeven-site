@@ -107,7 +107,7 @@ form({
 
 Pickers (\`people\`, \`roles\`, \`channels\`, \`mentions\`) use \`press\` the same way as \`menu\`: selected ids arrive on \`values\`.
 
-## use() in the events folder
+<h2 id="use">use() in the events folder</h2>
 
 \`use({ ids, kind?, run })\` is a durable component handler. It lives in the events folder, the same place as \`export function memberJoin\`. \`Start\` loads it with that folder. It survives a restart. It is separate from a discord.js \`InteractionCreate\` listener.
 
@@ -293,7 +293,7 @@ form({
 
 Kiezers (\`people\`, \`roles\`, \`channels\`, \`mentions\`) gebruiken \`press\` net als \`menu\`: gekozen ids komen binnen op \`values\`.
 
-## use() in de events-map
+<h2 id="use">use() in de events-map</h2>
 
 \`use({ ids, kind?, run })\` is een duurzame component-handler. Hij staat in de events-map, dezelfde plek als \`export function memberJoin\`. \`Start\` laadt hem met die map. Hij overleeft een herstart. Het is geen discord.js \`InteractionCreate\`-listener.
 
@@ -383,13 +383,27 @@ Deel één id niet tussen een lopende \`collect()\` en een \`press\` waarvan je 
       title: "Gateway event payloads",
       description: "Every GatewayEventName and the object your handler receives.",
       body: `
-\`Start\` and \`bot.onEvent\` hand you a Draeven object, not Discord's raw dispatch. Names are camelCase. The \`t\` value below is the gateway event \`gatewayEventReaders\` matches. Pass the same names to \`intentsFor\` ([Events & intents](/docs/events-intents)). The types are exported from \`@draeven/core\` and from [\`@draeven/discord\`](/docs/discord-client).
+Register events with camelCase names on \`Start\` or \`bot.onEvent\` — see [Events & intents](/docs/events-intents#inline). This page is the **shape** of each argument: a Draeven object, not Discord’s raw JSON and not a discord.js \`GuildMember\` / \`Message\`.
 
-A handler that throws is reported by the guard when \`of\` includes \`"events"\`. A payload Draeven cannot read is dropped, and the handler does not run.
+The Discord \`t\` column is the gateway opcode name (\`GUILD_MEMBER_ADD\`, …). Pass the **left** column to <Explain topic="intents-for">\`intentsFor\`</Explain>, not the \`t\` string. Types ship from \`@draeven/core\` and [\`@draeven/discord\`](/docs/discord-client).
+
+If a handler throws, the [guard](/docs/guard) reports it when \`of\` includes \`"events"\`. A payload Draeven cannot read is dropped — the handler does not run.
 
 <Note>Aligned with @draeven/core **0.1.9**. Field names on this page match that release.</Note>
 
-## Payloads
+<h2 id="from-djs">discord.js → Draeven names</h2>
+
+| discord.js event | Draeven |
+|------------------|---------|
+| \`guildMemberAdd\` / \`guildMemberRemove\` | \`memberJoin\` / \`memberLeave\` |
+| \`messageCreate\` / \`messageUpdate\` / \`messageDelete\` | \`message\` / \`messageEdit\` / \`messageDelete\` |
+| \`messageReactionAdd\` | \`reactionAdd\` |
+| \`voiceStateUpdate\` | \`voiceUpdate\` |
+| \`presenceUpdate\` | \`presenceUpdate\` (same idea; flat payload) |
+
+How to wire them and which intents you need: [Events & intents](/docs/events-intents#from-djs).
+
+<h2 id="payloads">Payloads</h2>
 
 | Event | Payload | Discord \`t\` |
 |-------|---------|----------------|
@@ -418,7 +432,7 @@ A handler that throws is reported by the guard when \`of\` includes \`"events"\`
 
 There is no nested \`user\` on a member. \`author.name\` is the profile name, not \`username\`. \`joinedAt\` is a \`Date\` when Discord sent \`joined_at\`.
 
-## Example
+<h2 id="example">Example</h2>
 
 \`\`\`js
 import { Start, intentsFor } from "@draeven/core";
@@ -440,31 +454,49 @@ await Start({
 });
 \`\`\`
 
-\`gatewayEventNames\` is the full list, in the same order as the reader map. \`intentsFor()\` with no names throws. An unknown name throws \`[Draeven Discord] Unknown event …\`.
+\`gatewayEventNames\` is the full list, in the same order as the reader map. Registering and intents: [Events & intents](/docs/events-intents#names). \`intentsFor()\` with no names throws. An unknown name throws \`[Draeven Discord] Unknown event …\`.
 
 <Note>
-\`ready\` and \`resumed\` need no intent bits. \`memberJoin\`, \`message\` (content), and \`presenceUpdate\` need privileged intents toggled in the portal. \`intentsFor\` includes those bits; the portal still has to allow them.
+\`ready\` and \`resumed\` need no intent bits. \`memberJoin\`, \`message\` (content), and \`presenceUpdate\` need privileged intents toggled in the portal ([Creating an app](/docs/creating-app)). \`intentsFor\` includes those bits; the portal still has to allow them.
 </Note>
 
-## Pitfalls
+<h2 id="pitfalls">Pitfalls</h2>
 
 - \`roleDelete\` does not include the role name. Discord's delete payload only has the role id, so \`name\` is an empty string.
 - \`memberLeave\` is thinner than \`memberJoin\`. Do not read \`nick\` or \`roleIds\` off a leave.
 - \`message.content\` is empty when the Message Content intent is off. The handler still runs.
 - \`voiceUpdate\` with no \`channelId\` is a user leaving voice. The other flags are only set when Discord sent them.
+
+## Related
+
+- [Events & intents](/docs/events-intents#from-djs) · [Bot handle](/docs/bot-handle) · [@draeven/discord](/docs/discord-client) · [Sending messages](/docs/sending-messages) · [Guard](/docs/guard)
 `,
     },
     nl: {
       title: "Gateway event-payloads",
       description: "Elke GatewayEventName en het object dat je handler krijgt.",
       body: `
-\`Start\` en \`bot.onEvent\` geven je een Draeven-object, niet de ruwe dispatch van Discord. Namen zijn camelCase. De \`t\`-waarde hieronder is het gateway-event dat \`gatewayEventReaders\` koppelt. Geef dezelfde namen aan \`intentsFor\` ([Events en intents](/docs/events-intents)). De types komen uit \`@draeven/core\` en uit [\`@draeven/discord\`](/docs/discord-client).
+Registreer events met camelCase-namen op \`Start\` of \`bot.onEvent\` — zie [Events en intents](/docs/events-intents#inline). Deze pagina is de **vorm** van elk argument: een Draeven-object, niet de ruwe JSON van Discord en geen discord.js-\`GuildMember\` / \`Message\`.
 
-Een handler die faalt, meldt de guard als \`of\` \`"events"\` bevat. Een payload die Draeven niet kan lezen valt weg, en de handler draait niet.
+De kolom Discord \`t\` is de gateway-naam (\`GUILD_MEMBER_ADD\`, …). Geef de **linker** kolom door aan <Explain topic="intents-for">\`intentsFor\`</Explain>, niet de \`t\`-string. Types komen uit \`@draeven/core\` en [\`@draeven/discord\`](/docs/discord-client).
+
+Als een handler een fout geeft, meldt de [guard](/docs/guard) die als \`of\` \`"events"\` bevat. Een payload die Draeven niet kan lezen valt weg — de handler draait niet.
 
 <Note>Afgestemd op @draeven/core **0.1.9**. Veldnamen op deze pagina horen bij die release.</Note>
 
-## Payloads
+<h2 id="from-djs">discord.js → Draeven-namen</h2>
+
+| discord.js-event | Draeven |
+|------------------|---------|
+| \`guildMemberAdd\` / \`guildMemberRemove\` | \`memberJoin\` / \`memberLeave\` |
+| \`messageCreate\` / \`messageUpdate\` / \`messageDelete\` | \`message\` / \`messageEdit\` / \`messageDelete\` |
+| \`messageReactionAdd\` | \`reactionAdd\` |
+| \`voiceStateUpdate\` | \`voiceUpdate\` |
+| \`presenceUpdate\` | \`presenceUpdate\` (zelfde idee; vlakke payload) |
+
+Hoe je ze aansluit en welke intents je nodig hebt: [Events en intents](/docs/events-intents#from-djs).
+
+<h2 id="payloads">Payloads</h2>
 
 | Event | Payload | Discord \`t\` |
 |-------|---------|----------------|
@@ -493,7 +525,7 @@ Een handler die faalt, meldt de guard als \`of\` \`"events"\` bevat. Een payload
 
 Er zit geen geneste \`user\` op een lid. \`author.name\` is de profielnaam, niet \`username\`. \`joinedAt\` is een \`Date\` als Discord \`joined_at\` stuurde.
 
-## Voorbeeld
+<h2 id="example">Voorbeeld</h2>
 
 \`\`\`js
 import { Start, intentsFor } from "@draeven/core";
@@ -515,18 +547,22 @@ await Start({
 });
 \`\`\`
 
-\`gatewayEventNames\` is de volledige lijst, in dezelfde volgorde als de reader-map. \`intentsFor()\` zonder namen geeft een foutmelding. Een onbekende naam geeft de fout \`[Draeven Discord] Unknown event …\`.
+\`gatewayEventNames\` is de volledige lijst, in dezelfde volgorde als de reader-map. Registreren en intents: [Events en intents](/docs/events-intents#names). \`intentsFor()\` zonder namen geeft een foutmelding. Een onbekende naam geeft de fout \`[Draeven Discord] Unknown event …\`.
 
 <Note>
-\`ready\` en \`resumed\` hebben geen intent-bits nodig. \`memberJoin\`, \`message\` (inhoud) en \`presenceUpdate\` hebben privileged intents nodig die in het portal aan staan. \`intentsFor\` zet die bits; het portal moet ze nog toestaan.
+\`ready\` en \`resumed\` hebben geen intent-bits nodig. \`memberJoin\`, \`message\` (inhoud) en \`presenceUpdate\` vragen geprivilegieerde intents in het portal ([App aanmaken](/docs/creating-app)). \`intentsFor\` zet die bits; het portal moet ze nog toestaan.
 </Note>
 
-## Valkuilen
+<h2 id="pitfalls">Valkuilen</h2>
 
 - \`roleDelete\` bevat de rolnaam niet. De delete-payload van Discord heeft alleen de rol-id, dus \`name\` is een lege string.
 - \`memberLeave\` is dunner dan \`memberJoin\`. Lees \`nick\` of \`roleIds\` niet van een leave.
 - \`message.content\` is leeg als de Message Content-intent uit staat. De handler draait nog wel.
 - \`voiceUpdate\` zonder \`channelId\` is een gebruiker die voice verlaat. De andere vlaggen staan er alleen als Discord ze stuurde.
+
+## Verder
+
+- [Events en intents](/docs/events-intents#from-djs) · [Bot-handle](/docs/bot-handle) · [@draeven/discord](/docs/discord-client) · [Berichten sturen](/docs/sending-messages) · [Guard](/docs/guard)
 `,
     },
   },
@@ -546,7 +582,7 @@ Core re-exports \`intents\`, \`intentBits\`, \`intentsFor\`, \`eventIntents\`, a
 | Export | Role |
 |--------|------|
 | \`version\` | Package version string. This tree publishes \`"0.1.5"\`. Core's own \`version\` is separate (\`0.1.9\` in these guides). |
-| \`intents\`, \`intentBits\`, \`intentsFor\`, \`eventIntents\` | Intent names and the bitmask for [gateway events](/docs/gateway-events). |
+| \`intents\`, \`intentBits\`, \`intentsFor\`, \`eventIntents\` | Intent names and the bitmask for [gateway events](/docs/gateway-events#payloads). |
 | \`gatewayEventNames\`, \`gatewayEventReaders\` | Every \`GatewayEventName\`, plus the Discord \`t\` string and reader for each. |
 | \`GatewayReady\`, \`GatewayGuild\`, \`GatewayChannel\`, \`GatewayRole\`, \`GatewayMember\`, \`GatewayBan\`, \`GatewayMessage\`, \`GatewayMessageDelete\`, \`GatewayMessageBulkDelete\`, \`GatewayReaction\`, \`GatewayReactionClear\`, \`GatewayReactionClearEmoji\`, \`GatewayVoice\`, \`GatewayInvite\`, \`GatewayTyping\`, \`GatewayPresence\`, \`GatewaySchedule\`, \`GatewayPollVote\`, \`GatewayEvents\`, \`GatewayEventName\` | Payload types. |
 | \`DiscordClient\` | The session: \`start\`, \`stop\`, \`setPresence\`, \`registerCommands\`, \`onCommand\`, \`onMenu\`, \`onSuggest\`, \`onUse\`, \`onEvent\`, \`onDispatch\`, replies, and the moderation helpers \`Start\` uses. |
@@ -576,7 +612,7 @@ Do not mix this client with discord.js in the same process. There is no \`Client
 ## Pitfalls
 
 - Slash commands need no gateway intents. Importing \`DiscordClient\` does not change that. \`intentsFor("ready")\` is \`0\`.
-- \`onDispatch\` receives the raw gateway payload. Typed handlers receive the objects on [Gateway event payloads](/docs/gateway-events). Prefer \`onEvent\` or \`Start({ events })\`.
+- \`onDispatch\` receives the raw gateway payload. Typed handlers receive the objects on [Gateway event payloads](/docs/gateway-events#payloads). Prefer \`onEvent\` or \`Start({ events })\`.
 - \`version\` here is the discord package. \`import { version } from "@draeven/core"\` is the version these guides pin.
 `,
     },
@@ -593,7 +629,7 @@ Core exporteert ook \`intents\`, \`intentBits\`, \`intentsFor\`, \`eventIntents\
 | Export | Rol |
 |--------|-----|
 | \`version\` | Versiestring van het pakket. Deze boom publiceert \`"0.1.5"\`. Core's eigen \`version\` staat los (\`0.1.9\` in deze gidsen). |
-| \`intents\`, \`intentBits\`, \`intentsFor\`, \`eventIntents\` | Intent-namen en het bitmask voor [gateway-events](/docs/gateway-events). |
+| \`intents\`, \`intentBits\`, \`intentsFor\`, \`eventIntents\` | Intent-namen en het bitmask voor [gateway-events](/docs/gateway-events#payloads). |
 | \`gatewayEventNames\`, \`gatewayEventReaders\` | Elke \`GatewayEventName\`, plus de Discord-\`t\`-string en reader. |
 | \`GatewayReady\`, \`GatewayGuild\`, \`GatewayChannel\`, \`GatewayRole\`, \`GatewayMember\`, \`GatewayBan\`, \`GatewayMessage\`, \`GatewayMessageDelete\`, \`GatewayMessageBulkDelete\`, \`GatewayReaction\`, \`GatewayReactionClear\`, \`GatewayReactionClearEmoji\`, \`GatewayVoice\`, \`GatewayInvite\`, \`GatewayTyping\`, \`GatewayPresence\`, \`GatewaySchedule\`, \`GatewayPollVote\`, \`GatewayEvents\`, \`GatewayEventName\` | Payload-types. |
 | \`DiscordClient\` | De sessie: \`start\`, \`stop\`, \`setPresence\`, \`registerCommands\`, \`onCommand\`, \`onMenu\`, \`onSuggest\`, \`onUse\`, \`onEvent\`, \`onDispatch\`, replies, en de moderatiehelpers die \`Start\` gebruikt. |
@@ -623,7 +659,7 @@ Meng deze client niet met discord.js in hetzelfde proces. Er is geen \`Client\`,
 ## Valkuilen
 
 - Slash-commando's hebben geen gateway-intents nodig. \`DiscordClient\` importeren verandert dat niet. \`intentsFor("ready")\` is \`0\`.
-- \`onDispatch\` krijgt de ruwe gateway-payload. Getypeerde handlers krijgen de objecten op [Gateway event-payloads](/docs/gateway-events). Gebruik \`onEvent\` of \`Start({ events })\`.
+- \`onDispatch\` krijgt de ruwe gateway-payload. Getypeerde handlers krijgen de objecten op [Gateway event-payloads](/docs/gateway-events#payloads). Gebruik \`onEvent\` of \`Start({ events })\`.
 - \`version\` hier is het discord-pakket. \`import { version } from "@draeven/core"\` is de versie die deze gidsen pinnen.
 `,
     },

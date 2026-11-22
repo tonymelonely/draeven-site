@@ -13,7 +13,7 @@ Core exporteert ook `intents`, `intentBits`, `intentsFor`, `eventIntents` en de 
 | Export | Rol |
 |--------|-----|
 | `version` | Versiestring van het pakket. Deze boom publiceert `"0.1.5"`. Core's eigen `version` staat los (`0.1.9` in deze gidsen). |
-| `intents`, `intentBits`, `intentsFor`, `eventIntents` | Intent-namen en het bitmask voor [gateway-events](/docs/gateway-events). |
+| `intents`, `intentBits`, `intentsFor`, `eventIntents` | Intent-namen en het bitmask voor [gateway-events](/docs/gateway-events#payloads). |
 | `gatewayEventNames`, `gatewayEventReaders` | Elke `GatewayEventName`, plus de Discord-`t`-string en reader. |
 | `GatewayReady`, `GatewayGuild`, `GatewayChannel`, `GatewayRole`, `GatewayMember`, `GatewayBan`, `GatewayMessage`, `GatewayMessageDelete`, `GatewayMessageBulkDelete`, `GatewayReaction`, `GatewayReactionClear`, `GatewayReactionClearEmoji`, `GatewayVoice`, `GatewayInvite`, `GatewayTyping`, `GatewayPresence`, `GatewaySchedule`, `GatewayPollVote`, `GatewayEvents`, `GatewayEventName` | Payload-types. |
 | `DiscordClient` | De sessie: `start`, `stop`, `setPresence`, `registerCommands`, `onCommand`, `onMenu`, `onSuggest`, `onUse`, `onEvent`, `onDispatch`, replies, en de moderatiehelpers die `Start` gebruikt. |
@@ -43,5 +43,5 @@ Meng deze client niet met discord.js in hetzelfde proces. Er is geen `Client`, g
 ## Valkuilen
 
 - Slash-commando's hebben geen gateway-intents nodig. `DiscordClient` importeren verandert dat niet. `intentsFor("ready")` is `0`.
-- `onDispatch` krijgt de ruwe gateway-payload. Getypeerde handlers krijgen de objecten op [Gateway event-payloads](/docs/gateway-events). Gebruik `onEvent` of `Start({ events })`.
+- `onDispatch` krijgt de ruwe gateway-payload. Getypeerde handlers krijgen de objecten op [Gateway event-payloads](/docs/gateway-events#payloads). Gebruik `onEvent` of `Start({ events })`.
 - `version` hier is het discord-pakket. `import { version } from "@draeven/core"` is de versie die deze gidsen pinnen.

@@ -13,7 +13,8 @@ export const MIGRATION_MAP: MigrationRow[] = [
   { djs: "EmbedBuilder", draeven: "embed({ … })", href: "/docs/embeds-layout" },
   { djs: "ActionRow + ButtonBuilder", draeven: "row() + button()", href: "/docs/pieces" },
   { djs: "createMessageComponentCollector", draeven: "ctx.collect / press / use()", href: "/docs/collectors" },
-  { djs: "client.on(\"guildMemberAdd\")", draeven: "events.memberJoin + intentsFor", href: "/docs/events-intents" },
+  { djs: "client.on(\"guildMemberAdd\")", draeven: "events.memberJoin + intentsFor", href: "/docs/events-intents#from-djs" },
+  { djs: "client.on(\"messageCreate\")", draeven: "events.message + intentsFor", href: "/docs/events-intents#from-djs" },
   { djs: "GuildMember#ban", draeven: "ctx.ban / kick / timeout", href: "/docs/mod-actions" },
-  { djs: "GatewayIntentBits.*", draeven: "intentsFor(\"…\") / intentBits", href: "/docs/events-intents" },
+  { djs: "GatewayIntentBits.*", draeven: "intentsFor(\"…\") / intentBits", href: "/docs/events-intents#intents" },
 ];

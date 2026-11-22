@@ -13,7 +13,7 @@ Core re-exports `intents`, `intentBits`, `intentsFor`, `eventIntents`, and the `
 | Export | Role |
 |--------|------|
 | `version` | Package version string. This tree publishes `"0.1.5"`. Core's own `version` is separate (`0.1.9` in these guides). |
-| `intents`, `intentBits`, `intentsFor`, `eventIntents` | Intent names and the bitmask for [gateway events](/docs/gateway-events). |
+| `intents`, `intentBits`, `intentsFor`, `eventIntents` | Intent names and the bitmask for [gateway events](/docs/gateway-events#payloads). |
 | `gatewayEventNames`, `gatewayEventReaders` | Every `GatewayEventName`, plus the Discord `t` string and reader for each. |
 | `GatewayReady`, `GatewayGuild`, `GatewayChannel`, `GatewayRole`, `GatewayMember`, `GatewayBan`, `GatewayMessage`, `GatewayMessageDelete`, `GatewayMessageBulkDelete`, `GatewayReaction`, `GatewayReactionClear`, `GatewayReactionClearEmoji`, `GatewayVoice`, `GatewayInvite`, `GatewayTyping`, `GatewayPresence`, `GatewaySchedule`, `GatewayPollVote`, `GatewayEvents`, `GatewayEventName` | Payload types. |
 | `DiscordClient` | The session: `start`, `stop`, `setPresence`, `registerCommands`, `onCommand`, `onMenu`, `onSuggest`, `onUse`, `onEvent`, `onDispatch`, replies, and the moderation helpers `Start` uses. |
@@ -43,5 +43,5 @@ Do not mix this client with discord.js in the same process. There is no `Client`
 ## Pitfalls
 
 - Slash commands need no gateway intents. Importing `DiscordClient` does not change that. `intentsFor("ready")` is `0`.
-- `onDispatch` receives the raw gateway payload. Typed handlers receive the objects on [Gateway event payloads](/docs/gateway-events). Prefer `onEvent` or `Start({ events })`.
+- `onDispatch` receives the raw gateway payload. Typed handlers receive the objects on [Gateway event payloads](/docs/gateway-events#payloads). Prefer `onEvent` or `Start({ events })`.
 - `version` here is the discord package. `import { version } from "@draeven/core"` is the version these guides pin.

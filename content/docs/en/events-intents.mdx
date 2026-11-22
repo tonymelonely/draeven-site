@@ -1,18 +1,54 @@
 ---
 title: Events & intents
-description: CamelCase gateway events, intentsFor(), and use().
+description: Gateway events, intentsFor(), and use() — with a discord.js name map.
 order: 60
 ---
 
-Joins, messages, reactions, and durable `use()` handlers live outside slash commands. Names are camelCase (`memberJoin`).
+Discord pushes things at your bot — a member joined, a message arrived, someone reacted. Those are **gateway events**. They are not slash commands. You register them on `Start({ events })` or later with `bot.onEvent`. Names are camelCase (`memberJoin`, not `guildMemberAdd`).
+
+**Intents** are Discord’s “may we send you this?” switches. Without the matching bits (and portal toggles for privileged ones), the handler never runs — you do not get an empty payload.
+
+Durable button handlers live here too: export <Explain topic="collect-vs-press">`use()`</Explain> from the events folder so a panel still works after a restart. One-off clicks stay on [Press & submit](/docs/press-handlers#use). Waiting inside the same command is [Collectors](/docs/collectors).
 
 <WhenToUse topic="events" />
 
-Each event needs the intents in `eventIntents`. `intentsFor("memberJoin", "message")` unions those bits. Prefer `intentsFor` over a hand-written mask.
+<h2 id="from-djs">Coming from discord.js</h2>
+
+| You know | In Draeven |
+|----------|------------|
+| `client.on("guildMemberAdd", …)` | `events: { memberJoin }` or `bot.onMemberJoin` |
+| `client.on("messageCreate", …)` | `events: { message }` or `bot.onMessage` |
+| `client.on("messageDelete", …)` | `events: { messageDelete }` |
+| `client.on("messageReactionAdd", …)` | `events: { reactionAdd }` |
+| `GatewayIntentBits.GuildMembers` | <Explain topic="intents-for">`intentsFor("memberJoin")`</Explain> |
+| `GatewayIntentBits.MessageContent` | included when you pass `"message"` to `intentsFor` |
+| `InteractionCreate` for buttons / menus | not a gateway event — use `press`, `collect`, or `use()` ([Press & submit](/docs/press-handlers)) |
+
+Full name map: [From discord.js](/docs/from-discordjs). Field shapes for every event: [Gateway event payloads](/docs/gateway-events#payloads).
+
+<h2 id="intents">intentsFor and intentBits</h2>
+
+Each Draeven event name maps to the bits in `eventIntents`. <Explain topic="intents-for">`intentsFor("memberJoin", "message")`</Explain> unions those bits. Prefer that over a hand-written mask. Tick events below and copy the snippet into `Start`.
 
 <IntentCalc />
 
-## Inline handlers
+| You write | You get |
+|-----------|---------|
+| `intentsFor("ready")` | `0` — `ready` needs nothing |
+| `intentsFor("memberJoin")` | `guildMembers` (**privileged**) |
+| `intentsFor("message")` | `guildMessages`, `directMessages`, `messageContent` |
+| `intentsFor("reactionAdd")` | `guildMessageReactions`, `directMessageReactions` |
+| `intentsFor("presenceUpdate")` | `guildPresences` (**privileged**) |
+| `intentsFor("pollVoteAdd")` | `guildMessagePolls`, `directMessagePolls` |
+| `intentBits("guilds", "guildMessages")` | those bits only, by intent name |
+
+Unknown event names throw. `intentBits` throws on an unknown intent name.
+
+**Privileged** intents still need the Bot-tab toggle in the portal ([Creating an app](/docs/creating-app#privileged-intents)): **Server Members**, **Message Content**, **Presence**. Portal off → Discord never delivers. Bits off in code → same silence. Both must match.
+
+Omit `intents` and the bitmask is `0`. Fine for a slash-only bot; pair it with `intentsFor("ready")` if you want that explicit.
+
+<h2 id="inline">Inline handlers</h2>
 
 ```js
 import { Start, intentsFor } from "@draeven/core";
@@ -29,27 +65,11 @@ const bot = await Start({
 });
 ```
 
-`memberJoin` receives a flat member: `id`, `name`, `bot`, `guildId`, plus optional `nick`, `joinedAt`, `icon`, and `roleIds`. There is no nested `user` object. `message.author` is the same kind of profile (`id`, `name`, `bot`, optional `icon`), not `username`.
+`memberJoin` receives a **flat** member: `id`, `name`, `bot`, `guildId`, plus optional `nick`, `joinedAt`, `icon`, and `roleIds`. There is no nested `user` like discord.js. `message.author` is the same kind of profile (`id`, `name`, `bot`, optional `icon`) — use `name`, not `username`. Full tables: [Gateway event payloads](/docs/gateway-events#payloads).
 
-`bot.onEvent(name, handler)` subscribes later and returns an unsubscribe function. `onMemberJoin`, `onMemberLeave`, and `onMessage` are the same idea for those three names.
+After `Start` returns, `bot.onEvent(name, handler)` adds a listener and returns an unsubscribe function. `onMemberJoin`, `onMemberLeave`, and `onMessage` are shortcuts for those three names ([Bot handle](/docs/bot-handle)).
 
-## intentsFor and intentBits
-
-| You write | You get |
-|-----------|---------|
-| `intentsFor("ready")` | `0` — `ready` needs nothing |
-| `intentsFor("memberJoin")` | `guildMembers` (privileged) |
-| `intentsFor("message")` | `guildMessages`, `directMessages`, `messageContent` |
-| `intentsFor("reactionAdd")` | `guildMessageReactions`, `directMessageReactions` |
-| `intentsFor("presenceUpdate")` | `guildPresences` (privileged) |
-| `intentsFor("pollVoteAdd")` | `guildMessagePolls`, `directMessagePolls` |
-| `intentBits("guilds", "guildMessages")` | those bits only, by intent name |
-
-Unknown event names throw. `intentBits` throws on an unknown intent name.
-
-Privileged intents still need the portal toggle ([Creating an app](/docs/creating-app)): **Server Members**, **Message Content**, **Presence**.
-
-## Folder of handlers
+<h2 id="folder">Folder of handlers</h2>
 
 ```js
 await Start({
@@ -60,12 +80,12 @@ await Start({
 });
 ```
 
-Or set `events: "./dist/events"` in `draeven.config.js` and omit `events` on `Start`. Draeven then loads that folder the same way it loads commands from config.
+Or set `events: "./dist/events"` in [`draeven.config.js`](/docs/config) and omit `events` on `Start`. Draeven loads that folder the same way it loads commands from config.
 
-`loadEvents` reads `.js` files and keeps:
+`loadEvents` reads compiled `.js` files and keeps:
 
-1. Exports whose **name is a gateway event** (`memberJoin`, `message`, …)
-2. Values built with **`use()`** — durable button, menu, and form handlers. The export name can be anything.
+1. Exports whose **name is a gateway event** (`memberJoin`, `message`, …) — must be **functions**
+2. Values built with **`use()`** — durable button, menu, and form handlers. The export name can be anything
 
 ```js
 export function memberJoin(member) {
@@ -73,7 +93,7 @@ export function memberJoin(member) {
 }
 ```
 
-The command that posts `hangman_A` leaves `press` off. This handler owns the id:
+The command that posts `hangman_A` leaves `press` off. This `use()` handler owns the id (also in [Press & submit](/docs/press-handlers#use)):
 
 ```js
 import { button, row, use } from "@draeven/core";
@@ -90,29 +110,32 @@ export const letters = use({
 });
 ```
 
-`ids` can be an exact string (`"hangman_A"`), a prefix with `*` only at the end (`"hangman_*"`), a list (`["yes", "no"]`), or `(id) => boolean`. `kind` defaults to `"press"`. Pass `"submit"` for a form. Who wins between `collect`, inline `press`, and `use()` is on [Press & submit](/docs/press-handlers).
+`ids` can be an exact string (`"hangman_A"`), a prefix with `*` only at the end (`"hangman_*"`), a list (`["yes", "no"]`), or `(id) => boolean`. `kind` defaults to `"press"`. Pass `"submit"` for a form.
 
-A second `memberJoin` export in the folder throws. `watch: true` reloads this folder the same way it reloads commands (gateway handlers and `use()`). An inline `events` object is not a folder, so watch does not swap those functions, and it does not load `use()`.
+A second `memberJoin` export in the folder throws. `watch: true` reloads this folder (gateway handlers and `use()`) — details on [Hot-reload & guard](/docs/hot-reload-guard). An **inline** `events: { … }` object is not a folder: watch does not swap those functions, and it does not load `use()`.
 
-## Names you can register
+<h2 id="names">Names you can register</h2>
 
-Guild structure: `guildJoin`, `guildLeave`, `guildUpdate`, `channelCreate`, `channelUpdate`, `channelDelete`, `threadCreate`, `threadUpdate`, `threadDelete`, `roleCreate`, `roleUpdate`, `roleDelete`.
+Shapes for each name: [Gateway event payloads](/docs/gateway-events#payloads).
 
-People and chat: `memberJoin`, `memberLeave`, `memberUpdate`, `memberBan`, `memberUnban`, `message`, `messageEdit`, `messageDelete`, `messageBulkDelete`, `reactionAdd`, `reactionRemove`, `reactionClear`, `reactionClearEmoji`, `typing`.
+**Guild structure:** `guildJoin`, `guildLeave`, `guildUpdate`, `channelCreate`, `channelUpdate`, `channelDelete`, `threadCreate`, `threadUpdate`, `threadDelete`, `roleCreate`, `roleUpdate`, `roleDelete`.
 
-Other: `voiceUpdate`, `inviteCreate`, `inviteDelete`, `presenceUpdate`, `scheduleCreate`, `scheduleUpdate`, `scheduleDelete`, `pollVoteAdd`, `pollVoteRemove`, `ready`, `resumed`.
+**People and chat:** `memberJoin`, `memberLeave`, `memberUpdate`, `memberBan`, `memberUnban`, `message`, `messageEdit`, `messageDelete`, `messageBulkDelete`, `reactionAdd`, `reactionRemove`, `reactionClear`, `reactionClearEmoji`, `typing`.
+
+**Other:** `voiceUpdate`, `inviteCreate`, `inviteDelete`, `presenceUpdate`, `scheduleCreate`, `scheduleUpdate`, `scheduleDelete`, `pollVoteAdd`, `pollVoteRemove`, `ready`, `resumed`.
 
 <Note>
 `message` without the Message Content intent arrives without `content`. The handler still runs.
 </Note>
 
-## Pitfalls
+<h2 id="pitfalls">Pitfalls</h2>
 
 - `intentsFor()` with no names throws. A slash-only bot can pass `intentsFor("ready")` or omit intents.
 - Folder handlers must be functions. A constant named `message` throws.
-- Enabling the portal intent and forgetting `intentsFor` still yields no events.
-- `use()` in the commands folder is ignored. Put it in the events folder, next to `memberJoin`.
+- Enabling the portal intent and forgetting `intentsFor` still yields no events — and the reverse is the same.
+- `use()` in the **commands** folder is ignored. Put it in the **events** folder, next to `memberJoin`.
+- Buttons are not `InteractionCreate` gateway events. Route them with [Press & submit](/docs/press-handlers) or [Collectors](/docs/collectors).
 
 ## Related
 
-- [Press & submit](/docs/press-handlers) · [Presence](/docs/presence) · [Sending messages](/docs/sending-messages) · [Hot-reload & guard](/docs/hot-reload-guard)
+- [Gateway event payloads](/docs/gateway-events#payloads) · [Press & submit](/docs/press-handlers#use) · [Creating an app](/docs/creating-app) · [Config](/docs/config) · [Bot handle](/docs/bot-handle) · [From discord.js](/docs/from-discordjs) · [Presence](/docs/presence) · [Sending messages](/docs/sending-messages) · [Hot-reload & guard](/docs/hot-reload-guard)

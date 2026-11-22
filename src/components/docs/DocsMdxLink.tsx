@@ -1,18 +1,23 @@
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 import { Link } from "@/i18n/navigation";
 
-function isAppPath(href: string): boolean {
+function pathOnly(href: string): string {
+  const i = href.indexOf("#");
+  return i === -1 ? href : href.slice(0, i);
+}
+
+function isAppPath(path: string): boolean {
   return (
-    href.startsWith("/docs") ||
-    href.startsWith("/reference") ||
-    href.startsWith("/roadmap") ||
-    href.startsWith("/feedback") ||
-    href.startsWith("/login") ||
-    href === "/"
+    path.startsWith("/docs") ||
+    path.startsWith("/reference") ||
+    path.startsWith("/roadmap") ||
+    path.startsWith("/feedback") ||
+    path.startsWith("/login") ||
+    path === "/"
   );
 }
 
-/** MDX `<a>` → locale-aware Link for in-app paths; leave hashes/external alone. */
+/** MDX `<a>` → locale-aware Link for in-app paths; keep `#anchors` on the href string. */
 export function DocsMdxLink({
   href,
   children,
@@ -26,7 +31,9 @@ export function DocsMdxLink({
     );
   }
 
-  if (isAppPath(href) || (href.startsWith("/") && !href.startsWith("//"))) {
+  const path = pathOnly(href);
+
+  if (isAppPath(path) || (path.startsWith("/") && !path.startsWith("//"))) {
     return (
       <Link href={href} {...props}>
         {children}

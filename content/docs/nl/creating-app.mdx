@@ -48,9 +48,9 @@ await Start({
 
 Laat `guildId` alleen weg als je bewust globaal wilt publiceren.
 
-## Privileged intents
+<h2 id="privileged-intents">Geprivilegieerde intents</h2>
 
-Zet een privileged intent op het tabblad **Bot** alleen aan als een handler hem nodig heeft. Portaal en code moeten overeenkomen. Portaal uit betekent dat Discord de events niet levert. Laat je `intents` weg, dan is het bitmasker `0`. Discord verstuurt die gateway-events niet. Je krijgt geen lege payloads.
+Zet een geprivilegieerde intent op het tabblad **Bot** alleen aan als een handler hem nodig heeft. Portaal en code moeten overeenkomen. Portaal uit betekent dat Discord de events niet levert. Laat je `intents` weg, dan is het bitmasker `0`. Discord verstuurt die gateway-events niet. Je krijgt geen lege payloads.
 
 | Portaal | `intentBits`-naam | Typische events |
 |---------|---------------------|-----------------|

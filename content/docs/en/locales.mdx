@@ -1,0 +1,78 @@
+---
+title: Locales
+description: Translated command text and say().
+order: 28
+---
+
+Discord sends the caller's locale on the interaction (`en-US`, `nl`, `nl-NL`). Draeven copies it to `ctx.locale`. You translate three different layers. They do not share one dictionary.
+
+Use this when the same command is shown to more than one language. Framework gate text is already bilingual (English and Dutch).
+
+## Three layers
+
+| Layer | API | What the user sees |
+|-------|-----|--------------------|
+| Command | `locales` on metadata | Slash name and description in the picker |
+| Option or sub | `withLocales()` or `sub(..., { locales })` | That field's name and description |
+| Your reply | `say(map, ctx.locale)` | The message after they run it |
+
+Locale keys must look like `nl` or `nl-NL` (`xx` or `xx-YY`). Empty strings throw.
+
+## Worked example
+
+```js
+import { command, say, withLocales, user } from "@draeven/core";
+
+export const greet = command(
+  "greet",
+  "Says hello",
+  {
+    who: withLocales(user("Who?"), {
+      nl: { description: "Wie?", name: "wie" },
+    }),
+  },
+  async (ctx) => ctx.reply(say({ en: "Hello!", nl: "Hallo!" }, ctx.locale)),
+  { locales: { nl: { description: "Zegt hallo", name: "groet" } } }
+);
+```
+
+The JavaScript key stays `who`. You still read `ctx.who`. `name: "wie"` is only the label Discord shows for locale `nl`.
+
+`withLocales` accepts a string too (`{ nl: "Wie?" }`), which sets the description only.
+
+## say() order
+
+1. Exact key (`nl-NL` if that is what you provided and what Discord sent).
+2. Language prefix (`nl` from `nl-NL`).
+3. `en`, then `en-US`.
+4. The first string in the object.
+
+`say()` throws if the map is empty or any value is blank. It does not call the network.
+
+## Framework strings
+
+Built-in blocks use `frame(key, locale, vars?)`. Only **`cooldown`** has placeholders (`{seconds}`, `{name}`). The other keys are fixed sentences — the `—` in the table means no placeholders, not missing text.
+
+| Key | Placeholders | English default |
+|-----|----------------|-----------------|
+| `cooldown` | `{seconds}`, `{name}` | Wait {seconds}s before using /{name} again. |
+| `need` | — | You need permission to use this. |
+| `when` | — | You cannot use this right now. |
+| `owner` | — | Only the server owner can use this. |
+| `failed` | — | The command failed. |
+
+Dutch defaults live in the same maps (`nl`). You do not pass these through `say()` yourself unless you are previewing copy. The live dispatcher already calls `frame()`.
+
+<Tip>
+Set `locale: "nl"` on `simulate()` when you want to assert `say()` output. Gates and cooldown text are not produced by `simulate`.
+</Tip>
+
+## Pitfalls
+
+- A localized **command name** must still match Discord's name rules for that locale.
+- Translating the option `name` does not rename `ctx.who`. Handlers that read `ctx.wie` will be `undefined`.
+- `say` does not fall through to Dutch just because the machine is Dutch. Add the `nl` key.
+
+## Related
+
+- [Commands](/docs/commands) · [Options](/docs/options) · [Cooldowns](/docs/cooldowns)

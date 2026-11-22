@@ -1,0 +1,54 @@
+---
+title: Known limits
+description: What this beta will not do for you.
+order: 90
+---
+
+Draeven 0.1.9 is a beta. These bounds are deliberate. Hitting one of them is not a missing import. The runtime path is [How it fits](/docs/architecture). The discord.js name map is [From discord.js](/docs/from-discordjs). Symptom lookup is [Troubleshooting](/docs/troubleshooting).
+
+## Framework
+
+| Limit | What to do |
+|-------|------------|
+| Not discord.js | Do not import `EmbedBuilder`, `SlashCommandBuilder`, or a discord.js `Client`. |
+| Node 20+, ESM | CommonJS output is not a supported target. |
+| Beta names | Pin `@draeven/core`. A minor bump may rename a metadata field. |
+| Memory cooldowns | `CooldownBook` clears on restart. Persist yourself if you need durability. |
+| One token, one process | Use `alone` ([One process](/docs/alone)). There is no built-in shard manager. |
+| `simulate` is the handler only | Gates, cooldowns, `wait`, and `collect` need the live path. |
+| Subcommand gates | `need` and `cooldown` sit on the parent command, not on `sub()`. |
+| `embed()`, not `card()` | The public API is `embed()` and `reply(embed)`. The internal `Message` bag still stores the embed on `card`. Prefer `reply(embed(...))` or `reply({ text, rows })`. Do not invent `card()`. |
+
+<Note>
+`Message.card` is the historic field name inside the reply bag. Guides teach `embed()` and `reply({ text, rows })`. There is no `card()` helper.
+</Note>
+
+## Discord
+
+| Limit | Detail |
+|-------|--------|
+| Global command sync | Often up to an hour. Use `guildId` while editing ([Creating an app](/docs/creating-app)). |
+| Interaction ack | About 3 seconds. Auto-defer runs at 2 seconds unless `autoDefer: false`. |
+| Autocomplete | 25 choices, values at most 100 characters, and the handler must stay fast. |
+| Polls | Question at most 300, each answer at most 55, 2–10 answers, `hours` 1–768. |
+| `purge` | Integer count from 2 to 100. |
+| `editMessage` | 1–2000 characters, messages the bot created. |
+| Option budget | 25 options on a command, including the subcommand tree. |
+| Embed text | Header at most 256, description at most 4096, field name at most 256, field value at most 1024, 25 fields, 6000 characters across the embed. |
+| `layout()` | 1–40 parts. Cannot share a reply with text, an embed, a picture, or a poll. |
+
+## Product
+
+The owner desk controls the deployment you run. It does not host a multi-tenant dashboard for other communities ([Bridge & desk](/docs/bridge-desk)).
+
+<Note>
+When a call throws, the message starts with `[Draeven]` and names the rule (poll hours, option name, missing token). Read that sentence before adding a wrapper.
+</Note>
+
+## If it still fails
+
+Note the command name, the `[Draeven]` text, Node's version, and `version` from `@draeven/core`. Then open [Feedback](/docs/feedback).
+
+## Related
+
+- [Welcome](/docs/welcome) · [Replies](/docs/replies) · [Feedback](/docs/feedback)

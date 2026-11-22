@@ -1,0 +1,186 @@
+---
+title: Press & submit
+description: press and submit on a control. use() for handlers that survive a restart.
+order: 44
+---
+
+Inline `press` for a one-off. `use()` in the events folder when it must survive a restart.
+
+<InteractChoice />
+<WhenToUse topic="use" />
+
+Put `press` on buttons/menus/pickers, `submit` on forms. `link()` / `sku()` have neither. Collect wins only on id + kind + user ([Collectors](/docs/collectors)).
+
+<Note>Aligned with @draeven/core **0.1.9**.</Note>
+
+## PressContext
+
+`PressContext` is what `runPress` builds. It is not the command `ctx`. <Explain topic="press-context">PressContext</Explain>
+
+| Field | What you get |
+|-------|----------------|
+| `author` | `{ id }` of the person who pressed or submitted. |
+| `id` | The custom id Discord sent. |
+| `messageId` | The message that carried the control, when Discord included it. |
+| `values` | Menu and picker selections. Empty for a button or a form. |
+| `fields` | Form values by field id. Empty for a button or a menu. |
+| lookups | `getUser`, `getMember`, `getGuild`, `getChannel`, and the rest from [Lookups](/docs/lookups). |
+| `reply` | Once. A string, an `embed()`, both, a row, a form, a poll, a layout, a canvas, or `{ text, rows }`. |
+
+`id` is that custom id. `messageId` is set when Discord sent the message. Call `reply` exactly once. A second reply throws `[Draeven] A command can only reply once.` Returning without `reply` throws `[Draeven] The command did not reply.`
+
+## press and collect
+
+```js
+import { command, button, row, menu, form } from "@draeven/core";
+
+const again = button({
+  id: "ping-again",
+  label: "Ping again",
+  press: (ctx) => {
+    const user = ctx.getUser(ctx.author);
+    return ctx.reply(user.name + " pressed again.");
+  },
+});
+
+export const later = command("later", "A button that answers itself", async (ctx) => {
+  return ctx.reply({
+    text: "Nothing is collecting. The button answers later.",
+    rows: [row(again)],
+  });
+});
+
+export const stay = command("stay", "The collector takes this press", async (ctx) => {
+  await ctx.wait();
+  await ctx.edit({
+    text: "This press stays in the command.",
+    rows: [
+      row(
+        button({
+          id: "stay-yes",
+          label: "Yes",
+          color: "green",
+          press: (pressCtx) => pressCtx.reply("not used while collect waits"),
+        })
+      ),
+    ],
+  });
+
+  const pick = await ctx.collect({ ids: ["stay-yes"], seconds: 20 });
+  if (!pick) return ctx.reply("Timed out.");
+  return ctx.reply("Collected " + pick.id);
+});
+
+export const choose = command("choose", "A menu with its own press", async (ctx) => {
+  return ctx.reply({
+    text: "Pick one. No collect.",
+    rows: [
+      row(
+        menu({
+          id: "color",
+          placeholder: "Color",
+          choices: [
+            { label: "Red", value: "red" },
+            { label: "Blue", value: "blue" },
+          ],
+          press: (ctx) => ctx.reply(ctx.values.join(", ")),
+        })
+      ),
+    ],
+  });
+});
+```
+
+A form uses `submit`, and `ctx.fields` is keyed by field id:
+
+```js
+form({
+  id: "note",
+  title: "Note",
+  fields: [{ id: "body", label: "Body" }],
+  submit: (ctx) => ctx.reply(ctx.fields.body || "empty"),
+})
+```
+
+Pickers (`people`, `roles`, `channels`, `mentions`) use `press` the same way as `menu`: selected ids arrive on `values`.
+
+## use() in the events folder
+
+`use({ ids, kind?, run })` is a durable component handler. It lives in the events folder, the same place as `export function memberJoin`. `Start` loads it with that folder. It survives a restart. It is separate from a discord.js `InteractionCreate` listener.
+
+Keep `press` for a simple one-off button:
+
+```js
+button({ id: "yes", label: "Yes", press: (ctx) => ctx.reply("Yes.") })
+```
+
+A command can post buttons with no `press`. `use()` owns them:
+
+```js
+import { button, command, row } from "@draeven/core";
+
+export const letters = command("letters", "Posts letter buttons", async (ctx) =>
+  ctx.reply({
+    text: "Pick a letter.",
+    rows: [row(button({ id: "hangman_A", label: "A" }))],
+  })
+);
+```
+
+`src/events/letters.ts`:
+
+```js
+import { button, row, use } from "@draeven/core";
+
+export const letters = use({
+  ids: "hangman_*",
+  run(ctx) {
+    const letter = ctx.id.slice("hangman_".length);
+    return ctx.reply({
+      text: `You picked **${letter}**`,
+      rows: [row(button({ id: "hangman_A", label: "A" }))],
+    });
+  },
+});
+```
+
+## ids
+
+| `ids` | Match |
+|---------|--------|
+| `"hangman_A"` | That exact id |
+| `"hangman_*"` | Prefix. `*` only at the end |
+| `["yes", "no"]` | Any of those exact ids |
+| `(id) => boolean` | Your own test. Return `true` to take the id |
+
+`kind` defaults to `"press"`. Pass `"submit"` for a form. A `"press"` handler matches presses. A `"submit"` handler matches form submits.
+
+## When collect wins
+
+`CollectorBook.take` runs first. If a waiter matches the id, the kind, and the user, `press`, `submit`, and `use()` are skipped.
+
+| Waiting on | What Draeven does |
+|------------|-------------------|
+| a button, menu, or picker | Acknowledges with a component update and lets the command continue. |
+| a form submit | Leaves the modal unacked so the waiting command can answer it. |
+
+If nothing is waiting, Draeven picks the next match in this order:
+
+1. The inline `press` or `submit` remembered on that custom id.
+2. A `use()` loaded from the events folder.
+3. The text `Received.`
+
+The remembered function wins over `use()` when both match. That memory lasts until the process stops. `use()` is loaded again on the next start.
+
+<Warn fix="Use distinct ids for an open collect() and any press handler." href="/docs/why-failing">
+Do not share one id between a live `collect()` and a `press` you expect to run. The collector keeps the interaction for as long as it is waiting.
+</Warn>
+
+## Pitfalls
+
+- `press` and `use()` cannot `wait`, `collect`, `followup`, or call mod actions. Those live on the command context ([Rules of thumb](/docs/rules)).
+- A button's `values` array is empty. Read `ctx.id` for the custom id.
+- `*` in `ids` is a prefix only when it is the last character. `hang*man` is an exact id.
+- When two `use()` handlers match, the first one loaded runs. Files are read in name order.
+- A form `submit` still has to `reply` once. The modal interaction is that reply.
+- Pieces are built with `button`, `menu`, and `form` ([Buttons, menus & forms](/docs/pieces)). `press` does not replace `row()`.

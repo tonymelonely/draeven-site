@@ -1,0 +1,62 @@
+---
+title: formatDate-hulp
+description: Hulpfunctie die één UTC-kalenderdag voor een land formatteert — niet Discord time().
+order: 30
+---
+
+`formatDate(date, country)` schrijft één kalenderdag als gewone string. De dag is **UTC**. Het land kiest de volgorde, de scheidingstekens en de cijfers. Het schuift het tijdstip niet naar de klok van de lezer, en het zet er geen tijd van de dag bij.
+
+Gebruik het als elke lezer dezelfde tekens moet zien: een logregel, een gewone `reply`, of een embedveld dat niet mag verspringen. Een Discord-tijdstempel die iedereen in de eigen zone ziet is <Explain topic="format-vs-time">`time()`</Explain> in een embed. `formatDate` neemt geen stijl zoals `"relative"` of `"long date"`.
+
+## Uitgewerkt voorbeeld
+
+`person.createdAt` is een `Date`. `Netherlands` is de landcode `"NL"` (`countries.Netherlands` is dezelfde waarde). De embed toont beide strings, zodat je ziet wat vast blijft en wat Discord lokaliseert.
+
+```js
+import { command, embed, formatDate, Netherlands, time } from "@draeven/core";
+
+export const joined = command("joined", "Wanneer dit account is gemaakt", async (ctx) => {
+  const person = ctx.getUser(ctx.author);
+  const day = formatDate(person.createdAt, Netherlands);
+  return ctx.reply(
+    embed({
+      header: { title: person.name },
+      fields: [
+        { name: "UTC-dag", value: day },
+        { name: "Voor de lezer", value: time(person.createdAt, "date") },
+      ],
+    })
+  );
+});
+```
+
+Voor 5 maart 2020, 00:00 UTC, geeft `formatDate` terug:
+
+| Land | Resultaat |
+|------|-----------|
+| `Netherlands` | `05-03-2020` |
+| `UnitedStates` | `03/05/2020` |
+| `UnitedKingdom` | `05/03/2020` |
+| `Japan` | `2020/03/05` |
+
+`time(person.createdAt, "date")` wordt een Discord-stempel `<t:…>`. Elke lezer ziet die stempel in de eigen zone. De `formatDate`-cel blijft `05-03-2020` voor iedereen als het land `Netherlands` is.
+
+## Grenzen
+
+| Grens | Wat er gebeurt |
+|-------|----------------|
+| Invoer | Een echte `Date`. Al het andere, ook een ongeldige datum, gooit `A date is required.` |
+| Land | Een code uit `countries`. `Netherlands` is `"NL"`. Al het andere gooit `Unknown country.` |
+| Kalenderdag | UTC. Het land kiest alleen volgorde, scheidingstekens en cijfers. |
+| Klok | Geen uren of minuten. De string is één dag. |
+| Zone | De zone van de lezer wordt niet toegepast. Dat doet `time()`. |
+| Vorm | Dag en maand zijn 2 cijfers, het jaar is numeriek, de kalender is Gregoriaans. |
+
+Elke waarde in `countries` is geldig. De benoemde exports (`Netherlands`, `Japan`, …) zijn die codes.
+
+## Valkuilen
+
+- De Engelse naam `"Netherlands"` is geen code. Geef de constante `Netherlands` of `"NL"` mee. `"ZZ"` gooit `Unknown country.`
+- Een string zoals `"2020-03-05"` is geen `Date`. Wikkel die eerst in `new Date(...)`. `new Date(NaN)` gooit `A date is required.`
+- Rond middernacht UTC kan de kalenderdag afwijken van de datum die de lezer lokaal nog ziet. Gebruik `time()` als elke lezer de eigen dag moet zien.
+- `formatDate` heeft geen stijlargument. `"relative"` en `"long date"` horen bij `time()`.

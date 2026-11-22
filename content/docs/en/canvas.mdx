@@ -1,0 +1,67 @@
+---
+title: Canvas
+description: Draw a PNG with canvas() and send it.
+order: 46
+---
+
+`canvas({ width, height })` starts a transparent picture. Chain `fill`, `box`, `dot`, and `text`. Colors come from `colors.*` or any color an embed accepts: a name such as `colors.blurple`, a `#RRGGBB` string, or a number `0`–`0xffffff`. `png()` is the file Discord receives. You normally let `reply` call it.
+
+## Draw and reply
+
+```js
+import { canvas, colors, command } from "@draeven/core";
+
+export const badge = command("badge", "Draw a name badge", async (ctx) => {
+  const picture = canvas({ width: 280, height: 72 })
+    .fill(colors.white)
+    .box({ x: 0, y: 0, width: 8, height: 72, color: colors.blurple })
+    .text({ value: "DRAEVEN", x: 20, y: 24, color: colors.blurple, size: 3 });
+
+  return ctx.reply(picture);
+});
+```
+
+Each side is a whole number from **1 to 1024**. The bitmap starts fully transparent. Paint past the edge is ignored. `pixel(x, y)` reads `{ r, g, b, a }` and returns zeros outside the picture.
+
+## Text
+
+Text uses a built-in **5×7** font for ASCII, from space through tilde. Characters outside that range leave a gap and draw nothing. `size` is a whole number from **1 to 8** and defaults to **2**. A string is at most **200** characters. Each glyph advances `6 * size` pixels, so size 3 is 18 pixels per character.
+
+## How to send it
+
+| Call | Result |
+|------|--------|
+| `ctx.reply(picture)` | The PNG alone, attached as `picture.png`. |
+| `ctx.reply({ text: "Badge", picture })` | A caption plus the PNG. |
+| `ctx.reply(embed({ header: { title: "Badge" }, picture }))` | The PNG on that embed, via `picture`. |
+| `ctx.send(channelId, picture)` or `bot.send(channelId, picture)` | A normal channel message. |
+
+`followup` accepts the same shapes. `ctx.reply("Badge", picture)` is not an overload. It throws. Put the caption in `{ text, picture }`.
+
+<Note>
+A canvas picture cannot share a reply with `layout()`. `layout()` is Components V2. The picture is a file on a classic message. Send one or the other.
+</Note>
+
+## Methods
+
+| Method | Arguments |
+|--------|-----------|
+| `fill(color)` | Paint every pixel. |
+| `box({ x, y, width, height, color })` | A rectangle. Width and height at least 1. |
+| `dot({ x, y, radius, color })` | A filled circle. Radius is 1–512. |
+| `text({ value, x, y, color, size? })` | ASCII, size 1–8. |
+| `pixel(x, y)` | Read one pixel. |
+| `png()` | PNG bytes. |
+
+Coordinates and sizes are whole numbers. A fractional width throws before anything is drawn.
+
+## Pitfalls
+
+- One reply carries one picture. An embed `picture` plus a message `picture` throws.
+- The font has no emoji and no letters past `~`. Draw those as shapes, or put them in the embed text.
+- A 1024×1024 canvas is a large PNG. Use the size the badge actually needs.
+- `fill` covers earlier paint. Draw the background first, then the bar, then the letters.
+
+## Related
+
+- [Embeds & layout](/docs/embeds-layout) · [Replies](/docs/replies)

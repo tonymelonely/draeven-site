@@ -1,0 +1,172 @@
+---
+title: Bridge en desk
+description: Owner-ops-UI — embedded (bot+UI), bridge (alleen API), of desk (UI → BRIDGE_URL).
+order: 75
+---
+
+`@draeven/bridge` is een optionele HTTP-UI voor degene die **deze** bot draait. Hij toont status en owner-acties tegen jouw proces. Het is geen gehost moderatiepaneel voor elke guild die de bot uitnodigt. Guild-mods blijven slash-commando's gebruiken, zoals `/ban`.
+
+Installeer hem met de scaffold-vlag `--with-dashboard`, of met `pnpm add @draeven/bridge`. Node 20+ is verplicht. `root` in de aanroepen hieronder is je projectmap. Auditregels en desk-instellingen komen onder die map te staan.
+
+## Modi
+
+`readDashboardMode()` leest `DASHBOARD`. Als de variabele **niet gezet** is, is de modus `embedded`.
+
+| Waarde | Proces | Rol |
+|--------|--------|-----|
+| `embedded` (standaard) | Botproces | Bot en OAuth-desk samen. De scaffold schrijft dit. |
+| `off`, `0`, `false`, `no` | Botproces | Alleen de bot. |
+| `bridge` of `api` | Botproces | Alleen de geharde API. Geen UI. |
+| `desk`, `ui` of `remote` | Apart proces | Alleen de UI. Die praat met `BRIDGE_URL`. Draai `pnpm desk`, niet de bot-ingang. |
+
+## Moduskaart
+
+```text
+ embedded                        bridge                         desk
++-------------------------+   +-------------------------+   +-------------------------+
+| één proces              |   | botproces               |   | UI-proces               |
+| Start() + desk-UI       |   | Start() + API, geen UI  |   | luistert op :3847       |
+| DASHBOARD=embedded      |   | DASHBOARD=bridge        |   | DASHBOARD=desk          |
+| open de geprinte url    |   | BRIDGE_SECRET           |   | BRIDGE_URL + geheim     |
++-------------------------+   +-------------------------+   +------------+------------+
+                                                                  |
+                                                                  | HTTP
+                                                                  v
+                                                       +-------------------------+
+                                                       | bridge-API op de bot   |
+                                                       +-------------------------+
+```
+
+![Desk-login — Discord OAuth-poort voor owners in DASHBOARD_OWNER_IDS](/docs/desk-login.png)
+
+De embedded- en desk-UI delen deze loginpoort. Bridge-modus heeft geen pagina; die checkt alleen `BRIDGE_SECRET`.
+
+## Wandeling
+
+1. Zet de scaffold neer met `--with-dashboard` (het commando hieronder).
+2. Zet de env die de modus nodig heeft: het bot-token, en voor de UI `DISCORD_CLIENT_ID`, `DISCORD_CLIENT_SECRET`, `DASHBOARD_OWNER_IDS` en `DASHBOARD_SESSION_SECRET`.
+3. Laat `DASHBOARD=embedded`. Niet gezet betekent embedded.
+4. Start de bot en open de URL die `startDashboard` print. De desk-UI luistert standaard op **3847** (`DASHBOARD_PORT` vervangt dat).
+5. Om ze te splitsen zet je de bot op `DASHBOARD=bridge` en draai je `pnpm desk` in een tweede proces met `BRIDGE_URL` en `BRIDGE_SECRET`. De bot-ingang starten met `DASHBOARD=desk` gooit. Die waarde hoort op het desk-proces.
+
+```bash
+npm create draeven@latest -- init my-bot --with-dashboard
+```
+
+De scaffold voegt `pnpm desk` toe (`node dist/desk-main.js`). De bot-ingang starten met `DASHBOARD=desk` gooit en zegt dat je `pnpm desk` moet draaien.
+
+Embedded en bridge draaien naast `Start()` in het botproces:
+
+```ts
+import { Start } from "@draeven/core";
+import { readDashboardMode, readBridgeSecret, startDashboard } from "@draeven/bridge";
+
+const bot = await Start({ token });
+const mode = readDashboardMode();
+
+if (mode === "embedded") {
+  const desk = await startDashboard({ bot, root, botToken: token, kind: "embedded" });
+  console.log(desk.url);
+} else if (mode === "bridge") {
+  const api = await startDashboard({
+    bot,
+    root,
+    botToken: token,
+    kind: "bridge",
+    bridgeSecret: readBridgeSecret(),
+  });
+  console.log(api.url);
+}
+```
+
+Alleen de desk:
+
+```ts
+import { readBridgeSecret, readBridgeUrl, startDesk } from "@draeven/bridge";
+
+const desk = await startDesk({
+  root,
+  bridgeUrl: readBridgeUrl(),
+  bridgeSecret: readBridgeSecret(),
+});
+```
+
+```text
+Desk-UI  -- HTTP + BRIDGE_SECRET -->  Bridge-API  -->  jouw Start()-proces
+```
+
+## OAuth
+
+De embedded UI en het desk-proces loggen owners in met Discord OAuth. Bridge-modus zelf toont die loginpagina niet. Die controleert het bearer-geheim.
+
+| Variabele | Rol |
+|-----------|-----|
+| `DISCORD_CLIENT_ID` | Applicatie-id. Verplicht voor embedded en desk. |
+| `DISCORD_CLIENT_SECRET` | OAuth-clientgeheim. Dezelfde processen. |
+| `DISCORD_REDIRECT_URI` | Callback. Zonder waarde is de standaard `http://127.0.0.1:3847/auth/callback`, met `DASHBOARD_PORT` als die gezet is. |
+| `DASHBOARD_OWNER_IDS` | Kommagescheiden Discord-**user**-ids. Na OAuth mogen alleen deze ids de desk gebruiken. |
+| `DASHBOARD_SESSION_SECRET` | Ondertekent de sessiecookie. |
+| `DASHBOARD_HOST`, `DASHBOARD_PORT` | Waar de UI luistert. Poort standaard `3847`. Host standaard `127.0.0.1`. |
+
+De redirect-URI in het Developer Portal moet de URL zijn waarop je echt luistert, inclusief de poort.
+
+## Bridge-omgeving
+
+| Variabele | Wanneer |
+|-----------|---------|
+| `BRIDGE_SECRET` of `DASHBOARD_TOKEN` | Bridge-modus, en de desk die hem aanroept. Minstens **12** tekens. |
+| `BRIDGE_URL` | Desk-modus. Voorbeeld `http://127.0.0.1:3848`. Een slash aan het eind wordt weggehaald. |
+| `BRIDGE_HOST`, `BRIDGE_PORT` | Waar de API luistert. Host standaard `0.0.0.0`. Poortvoorbeeld `3848`. |
+| `BRIDGE_ALLOW_IPS` | Optionele allowlist, bijvoorbeeld `127.0.0.1,::1`. |
+| `BRIDGE_TLS_CERT`, `BRIDGE_TLS_KEY` | Optionele PEM-paden. Zet beide voor HTTPS op bridge of desk. |
+
+<Warn fix="Gebruik een lange BRIDGE_SECRET; houd de desk op localhost zonder TLS." href="/docs/why-failing">
+Een korte `BRIDGE_SECRET` gooit bij het opstarten in bridge-modus. Commit het geheim niet. Laat de desk op localhost tenzij je TLS en een IP-allowlist hebt.
+</Warn>
+
+## API-oppervlak
+
+Op het **bridge**-proces heeft `GET /api/health` geen geheim nodig. Het meldt dat het proces draait en hoeveel commando's geladen zijn. Elke andere `/api`-route vraagt het bearer-geheim of een OAuth-sessie.
+
+| Route | Methode | Wat het doet |
+|-------|---------|----------------|
+| `/api/health` | `GET` | Bereikbaarheid zonder login, alleen op het bridge-proces. |
+| `/api/status` | `GET` | Botgebruiker, uptime, gekozen guild, instellingen, sync-momentopname. |
+| `/api/sync` | `GET` | `bot.syncState()`. |
+| `/api/commands` | `GET` | Commando's die in dit proces geladen zijn. |
+| `/api/guilds` | `GET` | Guilds waar de bot in zit. |
+| `/api/members` | `GET` | Leden van de gekozen guild. |
+| `/api/channels` | `GET` | Kanalen van de gekozen guild. |
+| `/api/roles` | `GET` | Rollen van de gekozen guild. |
+| `/api/logs` | `GET` | Recente desk-logregels. |
+| `/api/audit` | `GET` | Recente auditregels. |
+| `/api/settings` | `GET`, `PUT` | Taal, prefix, presence, feed. `PUT` roept ook `setPresence` aan. |
+| `/api/events` | `GET` | Server-sent events voor de live feed. |
+| `/api/actions/send` | `POST` | `bot.send` — `channelId` en tekst, 1–2000 tekens. |
+| `/api/actions/kick` | `POST` | Kick `userId` in de gekozen guild. |
+| `/api/actions/ban` | `POST` | Ban `userId` in de gekozen guild. |
+| `/api/actions/timeout` | `POST` | Timeout `userId` voor `seconds`. |
+| `/api/actions/pin` | `POST` | Zet `messageId` vast in `channelId`. |
+| `/api/actions/react` | `POST` | Reageer met `emoji` op dat bericht. |
+| `/api/actions/purge` | `POST` | Wis `count` recente berichten, van 2 tot 100. |
+
+Leden, kanalen, rollen, kick, ban en timeout hebben een gekozen guild nodig. De desk roept **jouw** bot aan. Hij opent geen sessie als guild-moderator in andermans community.
+
+## Beveiliging
+
+- **Owners.** Alleen ids in `DASHBOARD_OWNER_IDS` kunnen de desk gebruiken na Discord OAuth. Een rol-id in die lijst doet niets.
+- **Geheim.** `BRIDGE_SECRET` is het bearer-token tussen desk en bridge. Korter dan 12 tekens gooit.
+- **IP-allowlist.** `BRIDGE_ALLOW_IPS` laat andere clients vallen. Staat `X-Forwarded-For` erbij, dan wordt die header gecontroleerd. Zet de desk dus achter een proxy die je vertrouwt.
+- **TLS.** Zet `BRIDGE_TLS_CERT` en `BRIDGE_TLS_KEY` samen vóór de poort buiten de machine bereikbaar is.
+- **Audit.** Acties voegen elk één JSON-regel toe aan `.draeven/audit.jsonl` onder `root`.
+
+## Valkuilen
+
+- `DASHBOARD` is geen optie van `Start()`. De bot-ingang van de scaffold leest hem en roept de bridge-helpers aan.
+- `embedded` is één proces. Draai daar niet ook `pnpm desk` tegenaan.
+- Een redirect-URI met de verkeerde poort laat de OAuth-callback falen, ook als het geheim lang genoeg is.
+- `BRIDGE_HOST=0.0.0.0` zonder allowlist en TLS legt de moderatie-acties bloot. Gebruik `DASHBOARD=off` op een host die alleen de bot moet draaien ([Deployen](/docs/deploy)).
+
+## Verder
+
+- [Installatie](/docs/install) · [Projectstructuur](/docs/project-layout) · [Deployen](/docs/deploy) · [Bekende limieten](/docs/known-limits)

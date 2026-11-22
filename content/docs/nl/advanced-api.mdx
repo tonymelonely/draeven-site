@@ -1,0 +1,72 @@
+---
+title: Geavanceerde API
+description: CooldownBook, CollectorBook, startBot en de andere host-exports.
+order: 77
+---
+
+Deze exports zijn voor een eigen host of een test die niet wil dat `Start` het proces bezit. Een normale bot roept `Start` aan, en een handler-test roept `simulate` aan ([Simuleren en tests](/docs/simulate)). `@draeven/discord` blijft de low-level client eronder ([@draeven/discord](/docs/discord-client)).
+
+<Note>Afgestemd op @draeven/core **0.1.9**. Veldnamen op deze pagina horen bij die release.</Note>
+
+## Wat je kunt aanroepen
+
+| Export | Wanneer je hem gebruikt |
+|--------|-------------------------|
+| `readCooldown(value)` | Maakt van een metadata-`cooldown` `{ seconds, scope, private }`. Een getal betekent scope `user` en `private: true`. `undefined` blijft `undefined`. |
+| `cooldownKey(name, scope, ids)` | Bouwt `name:user:id`, `name:guild:id` of `name:channel:id`. Geeft `undefined` terug als de guild- of kanaal-id die de scope nodig heeft ontbreekt. |
+| `CooldownBook` | `take(key, seconds)` geeft resterende seconden (minstens 1) of `0` nadat een nieuw venster is opgeslagen. Alleen geheugen. |
+| `CollectorBook` | `wait` is wat `ctx.collect` gebruikt. `take` wint van `press` alleen als id, soort en wie kloppen. `Start` bezit het boek. |
+| `checkGates(meta, world)` | Geeft `"owner"`, `"need"`, `"when"` of `undefined` terug. Volgorde is owner, dan need, dan when. |
+| `hasPermissions(have, need)` | Waar als elke gevraagde bit gezet is. De Administrator-bit slaagt op zichzelf. |
+| `permissionBitfield(value)` | Namen, een lijst, een cijferstring of `bigint` worden één `bigint`. Onbekende namen gooien. |
+| `frame(key, locale, vars)` | Frameworkteksten `cooldown`, `need`, `when`, `owner`, `failed`. Alleen `cooldown` gebruikt `{name}` / `{seconds}`. |
+| `loadCommands(folder, { bust? })` | Importeert `.js`-exports van commando's en menu's. Slaat tests, namen die eindigen op `old.js` (dus ook `fold.js`), dotfiles en reload-kopieën over. Dubbele berichtmenu-namen gooien. |
+| `loadEvents(folder, { bust? })` | Importeert `.js` waarvan de exportnaam een gateway-event is. Een tweede export met dezelfde naam gooit. |
+| `answerCommand(commands, incoming, bot, ...)` | Bouwt de commando-`ctx` en draait de handler. Wachttijd en gates zitten hier niet. De `Start`-dispatcher doet die vóór hij `answerCommand` aanroept. Geeft de `Reply` terug, of `undefined` als de naam niet geladen is. |
+| `startBot(client, options)` | Registreert commando's op een `BotConnection` en beantwoordt ze. `Start` bouwt de Discord-client en roept dit aan. |
+| `isCommand`, `isMenu` | Herkent een commando of menu in de output van `loadCommands`. |
+| `isLayout`, `isPoll` | Herkent een layout of peiling in een eigen renderer. |
+
+De latere argumenten van `answerCommand` zijn de hooks die de live dispatcher invult: guild, transcript, kanaal-send, de interactie-ack (`wait`, `edit`, `remove`, `collect`, `flush`) en mod-acties. Een test die alleen om reply-tekst geeft, gebruikt `simulate`. Die zak zelf bouwen betekent dat jij de host bent.
+
+Opties van `startBot` zijn `commands`, en optioneel `commandsFolder`, `eventsFolder`, `guildId`, `timeZone`, `events`, `watch`, `guard` en `autoDefer`. `watch` herlaadt alleen als de map-opties gezet zijn. De `client` moet `BotConnection` implementeren (`start`, `stop`, `readyUser`, `registerCommands`, `onCommand`, `onUse`, reads en replies).
+
+## Cooldown-boek
+
+```js
+import { CooldownBook, cooldownKey, readCooldown } from "@draeven/core";
+
+const cooling = readCooldown({ seconds: 10, scope: "user", private: true });
+const book = new CooldownBook();
+const key = cooldownKey("ping", cooling.scope, { userId: "1" });
+const left = book.take(key, cooling.seconds);
+```
+
+`left` is `0` de eerste keer en een positief getal tot het venster afloopt. De live bot doet dit al vóór `run` ([Wachttijden](/docs/cooldowns)).
+
+## Gates en teksten
+
+```js
+import { checkGates, frame, permissionBitfield } from "@draeven/core";
+
+const blocked = await checkGates(
+  { ownerOnly: true, need: "KickMembers" },
+  { author: { id: "1" }, ownerId: "2", memberPermissions: "0" }
+);
+
+frame("cooldown", "nl", { name: "ping", seconds: 5 });
+permissionBitfield(["KickMembers", "BanMembers"]);
+```
+
+`blocked` is hier `"owner"`, omdat owner eerst wordt gecontroleerd. `frame` geeft de Nederlandse cooldown-zin terug met naam en seconden ingevuld.
+
+<Note>
+`loadCommands("./dist/commands")` is wat `Start` aanroept voor een map. Roep het zelf aan als een test de gecompileerde modules wil zonder token, en geef `{ bust: true }` mee als hetzelfde pad na een schrijfactie opnieuw geïmporteerd moet worden.
+</Note>
+
+## Valkuilen
+
+- `CooldownBook` en `CollectorBook` zijn per proces. Een tweede `startBot` deelt de vensters of wachters van het eerste boek niet.
+- `checkGates` antwoordt niet. De host moet zelf `frame(blocked, locale)` sturen. `Start` doet dat al.
+- `isCommand` is onwaar voor contextmenu's. Filter ook met `isMenu` als je de output van `loadCommands` doorloopt.
+- Roep `answerCommand` en `Start` niet aan voor dezelfde interactie. Eén pad hoort het token te bezitten.

@@ -1,0 +1,60 @@
+---
+title: Bot-handle
+description: Wat Start() teruggeeft.
+order: 64
+---
+
+`Start()` geeft de lopende bot terug. Bewaar die waarde als het startbestand berichten stuurt, de presence wijzigt of het proces stopt. Een commandobestand krijgt hem niet, tenzij je er zelf over sluit.
+
+## Oppervlak
+
+| Lid | Wat het doet |
+|-----|----------------|
+| `commands` | Commando's en menu's die nu geladen zijn. |
+| `stop()` | Sluit de gateway en laat het alone-slot los. |
+| `setPresence(presence)` | Wijzigt de status terwijl het proces draait. Zie [Presence](/docs/presence). |
+| `syncState()` | Momentopname: `watch`, `commandCount`, laatste herlaadtijden, laatste herlaadfouten. |
+| `onSync(handler)` | Draait na een herlaad van commando's of events. Geeft een functie terug die afmeldt. |
+| `send(channel, message)` | Plaatst buiten een slash-antwoord. Zie [Berichten sturen](/docs/sending-messages). |
+| `onMemberJoin` / `onMemberLeave` | Gateway-events voor leden. Elke aanroep geeft een afmeldfunctie terug. |
+| `onMessage` | Gateway-berichten. De message-intent moet aan staan. |
+| `onEvent(name, handler)` | Elk gateway-event dat deze verbinding blootgeeft. Geeft een afmeldfunctie terug. |
+
+Een map met eventmodules is het gewone pad ([Events en intents](/docs/events-intents)). `onMemberJoin` en `onEvent` zijn voor het startbestand, nadat `Start` is teruggekomen. `onMemberJoin(handler)` is suiker voor `onEvent("memberJoin", handler)` — kies wat het duidelijkst leest.
+
+## Voorbeeld
+
+```js
+import { Start } from "@draeven/core";
+
+const bot = await Start({
+  token: process.env.DISCORD_TOKEN,
+  alone: true,
+});
+
+const stopWatching = bot.onSync((state) => {
+  console.log(state.commandCount, state.lastCommandsError ?? "ok");
+});
+
+bot.onMemberJoin(async (member) => {
+  const channelId = process.env.WELCOME_CHANNEL_ID;
+  if (!channelId || !member.id) return;
+  await bot.send(channelId, `Welkom <@${member.id}>.`);
+});
+
+process.on("SIGINT", async () => {
+  stopWatching();
+  await bot.stop();
+});
+```
+
+## Valkuilen
+
+- `send` kan niet privé zijn en geen `form()` dragen.
+- `setPresence` gooit als deze verbinding de presence niet kan bijwerken.
+- `onEvent`, `onMemberJoin`, `onMemberLeave` en `onMessage` gooien als de verbinding geen events van dat soort heeft.
+- Je kunt de terugkeerwaarde negeren als het proces gewoon doorloopt tot het stopt. Je hebt hem nodig om vanuit een handler in dit bestand te `send`-en, of om `stop()` aan te roepen.
+
+## Verder
+
+- [Start-opties](/docs/start-options) · [Presence](/docs/presence) · [Berichten sturen](/docs/sending-messages) · [Events en intents](/docs/events-intents) · [Eén proces](/docs/alone)

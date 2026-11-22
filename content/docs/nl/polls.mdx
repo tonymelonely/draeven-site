@@ -1,0 +1,73 @@
+---
+title: Peilingen
+description: Native Discord-peilingen via poll().
+order: 47
+---
+
+Een peiling is een native Discord-poll aan een bericht. Bouw hem met `poll({ question, answers, hours?, multi? })` en geef hem aan `ctx.reply`, `followup` of `bot.send`, net als een embed. Gebruik een peiling als Discord de stemmen moet tellen. Gebruik knoppen plus `ctx.collect` als de bot op één klik moet reageren.
+
+```js
+import { command, poll } from "@draeven/core";
+
+export const ship = command("ship", "Vraag de community", async (ctx) =>
+  ctx.reply(
+    poll({
+      question: "Shippen?",
+      answers: ["Ja", "Nog niet"],
+      hours: 24,
+    })
+  )
+);
+```
+
+## Antwoorden
+
+Elk antwoord is een string of `{ text, emoji? }`. Tekst is 1–55 tekens. Je hebt **2–10** antwoorden nodig. De vraag is 1–300 tekens.
+
+```js
+poll({
+  question: "Kies tools",
+  answers: [
+    { text: "ESLint", emoji: "✅" },
+    { text: "Vitest", emoji: "🧪" },
+  ],
+  multi: true,
+  hours: 48,
+});
+```
+
+`multi: true` staat meer dan één antwoord toe. Standaard is false. `hours` is standaard **24**, moet een geheel getal zijn, en moet **1–768** zijn (32 dagen).
+
+## Stemmen nadat het bericht er is
+
+`poll()` geeft de stand niet terug. Luister op de gateway:
+
+```js
+import { Start, intentsFor } from "@draeven/core";
+
+await Start({
+  token: process.env.DISCORD_TOKEN,
+  intents: intentsFor("pollVoteAdd", "pollVoteRemove"),
+  events: {
+    pollVoteAdd: (vote) => console.log("add", vote),
+    pollVoteRemove: (vote) => console.log("remove", vote),
+  },
+});
+```
+
+`intentsFor` zet `guildMessagePolls` en `directMessagePolls` aan. Dat zijn geen privileged portal-schakelaars.
+
+<Tip>
+Discord eist nog steeds dat de bot peilingen in dat kanaal mag sturen. Gate het commando met `need: "SendPolls"` als alleen sommige leden er een mogen openen.
+</Tip>
+
+## Valkuilen
+
+- Een peiling is het hele antwoord. Geef niet ook tekst, een embed, rijen, een afbeelding of een `layout()` aan dezelfde `reply`.
+- `{ private: true }` op een peiling gooit `A poll cannot be private.`
+- `hours: 24.5` gooit. Geef een geheel getal.
+- Eén antwoord, of elf, gooit al bij `poll()` — niet later vanuit Discord.
+
+## Verder
+
+- [Antwoorden](/docs/replies) · [Events en intents](/docs/events-intents) · [Embeds en layout](/docs/embeds-layout)

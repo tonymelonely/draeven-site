@@ -1,0 +1,74 @@
+---
+title: Antwoorden & follow-ups
+description: reply, wait, edit, followup en remove.
+order: 40
+---
+
+Bevestig binnen ongeveer **3 seconden**. Daarna zo’n 15 minuten voor follow-ups. Methodes op `ctx`: `reply`, `wait`, `edit`, `followup`, `remove`.
+
+<Explain topic="auto-defer">Auto-defer</Explain> vuurt na 2 seconden, tenzij je het uitzet.
+
+## Welke methode
+
+| Methode | Wanneer |
+|---------|---------|
+| `reply(...)` | Slaat het antwoord op. Een tweede aanroep gooit alleen als er al een antwoord is opgeslagen en je noch hebt gewacht, noch een collect hebt geflusht. Na `wait()` vult `edit()` of een nieuwe `reply()` het. Na een collect-flush vervangt een nieuwe `reply()` het. |
+| `wait({ private? })` | Bevestigen zonder inhoud. Nodig vóór `edit` als je nog niet hebt geantwoord. |
+| `edit(...)` | Het uitgestelde of al verstuurde antwoord vervangen. |
+| `followup(...)` | Nog een bericht na het eerste antwoord. Geeft een promise terug. |
+| `remove()` | Het interactie-antwoord verwijderen. |
+
+`reply` en `edit` nemen een string, een `embed()`, beide (`reply(text, embed)`), of een `poll()`, `layout()`, `form()`, rij of canvas. <Explain topic="layout-mix">Een layout() deelt dat antwoord niet</Explain> met tekst, een embed, een canvas-afbeelding of een peiling. Een peiling is het hele antwoord: geen tekst, embed, rijen, afbeelding of layout ernaast. Een formulier is ook het hele antwoord.
+
+## Publiek vs privé bevestigen
+
+Bij een trage handler roep je `await ctx.wait()` (publiek) of `await ctx.wait({ private: true })` aan, en daarna `edit()` als het klaar is. <Explain topic="form-first">Een form() kan niet na wait()</Explain> — open de modal als de eerste reply.
+
+<Compare id="defer-privacy-nl" />
+
+<Note>
+`CommandMeta` ondersteunt nog `defer: true` of `defer: { private: true }` om vóór de handler te bevestigen. Gebruik liever `wait()` + `edit()` in de handler ([Commando's](/docs/commands)).
+</Note>
+
+## Reply vs kanaal-send
+
+Interactie-antwoorden blijven op het slash-token. `ctx.send` plaatst een gewoon kanaalbericht en kan niet privé zijn.
+
+<Compare id="reply-vs-send-nl" />
+
+## Wachten, dan bewerken
+
+```js
+export const slow = command("slow", "Duurt even", async (ctx) => {
+  await ctx.wait();
+  await ctx.edit("Bezig…");
+  await ctx.edit("Klaar.");
+});
+```
+
+`wait()` gooit als je al `reply()` aanriep. `edit()` gooit als je noch wachtte noch antwoordde. `remove()` heeft dezelfde voorwaarde.
+
+## Follow-up
+
+```js
+export const two = command("two", "Twee berichten", async (ctx) => {
+  ctx.reply("Eerste regel.");
+  await ctx.followup("Tweede regel.");
+});
+```
+
+Was het eerste antwoord privé, geef latere tekst zelf privé mee als je opties doorgeeft. `followup` vóór een `reply` gooit.
+
+<Note>
+`ctx.send(channel, ...)` plaatst een gewoon kanaalbericht. Het kan niet privé zijn en geen `form()` dragen. Dat staat los van het interactie-antwoord ([Berichten sturen](/docs/sending-messages)).
+</Note>
+
+## Valkuilen
+
+- Een tweede `reply()` gooit "A command can only reply once." alleen als er een antwoord is opgeslagen en je noch `wait()` hebt gedaan, noch een collect hebt geflusht. Na `wait()` vult `edit()` of een nieuwe `reply()` de defer. Na een collect-flush vervangt een nieuwe `reply()` het opgeslagen antwoord.
+- `simulate()` heeft geen interactietoken, dus `wait()`, `edit()`, `remove()` en `collect()` gooien. `reply()` geeft nog steeds het `Reply`-object terug.
+- `ctx.reply(...)` teruggeven uit de handler is de gewone vorm. Er is geen aparte helper om de interactie te versturen.
+
+## Verder
+
+- [Knoppen, menu's & formulieren](/docs/pieces) · [Verzamelaars](/docs/collectors) · [Embeds en layout](/docs/embeds-layout) · [Recepten](/docs/recipes)

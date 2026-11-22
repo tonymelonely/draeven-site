@@ -1,0 +1,53 @@
+---
+title: Één proces
+description: Voorkom dat een tweede Start() het token deelt.
+order: 74
+---
+
+Twee Node-processen met hetzelfde bot-token vechten om de gateway-sessie en overschrijven elkaars commando's. `Start` roept eerst `claimAlone` aan. De standaardmodus is `"ask"`.
+
+Het lockbestand is `.draeven.pid` in de projectroot (`process.cwd()`). Het bevat de pid en het scriptpad. Draeven zoekt ook naar andere `node`-processen die hetzelfde script draaien.
+
+```js
+import { Start } from "@draeven/core";
+
+await Start({
+  token: process.env.DISCORD_TOKEN,
+  alone: "ask",
+});
+```
+
+## Modi
+
+| `alone` | Gedrag |
+|-----------|--------|
+| `"ask"` (standaard) | Als er een levende pid is en stdin een TTY is, vraagt Draeven of die gestopt moet worden. Ja stopt hem en gaat door. Nee gooit. |
+| `true` | Stop de andere pid en ga door. Geen vraag. |
+| `false` | Niet kijken. Twee processen mogen, en ze zullen botsen. |
+
+Op een non-TTY (CI, een servicebeheerder, veel Windows-taakrunners) vraagt `"ask"` **niet**. Een levende sibling gooit en zegt dat je hem moet stoppen of `alone: true` moet meegeven.
+
+<Warn fix="alone: false alleen met process-supervisor; alone: true om het oude proces te vervangen." href="/docs/why-failing">
+Zet `alone: false` alleen als een supervisor al garandeert dat er één proces is. Zet `alone: true` als een nieuwe deploy de oude moet vervangen.
+</Warn>
+
+## De helpers
+
+| Export | Rol |
+|--------|-----|
+| `claimAlone({ mode, root, script })` | Dezelfde check als `Start`. Geeft `{ release() }` terug. |
+| `listSiblingPids(script)` | Pids waarvan de commandoregel dat script bevat. |
+| `isAlive(pid)` | Of de pid nog bestaat. |
+| `killPid(pid)` | Stop die pid. |
+
+`release()` verwijdert `.draeven.pid` alleen als het nog dit proces noemt. `Start` geeft het vrij bij `bot.stop()`.
+
+## Valkuilen
+
+- Een gecrasht proces kan een oud bestand achterlaten. Draeven negeert een pid die niet leeft, en schrijft daarna zijn eigen bestand.
+- `root` is standaard de werkmap. Twee checkouts die uit verschillende mappen starten delen geen lock, en kunnen nog steeds een token delen.
+- Het stoppen van een sibling wacht maximaal 3 seconden tot hij afsluit.
+
+## Verder
+
+- [Installatie](/docs/install) · [Hot-reload en guard](/docs/hot-reload-guard)

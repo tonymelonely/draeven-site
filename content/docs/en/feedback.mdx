@@ -1,0 +1,43 @@
+---
+title: Feedback
+description: How to report a confusing guide or a real bug.
+order: 92
+---
+
+The guides and the core API are still moving. A short report is more useful than a long one if it includes the command you ran and the exact error text.
+
+## On this site
+
+1. Open **[Feedback](/feedback)**.
+2. Leave a star rating and a note.
+3. Sign in with Discord, or stay anonymous.
+
+Use that form when a page is wrong, an example failed, or you cannot tell which helper to call.
+
+## A bug that should be reproduced
+
+Include the command, what you expected, the `[Draeven]` line you got, core `0.1.9` (or whatever `version` prints), your Node version, and whether it was a guild or a DM.
+
+```bash
+node -e "import('@draeven/core').then(m => console.log(m.version))"
+```
+
+Paste the smallest `command()` that fails. Strip tokens. If the failure is a portal setting (privileged intent off, missing `applications.commands`), say which toggle you checked.
+
+<Tip>
+Read [Known limits](/docs/known-limits) first. Global command delay, the 3-second ack, and in-memory cooldowns are already documented there.
+</Tip>
+
+## Docs edits
+
+Guide source is `scripts/docs-catalog.mjs` (English and Dutch `body` strings). Regenerate the site files with:
+
+```bash
+node scripts/write-docs.mjs
+```
+
+The embeds page also carries `<Explain>` markers. After you edit `content/docs/*/embeds-layout.mdx` by hand, run `node scripts/sync-embeds-to-catalog.mjs` so the next `write-docs` keeps those markers.
+
+## Related
+
+- [Welcome](/docs/welcome) · [Known limits](/docs/known-limits)

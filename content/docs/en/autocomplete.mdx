@@ -1,0 +1,87 @@
+---
+title: Autocomplete
+description: Suggestions while a user types an option.
+order: 24
+---
+
+Autocomplete fills a focused option while the user is still typing. Attach `.suggest(handler)` to `text()`, `number()`, or `decimal()`. Discord calls that handler on each keystroke. The command handler still runs later, with whatever value was submitted.
+
+Use `choice()` instead when the list is fixed and short. Suggestions are for search, not for validation.
+
+## Suggest context
+
+The handler receives lookups plus:
+
+| Field | Meaning |
+|-------|---------|
+| `typed` | What they have typed so far. Not `value`. |
+| `focused` | Option name Discord is editing. |
+| `author` | Caller `{ id }`. |
+
+Return at most **25** items. Extra items are dropped. Each item is a string or `{ label, value }`. String values must be 1–100 characters. A number suggestion is a string such as `"5"`, or `{ label, value }` with a numeric `value`. A bare number throws.
+
+## Worked example
+
+```js
+import { command, text } from "@draeven/core";
+
+const NAMES = ["alpha", "beta", "gamma", "delta"];
+
+export const find = command(
+  "find",
+  "Find something",
+  {
+    query: text("Query?").required().suggest(async (ctx) => {
+      const q = ctx.typed.toLowerCase();
+      return NAMES.filter((name) => name.includes(q))
+        .slice(0, 25)
+        .map((name) => ({ label: name, value: name }));
+    }),
+  },
+  async (ctx) => ctx.reply(`Picked ${ctx.query}`)
+);
+```
+
+A plain string list is enough when label and value match:
+
+```js
+.suggest((ctx) => NAMES.filter((name) => name.startsWith(ctx.typed)).slice(0, 25))
+```
+
+## Numbers
+
+```js
+import { command, number } from "@draeven/core";
+
+export const qty = command(
+  "qty",
+  "Pick a size",
+  {
+    n: number("How many?").required().suggest((ctx) => {
+      const prefix = ctx.typed.trim();
+      return ["1", "5", "10", "25"].filter((n) => n.startsWith(prefix));
+    }),
+  },
+  async (ctx) => ctx.reply(String(ctx.n))
+);
+```
+
+Fixed `choices` on `number()` or `decimal()` cannot be combined with `.suggest()`. Draeven throws when you build that option.
+
+<Warn>
+The handler is not a validator. A user can submit text that never appeared in the list. Check `ctx.query` again in the command if only known ids are legal.
+</Warn>
+
+## Keep it fast
+
+Discord expects the suggestion response inside a short window, separate from the 3-second command ack. Filter memory. Do not open a fresh database round-trip on every character. Cache the list outside the handler.
+
+## Pitfalls
+
+- `.suggest()` does not exist on `user()`, `role()`, `channel()`, `choice()`, or `flag()`.
+- Empty `typed` should still return a useful first page, or the menu looks broken on focus.
+- More than 25 items is silent truncation, not an error. Slice yourself so the order is the one you want.
+
+## Related
+
+- [Options](/docs/options) · [Commands](/docs/commands)

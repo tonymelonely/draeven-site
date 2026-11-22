@@ -1,0 +1,108 @@
+---
+title: Commando-metadata
+description: Elk CommandMeta-veld, inclusief de PermissionName-lijst.
+order: 26
+---
+
+Het laatste argument van `command()` is een optionele `CommandMeta`. Bij `userMenu()` en `messageMenu()` staat dat object **vóór** `run`. Registratievelden gaan naar het Discord-commando. Gates draaien in het proces vóór je handler ([Rechten & gates](/docs/permissions)).
+
+<DocTour id="command-meta" />
+
+Laat een veld weg om de standaard van Draeven of Discord te houden. Een leeg object is geen metadata. Een verkeerd gespelde sleutel ook niet: `isMeta` accepteert alleen de sleutels in de tabel hieronder.
+
+<Note>Afgestemd op @draeven/core **0.1.9**. Veldnamen op deze pagina horen bij die release.</Note>
+
+## Velden
+
+| Veld | Soort | Wat het doet |
+|------|-------|----------------|
+| `permissions` | `PermissionName`, een lijst, een cijferstring of `bigint` | Standaard lid-rechten op het commando. Een lijst OR't de bits. Discord eist daarna alle bits. |
+| <Explain topic="command-nsfw">`nsfw`</Explain> | `boolean` | `true` beperkt het commando tot leeftijdsbegrensde kanalen. `false` stuurt `nsfw: false`. Laat de sleutel weg om hem niet te zetten. |
+| <Explain topic="command-places">`places`</Explain> | `"guild"`, `"bot dm"`, `"private"` | Discord-contexts `0`, `1` en `2`. Weglaten houdt de standaard van Discord. |
+| <Explain topic="command-install">`install`</Explain> | `"guild"`, `"user"` | Integratietypes `0` en `1`. Weglaten houdt de standaard van Discord. |
+| `cooldown` | getal of `{ seconds, scope?, private? }` | Wachttijd in het geheugen vóór `run`. Zie [Wachttijden](/docs/cooldowns). |
+| `locales` | record van Discord-locale naar `{ name?, description? }` | Registratieteksten, niet `say()`. Zie [Taalvarianten](/docs/locales). |
+| <Explain topic="command-need">`need`</Explain> | hetzelfde type als `permissions` | Runtime-gate. Het bitveld van het lid op de interactie moet elke bit bevatten. |
+| `ownerOnly` | `boolean` | Runtime-gate. `author.id` moet de guild-owner-id zijn. |
+| `when` | `(ctx) => boolean` | Runtime-gate. Geef `false` terug om te blokkeren. `ctx` heeft `author`, `locale` en lookups, geen `reply`. |
+| <Explain topic="command-defer">`defer`</Explain> | `true` of `{ private?: boolean }` | Defer vóór de handler. `true` is publiek. `{ private: true }` is efemeer. |
+| `autoDefer` | `boolean` | `false` zet de auto-defer van 2 seconden uit voor dit commando alleen. `true` overschrijft `Start({ autoDefer: false })` niet. |
+
+`hasPermissions` behandelt de Administrator-bit als een pass voor `need`. Discord moet die bit wel op de interactie zetten. `permissionBitfield` gooit `[Draeven] Unknown permission …` voor een naam die niet in de lijst hieronder staat. Een string van cijfers is een ruw bitveld.
+
+## PermissionName
+
+Dit zijn de enige namen. `ManageEmojisAndStickers` en `ManageGuildExpressions` zijn dezelfde bit.
+
+| Groep | Namen |
+|-------|--------|
+| Server | `CreateInstantInvite`, `KickMembers`, `BanMembers`, `Administrator`, `ManageChannels`, `ManageGuild`, `ViewAuditLog`, `ViewGuildInsights`, `ManageWebhooks`, `ManageEmojisAndStickers`, `ManageGuildExpressions`, `ViewCreatorMonetizationAnalytics` |
+| Chat | `ViewChannel`, `SendMessages`, `SendTTSMessages`, `ManageMessages`, `EmbedLinks`, `AttachFiles`, `ReadMessageHistory`, `MentionEveryone`, `AddReactions`, `UseExternalEmojis`, `UseExternalStickers`, `SendMessagesInThreads`, `SendVoiceMessages`, `SendPolls`, `UseExternalApps` |
+| Spraak | `Connect`, `Speak`, `Stream`, `PrioritySpeaker`, `MuteMembers`, `DeafenMembers`, `MoveMembers`, `UseVAD`, `RequestToSpeak`, `UseSoundboard`, `UseExternalSounds`, `UseEmbeddedActivities` |
+| Mensen | `ChangeNickname`, `ManageNicknames`, `ManageRoles`, `ModerateMembers`, `UseApplicationCommands` |
+| Threads en events | `ManageThreads`, `CreatePublicThreads`, `CreatePrivateThreads`, `ManageEvents`, `CreateEvents`, `CreateGuildExpressions` |
+
+## places, install en nsfw
+
+```js
+import { command } from "@draeven/core";
+
+export const guildOnly = command(
+  "guild-only",
+  "Alleen servers",
+  async (ctx) => ctx.reply("guild"),
+  { places: ["guild"], install: ["guild"] }
+);
+
+export const anywhere = command(
+  "anywhere",
+  "Guilds, de bot-DM en andere privécontexten",
+  async (ctx) => ctx.reply("ok"),
+  { places: ["guild", "bot dm", "private"], install: ["guild", "user"] }
+);
+
+export const ageGated = command(
+  "age-gated",
+  "Alleen leeftijdsbegrensde kanalen",
+  async (ctx) => ctx.reply("ok"),
+  { nsfw: true, places: ["guild"] }
+);
+```
+
+`"bot dm"` is de eigen DM van de bot. De spatie hoort bij de string. `"private"` is de andere privécontext (een groeps-DM, of een user-install-DM die niet de bot-DM is). `"guild"` op `install` is een serverinstallatie. `"user"` is een gebruikersinstallatie. Een onbekende place gooit `A place is guild, bot dm, or private.` Een onbekend install-doel gooit `An install target is guild or user.`
+
+## defer en autoDefer
+
+```js
+export const quiet = command(
+  "quiet",
+  "Eerst bevestigen, privé",
+  async (ctx) => {
+    const guild = ctx.getGuild();
+    return ctx.reply(guild ? guild.name : "dm");
+  },
+  {
+    defer: { private: true },
+    autoDefer: false,
+    locales: {
+      nl: { name: "stil", description: "Eerst bevestigen, privé" },
+    },
+    cooldown: 5,
+    need: "SendMessages",
+    when: (ctx) => Boolean(ctx.getGuild()),
+  }
+);
+```
+
+Een gelokaliseerde `name` is 1–32 tekens: kleine letters, cijfers, koppeltekens. Een gelokaliseerde `description` is 1–100 tekens. Locale-sleutels zien eruit als `nl` of `nl-NL`.
+
+<Warn fix="Zet autoDefer: false en antwoord eerst met form()." href="/docs/why-failing">
+Een formulier moet de eerste bevestiging zijn. `defer`, en een auto-defer die al is afgegaan, verbruiken allebei het token. Zet `autoDefer: false` op een commando dat een `form()` opent, en zet geen `defer`.
+</Warn>
+
+## Valkuilen
+
+- `permissions` is niet `need`. Een beheerder kan een commando nog aanroepen dat Discord verborgen zou hebben. `need` is de check die jij draait.
+- `need`, `ownerOnly`, `when` en `cooldown` horen op de parent `command()`, niet op `sub()`.
+- `places: []` stuurt een lege contextlijst. Laat `places` weg als je de standaard van Discord wilt.
+- `ownerOnly` faalt in een DM: er is geen guild-owner-id op die interactie.

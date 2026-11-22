@@ -1,0 +1,47 @@
+---
+title: @draeven/discord
+description: The low-level client under Start, and when you would import it.
+order: 65
+---
+
+`@draeven/discord` is the gateway and REST client that `@draeven/core` already depends on. An application bot installs `@draeven/core` and calls `Start()`. You open this package when you are reading payload types, checking `version`, or building a host that does not use `Start`. The bot handle you normally keep is the return value of `Start` ([Bot handle](/docs/bot-handle)).
+
+Core re-exports `intents`, `intentBits`, `intentsFor`, `eventIntents`, and the `Gateway*` types. Prefer those imports in app code so a command file does not take a dependency on the client package.
+
+## Exports
+
+| Export | Role |
+|--------|------|
+| `version` | Package version string. This tree publishes `"0.1.5"`. Core's own `version` is separate (`0.1.9` in these guides). |
+| `intents`, `intentBits`, `intentsFor`, `eventIntents` | Intent names and the bitmask for [gateway events](/docs/gateway-events). |
+| `gatewayEventNames`, `gatewayEventReaders` | Every `GatewayEventName`, plus the Discord `t` string and reader for each. |
+| `GatewayReady`, `GatewayGuild`, `GatewayChannel`, `GatewayRole`, `GatewayMember`, `GatewayBan`, `GatewayMessage`, `GatewayMessageDelete`, `GatewayMessageBulkDelete`, `GatewayReaction`, `GatewayReactionClear`, `GatewayReactionClearEmoji`, `GatewayVoice`, `GatewayInvite`, `GatewayTyping`, `GatewayPresence`, `GatewaySchedule`, `GatewayPollVote`, `GatewayEvents`, `GatewayEventName` | Payload types. |
+| `DiscordClient` | The session: `start`, `stop`, `setPresence`, `registerCommands`, `onCommand`, `onMenu`, `onSuggest`, `onUse`, `onEvent`, `onDispatch`, replies, and the moderation helpers `Start` uses. |
+| `DiscordRestClient` | Token REST helper. See below. |
+| `DiscordClientOptions` | `token`, optional `presence`, `intents`, and test-only gateway overrides. |
+| Interaction readers | `IncomingCommand`, `IncomingMenu`, `IncomingSuggest`, `IncomingUse`, and the option shapes. |
+| `EPHEMERAL`, `normalizeEmoji`, `createdAtFromId` | Flag bit, emoji path encoding, snowflake time. |
+
+The generated reference for this package is [/reference/discord](/reference/discord). Power-user entry points that sit on core, such as `startBot` and `answerCommand`, are on [Advanced API](/docs/advanced-api).
+
+## DiscordRestClient
+
+`DiscordClient` constructs one `DiscordRestClient` from the bot token and calls it for you. The surface, at a high level:
+
+- Gateway discovery (`getGatewayBot`) and reads: guild, roles, user, channel, message pages.
+- Interactions: defer, defer-update, reply, edit, follow-up, autocomplete choices, webhook message edit and delete.
+- Application commands: replace the guild or global command set.
+- Channel writes: create, edit, delete, purge, pin, unpin, react.
+- Members: timeout, kick, ban, move voice.
+
+App code should go through `ctx`, `bot.send`, and the mod helpers on the command context. Constructing a second REST client next to `Start` duplicates the token and skips Draeven's reply rules.
+
+<Warn fix="One library per token — do not mix discord.js in this process." href="/docs/why-failing">
+Do not mix this client with discord.js in the same process. There is no `Client`, no `EmbedBuilder`, and no shared gateway session. Two libraries on one token will fight over identify and heartbeats.
+</Warn>
+
+## Pitfalls
+
+- Slash commands need no gateway intents. Importing `DiscordClient` does not change that. `intentsFor("ready")` is `0`.
+- `onDispatch` receives the raw gateway payload. Typed handlers receive the objects on [Gateway event payloads](/docs/gateway-events). Prefer `onEvent` or `Start({ events })`.
+- `version` here is the discord package. `import { version } from "@draeven/core"` is the version these guides pin.

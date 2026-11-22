@@ -1,0 +1,77 @@
+---
+title: Commando's
+description: command(), ctx en metadata.
+order: 20
+---
+
+`command()` bouwt een slash-commando. `Start()` registreert het en roept je handler aan met één `ctx`.
+
+Verwante acties → [subcommando's](/docs/subcommands). Rechtermuisklik → [contextmenu's](/docs/context-menus).
+
+## Zonder opties · Met opties
+
+Naam: 1–32 tekens, `a-z`, cijfers, koppeltekens. Beschrijving: 1–100 tekens. Optie-sleutels landen op `ctx` naast `author`. `user()` zonder `.required()` mag `undefined` zijn; `getUser(ctx.author)` haalt de aanroeper op uit de ids die Discord meegaf.
+
+<Compare id="cmd-options-nl" />
+
+## Metadata is het laatste argument
+
+Gates, wachttijden, vertalingen en defer horen in `CommandMeta`, niet in het optie-object.
+
+```js
+export const secret = command(
+  "secret",
+  "Alleen de servereigenaar",
+  async (ctx) => ctx.reply("ok"),
+  {
+    ownerOnly: true,
+    defer: { private: true },
+    cooldown: 10,
+    need: "ManageGuild",
+  }
+);
+```
+
+| Veld | Wanneer |
+|------|---------|
+| `permissions` | Registratie. Standaard lid-rechten die Discord op het commando zet. |
+| `need` | Vóór de handler. De aanroeper moet deze bits hebben. |
+| `ownerOnly` | Vóór de handler. De aanroeper moet de **servereigenaar** zijn. |
+| `when` | Vóór de handler. `false` blokkeert. |
+| `cooldown` | Vóór de handler. Wacht in het geheugen ([Wachttijden](/docs/cooldowns)). |
+| `locales` | Registratie. Vertaalde naam en beschrijving. |
+| `defer` | `true` is publiek. `{ private: true }` is efemeer. |
+| `autoDefer` | `false` zet de veiligheids-defer van 2s uit voor dit commando. |
+| `nsfw` | Alleen in leeftijdsbegrensde kanalen. |
+| `places` | `"guild"`, `"bot dm"`, `"private"`. |
+| `install` | `"guild"`, `"user"`. |
+
+Details: [Rechten](/docs/permissions).
+
+## Wat er op ctx zit
+
+| Onderdeel | Leden |
+|-----------|-------|
+| Aanroeper | `author` (`{ id }`), `locale`, `opt` |
+| Opties | Eén eigenschap per sleutel, al opgelost |
+| Lookups | `getUser`, `getMember`, `getBot`, `getGuild`, `getChannel`, `getRole`, `getRoles`, `getFile` |
+| Antwoorden | `reply`, `followup`, `wait`, `edit`, `remove`, `transcript` |
+| Kanaalbericht | `send(channel, ...)` — niet efemeer |
+| Componenten | `collect` — geen package-import |
+| Moderatie | `timeout`, `kick`, `ban`, `purge`, `pin`, `unpin`, `react`, `editMessage`, `deleteMessage`, `moveVoice` |
+
+`getGuild()` en `getMember()` zijn `undefined` in een DM.
+
+<Warn>
+Optienamen volgen hetzelfde patroon als commandonamen, en deze sleutels zijn gereserveerd: `author`, `opt`, `reply`, `followup`, `send`, `wait`, `edit`, `remove`, `collect`, `locale`, `transcript` en de lookup-namen (`getuser`, `getguild`, …).
+</Warn>
+
+## Valkuilen
+
+- De `Reply` van `ctx.reply()` teruggeven is genoeg. Je hoeft niet nog een keer te versturen.
+- `reply()` gooit `A command can only reply once.` alleen als er al een antwoord is opgeslagen en je noch `wait()` hebt gedaan, noch een `collect` hebt geflusht. Na `wait()` vul je met `edit()` of een nieuwe `reply()`. Na een collect-flush vervangt een nieuwe `reply()` het opgeslagen antwoord. Gebruik `followup()` voor een extra bericht.
+- Traag werk hoort `await ctx.wait()` en daarna `ctx.edit(...)`, of leunt op de standaard auto-defer na 2 seconden ([Antwoorden](/docs/replies)).
+
+## Verder
+
+- [Opties](/docs/options) · [Subcommando's](/docs/subcommands) · [Taalvarianten](/docs/locales)

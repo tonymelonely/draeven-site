@@ -1,0 +1,50 @@
+---
+title: Vanuit discord.js (spiekbrief)
+description: discord.js-namen naast de Draeven-aanroep die ze vervangt.
+order: 12
+---
+
+Alleen een namenkaart. Draeven is een eigen framework. Er is geen `Client`, en een discord.js-`Client` mengt niet in dit proces.
+
+| Je kent (discord.js) | In Draeven |
+|----------------------|------------|
+| `Client` / Events | `Start` + `events` / `intentsFor` |
+| `SlashCommandBuilder` | `command()` |
+| `EmbedBuilder` | `embed({ header, description, color, fields, timestamp })`. `breakline` en `wide` zijn veldhelpers, geen embed-sleutels. `time()` vult een veldwaarde. |
+| `ActionRowBuilder` / `ButtonBuilder` | `row()` + `button()` |
+| Modal | `form()` |
+| Collectors | `ctx.collect` |
+| `interaction.reply` / `deferReply` / `editReply` | `reply` / `wait` / `edit` |
+| Kicks via `GuildMemberManager` | `ctx.timeout` / `kick` / `ban` |
+
+## Naast elkaar
+
+Echte vormen. Links typisch discord.js. Rechts Draeven.
+
+### De bot starten
+
+<Compare id="djs-start" />
+
+### Slash-commando + reply
+
+<Compare id="djs-command" />
+
+### Embed
+
+<Compare id="djs-embed" />
+
+`color: "green"` is `#008000`. Het discord.js-voorbeeld gebruikt `0x57f287`. Geef een getal mee als je die exacte kleur wilt.
+
+### Knoppenrij + collect
+
+<Compare id="djs-button" />
+
+discord.js haalt de rij weg met `components: []`. Een Draeven-`edit` die alleen tekst is, houdt de knoppen. `rows: []` valt weg, dus er gaat geen `components: []` mee. `remove()` verwijdert het antwoord.
+
+<Warn fix="Eén library per token — haal discord.js uit dit proces." href="/docs/why-failing">
+Installeer discord.js niet naast Draeven voor dezelfde bot. Twee clients op één token vechten om de gateway.
+</Warn>
+
+Klaar om echt te migreren? Gebruik de [Migratie-checklist](/docs/migration-checklist).
+
+Vormen voor de rechterkolom: [Embeds en layout](/docs/embeds-layout) · [Knoppen, menu's & formulieren](/docs/pieces) · [Verzamelaars](/docs/collectors) · [Welkom](/docs/welcome) · [Bekende limieten](/docs/known-limits).

@@ -1,0 +1,73 @@
+---
+title: Mod-acties
+description: timeout, kick, ban, purge en berichthulp op ctx.
+order: 48
+---
+
+Moderatiehelpers zitten op de commando-`ctx`. Ze roepen Discord-REST aan via de gatewayverbinding die `Start()` opende. Gebruik ze in een guild-commando. Ze gooien in een DM of als die verbinding de actie niet kan uitvoeren.
+
+Koppel ze altijd aan `need`, zodat de aanroeper wordt gecontroleerd vóór de REST-aanroep ([Rechten](/docs/permissions)).
+
+## Signaturen
+
+| Methode | Aanroep |
+|---------|---------|
+| `timeout` | `(user, seconden, reason?)` — `0` seconden heft op |
+| `kick` | `(user, reason?)` |
+| `ban` | `(user, { seconds?, reason? }?)` — `seconds` is hoe lang recente berichten worden verwijderd |
+| `moveVoice` | `(user, channel \| null)` — `null` verbreekt |
+| `purge` | `(channel, aantal)` — aantal **2–100**, geeft terug hoeveel ids zijn verstuurd |
+| `pin` / `unpin` | `(channel, messageId)` |
+| `react` | `(channel, messageId, emoji)` |
+| `editMessage` | `(channel, messageId, tekst)` — 1–2000 tekens, berichten van de bot |
+| `deleteMessage` | `(channel, messageId, reason?)` |
+
+`user` en `channel` nemen een echt object (`ctx.who`, `ctx.getChannel()`) of een id-string.
+
+## Timeout
+
+```js
+import { command, user, number } from "@draeven/core";
+
+export const mute = command(
+  "mute",
+  "Timeout een lid",
+  {
+    who: user("Wie?").required(),
+    mins: number("Minuten?", { min: 1, max: 40320 }),
+  },
+  async (ctx) => {
+    const minutes = ctx.mins ?? 10;
+    await ctx.timeout(ctx.who, minutes * 60, "Timeout via commando");
+    return ctx.reply(`Timeout voor ${ctx.who.name}: ${minutes}m.`);
+  },
+  { need: "ModerateMembers" }
+);
+```
+
+De timeoutlengte van Discord is in seconden. Het maximum dat Discord aanneemt is 28 dagen (`40320` minuten). Opheffen is `ctx.timeout(ctx.who, 0)`.
+
+## Purge en één bericht wissen
+
+```js
+const channel = ctx.getChannel();
+if (!channel) return ctx.reply("Geen kanaal hier.", { private: true });
+const removed = await ctx.purge(channel, 50);
+await ctx.reply(`Verwijderd: ${removed}.`, { private: true });
+```
+
+`purge` haalt recente ids op en verwijdert ze in bulk. Minder dan twee verwijderbare berichten geeft `0` terug en roept het bulk-eindpunt niet aan. Eén specifiek bericht is `ctx.deleteMessage(channel, messageId, "reden")`.
+
+<Warn>
+`editMessage` vervangt alleen tekst op een bericht dat de bot zelf maakte. Het is niet `ctx.edit`, dat het interactie-antwoord bijwerkt.
+</Warn>
+
+## Valkuilen
+
+- Helpers zitten niet op de menucontext. Een rechtermuisklik die bant hoort een slash-commando te openen, of REST buiten deze helpers aan te roepen.
+- `purge` vraagt Manage Messages van de bot en van de aanroeper als je gate met `need: "ManageMessages"`.
+- `seconds` bij `ban` is een wisvenster, geen tijdelijke ban. Draeven plant geen unban.
+
+## Verder
+
+- [Subcommando's](/docs/subcommands) · [Rechten](/docs/permissions) · [Berichten sturen](/docs/sending-messages)

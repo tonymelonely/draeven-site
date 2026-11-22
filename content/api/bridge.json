@@ -1,0 +1,2508 @@
+{
+	"schemaVersion": "2.0",
+	"id": 2939,
+	"name": "@draeven/bridge",
+	"variant": "project",
+	"kind": 1,
+	"flags": {},
+	"children": [
+		{
+			"id": 3012,
+			"name": "AuditEntry",
+			"variant": "declaration",
+			"kind": 256,
+			"flags": {},
+			"children": [
+				{
+					"id": 3016,
+					"name": "action",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "audit.ts",
+							"line": 10,
+							"character": 2,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/audit.ts#L10"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				},
+				{
+					"id": 3014,
+					"name": "actorId",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "audit.ts",
+							"line": 8,
+							"character": 2,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/audit.ts#L8"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				},
+				{
+					"id": 3015,
+					"name": "actorName",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "audit.ts",
+							"line": 9,
+							"character": 2,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/audit.ts#L9"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				},
+				{
+					"id": 3013,
+					"name": "at",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "audit.ts",
+							"line": 7,
+							"character": 2,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/audit.ts#L7"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				},
+				{
+					"id": 3017,
+					"name": "detail",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isOptional": true
+					},
+					"sources": [
+						{
+							"fileName": "audit.ts",
+							"line": 11,
+							"character": 2,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/audit.ts#L11"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				}
+			],
+			"groups": [
+				{
+					"title": "Properties",
+					"children": [
+						3016,
+						3014,
+						3015,
+						3013,
+						3017
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "audit.ts",
+					"line": 6,
+					"character": 17,
+					"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/audit.ts#L6"
+				}
+			]
+		},
+		{
+			"id": 2944,
+			"name": "DashboardHandle",
+			"variant": "declaration",
+			"kind": 256,
+			"flags": {},
+			"children": [
+				{
+					"id": 2946,
+					"name": "kind",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isReadonly": true
+					},
+					"sources": [
+						{
+							"fileName": "server.ts",
+							"line": 66,
+							"character": 11,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/server.ts#L66"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": 2963,
+						"name": "ServeKind",
+						"package": "@draeven/bridge"
+					}
+				},
+				{
+					"id": 2947,
+					"name": "settings",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isReadonly": true
+					},
+					"sources": [
+						{
+							"fileName": "server.ts",
+							"line": 67,
+							"character": 11,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/server.ts#L67"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": 2996,
+						"name": "DashboardSettings",
+						"package": "@draeven/bridge"
+					}
+				},
+				{
+					"id": 2945,
+					"name": "url",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isReadonly": true
+					},
+					"sources": [
+						{
+							"fileName": "server.ts",
+							"line": 65,
+							"character": 11,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/server.ts#L65"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				},
+				{
+					"id": 2948,
+					"name": "stop",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "server.ts",
+							"line": 68,
+							"character": 2,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/server.ts#L68"
+						}
+					],
+					"signatures": [
+						{
+							"id": 2949,
+							"name": "stop",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "server.ts",
+									"line": 68,
+									"character": 2,
+									"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/server.ts#L68"
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": {
+									"packageName": "typescript",
+									"packagePath": "lib/lib.es5.d.ts",
+									"qualifiedName": "Promise"
+								},
+								"typeArguments": [
+									{
+										"type": "intrinsic",
+										"name": "void"
+									}
+								],
+								"name": "Promise",
+								"package": "typescript"
+							}
+						}
+					]
+				}
+			],
+			"groups": [
+				{
+					"title": "Properties",
+					"children": [
+						2946,
+						2947,
+						2945
+					]
+				},
+				{
+					"title": "Methods",
+					"children": [
+						2948
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "server.ts",
+					"line": 64,
+					"character": 17,
+					"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/server.ts#L64"
+				}
+			]
+		},
+		{
+			"id": 2950,
+			"name": "DashboardOptions",
+			"variant": "declaration",
+			"kind": 256,
+			"flags": {},
+			"children": [
+				{
+					"id": 2960,
+					"name": "allowIps",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isOptional": true
+					},
+					"sources": [
+						{
+							"fileName": "server.ts",
+							"line": 59,
+							"character": 2,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/server.ts#L59"
+						}
+					],
+					"type": {
+						"type": "typeOperator",
+						"operator": "readonly",
+						"target": {
+							"type": "array",
+							"elementType": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						}
+					}
+				},
+				{
+					"id": 2951,
+					"name": "bot",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "server.ts",
+							"line": 50,
+							"character": 2,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/server.ts#L50"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "@draeven/core",
+							"packagePath": "src/bot.ts",
+							"qualifiedName": "Bot"
+						},
+						"name": "Bot",
+						"package": "@draeven/core"
+					}
+				},
+				{
+					"id": 2953,
+					"name": "botToken",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "server.ts",
+							"line": 52,
+							"character": 2,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/server.ts#L52"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				},
+				{
+					"id": 2959,
+					"name": "bridgeSecret",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isOptional": true
+					},
+					"sources": [
+						{
+							"fileName": "server.ts",
+							"line": 58,
+							"character": 2,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/server.ts#L58"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				},
+				{
+					"id": 2955,
+					"name": "guildId",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isOptional": true
+					},
+					"sources": [
+						{
+							"fileName": "server.ts",
+							"line": 54,
+							"character": 2,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/server.ts#L54"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				},
+				{
+					"id": 2957,
+					"name": "host",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isOptional": true
+					},
+					"sources": [
+						{
+							"fileName": "server.ts",
+							"line": 56,
+							"character": 2,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/server.ts#L56"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				},
+				{
+					"id": 2954,
+					"name": "kind",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isOptional": true
+					},
+					"sources": [
+						{
+							"fileName": "server.ts",
+							"line": 53,
+							"character": 2,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/server.ts#L53"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": 2963,
+						"name": "ServeKind",
+						"package": "@draeven/bridge"
+					}
+				},
+				{
+					"id": 2956,
+					"name": "logChannelId",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isOptional": true
+					},
+					"sources": [
+						{
+							"fileName": "server.ts",
+							"line": 55,
+							"character": 2,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/server.ts#L55"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				},
+				{
+					"id": 2958,
+					"name": "port",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isOptional": true
+					},
+					"sources": [
+						{
+							"fileName": "server.ts",
+							"line": 57,
+							"character": 2,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/server.ts#L57"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "number"
+					}
+				},
+				{
+					"id": 2952,
+					"name": "root",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "server.ts",
+							"line": 51,
+							"character": 2,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/server.ts#L51"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				},
+				{
+					"id": 2961,
+					"name": "tlsCertPath",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isOptional": true
+					},
+					"sources": [
+						{
+							"fileName": "server.ts",
+							"line": 60,
+							"character": 2,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/server.ts#L60"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				},
+				{
+					"id": 2962,
+					"name": "tlsKeyPath",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isOptional": true
+					},
+					"sources": [
+						{
+							"fileName": "server.ts",
+							"line": 61,
+							"character": 2,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/server.ts#L61"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				}
+			],
+			"groups": [
+				{
+					"title": "Properties",
+					"children": [
+						2960,
+						2951,
+						2953,
+						2959,
+						2955,
+						2957,
+						2954,
+						2956,
+						2958,
+						2952,
+						2961,
+						2962
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "server.ts",
+					"line": 49,
+					"character": 17,
+					"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/server.ts#L49"
+				}
+			]
+		},
+		{
+			"id": 2996,
+			"name": "DashboardSettings",
+			"variant": "declaration",
+			"kind": 256,
+			"flags": {},
+			"children": [
+				{
+					"id": 3002,
+					"name": "feedLimit",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "store.ts",
+							"line": 15,
+							"character": 2,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/store.ts#L15"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "number"
+					}
+				},
+				{
+					"id": 2997,
+					"name": "language",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "store.ts",
+							"line": 9,
+							"character": 2,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/store.ts#L9"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": 2995,
+						"name": "DashboardLanguage",
+						"package": "@draeven/bridge"
+					}
+				},
+				{
+					"id": 2998,
+					"name": "prefix",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Optional message-command prefix (slash commands stay the primary API)."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "store.ts",
+							"line": 11,
+							"character": 2,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/store.ts#L11"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				},
+				{
+					"id": 3000,
+					"name": "presenceStatus",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "store.ts",
+							"line": 13,
+							"character": 2,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/store.ts#L13"
+						}
+					],
+					"type": {
+						"type": "union",
+						"types": [
+							{
+								"type": "literal",
+								"value": "online"
+							},
+							{
+								"type": "literal",
+								"value": "idle"
+							},
+							{
+								"type": "literal",
+								"value": "dnd"
+							},
+							{
+								"type": "literal",
+								"value": "invisible"
+							}
+						]
+					}
+				},
+				{
+					"id": 2999,
+					"name": "presenceText",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "store.ts",
+							"line": 12,
+							"character": 2,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/store.ts#L12"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				},
+				{
+					"id": 3003,
+					"name": "selectedGuildId",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isOptional": true
+					},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Selected guild for members/actions (overrides env default when set)."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "store.ts",
+							"line": 17,
+							"character": 2,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/store.ts#L17"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				},
+				{
+					"id": 3001,
+					"name": "showBotMessagesInFeed",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "store.ts",
+							"line": 14,
+							"character": 2,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/store.ts#L14"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "boolean"
+					}
+				}
+			],
+			"groups": [
+				{
+					"title": "Properties",
+					"children": [
+						3002,
+						2997,
+						2998,
+						3000,
+						2999,
+						3003,
+						3001
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "store.ts",
+					"line": 8,
+					"character": 17,
+					"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/store.ts#L8"
+				}
+			]
+		},
+		{
+			"id": 2967,
+			"name": "DeskHandle",
+			"variant": "declaration",
+			"kind": 256,
+			"flags": {},
+			"children": [
+				{
+					"id": 2968,
+					"name": "url",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isReadonly": true
+					},
+					"sources": [
+						{
+							"fileName": "desk.ts",
+							"line": 37,
+							"character": 11,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/desk.ts#L37"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				},
+				{
+					"id": 2969,
+					"name": "stop",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "desk.ts",
+							"line": 38,
+							"character": 2,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/desk.ts#L38"
+						}
+					],
+					"signatures": [
+						{
+							"id": 2970,
+							"name": "stop",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "desk.ts",
+									"line": 38,
+									"character": 2,
+									"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/desk.ts#L38"
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": {
+									"packageName": "typescript",
+									"packagePath": "lib/lib.es5.d.ts",
+									"qualifiedName": "Promise"
+								},
+								"typeArguments": [
+									{
+										"type": "intrinsic",
+										"name": "void"
+									}
+								],
+								"name": "Promise",
+								"package": "typescript"
+							}
+						}
+					]
+				}
+			],
+			"groups": [
+				{
+					"title": "Properties",
+					"children": [
+						2968
+					]
+				},
+				{
+					"title": "Methods",
+					"children": [
+						2969
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "desk.ts",
+					"line": 36,
+					"character": 17,
+					"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/desk.ts#L36"
+				}
+			]
+		},
+		{
+			"id": 2971,
+			"name": "DeskOptions",
+			"variant": "declaration",
+			"kind": 256,
+			"flags": {},
+			"children": [
+				{
+					"id": 2977,
+					"name": "allowIps",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isOptional": true
+					},
+					"sources": [
+						{
+							"fileName": "desk.ts",
+							"line": 31,
+							"character": 2,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/desk.ts#L31"
+						}
+					],
+					"type": {
+						"type": "typeOperator",
+						"operator": "readonly",
+						"target": {
+							"type": "array",
+							"elementType": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						}
+					}
+				},
+				{
+					"id": 2974,
+					"name": "bridgeSecret",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "desk.ts",
+							"line": 28,
+							"character": 2,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/desk.ts#L28"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				},
+				{
+					"id": 2973,
+					"name": "bridgeUrl",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "desk.ts",
+							"line": 27,
+							"character": 2,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/desk.ts#L27"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				},
+				{
+					"id": 2975,
+					"name": "host",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isOptional": true
+					},
+					"sources": [
+						{
+							"fileName": "desk.ts",
+							"line": 29,
+							"character": 2,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/desk.ts#L29"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				},
+				{
+					"id": 2976,
+					"name": "port",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isOptional": true
+					},
+					"sources": [
+						{
+							"fileName": "desk.ts",
+							"line": 30,
+							"character": 2,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/desk.ts#L30"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "number"
+					}
+				},
+				{
+					"id": 2972,
+					"name": "root",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "desk.ts",
+							"line": 26,
+							"character": 2,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/desk.ts#L26"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				},
+				{
+					"id": 2978,
+					"name": "tlsCertPath",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isOptional": true
+					},
+					"sources": [
+						{
+							"fileName": "desk.ts",
+							"line": 32,
+							"character": 2,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/desk.ts#L32"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				},
+				{
+					"id": 2979,
+					"name": "tlsKeyPath",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isOptional": true
+					},
+					"sources": [
+						{
+							"fileName": "desk.ts",
+							"line": 33,
+							"character": 2,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/desk.ts#L33"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				}
+			],
+			"groups": [
+				{
+					"title": "Properties",
+					"children": [
+						2977,
+						2974,
+						2973,
+						2975,
+						2976,
+						2972,
+						2978,
+						2979
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "desk.ts",
+					"line": 25,
+					"character": 17,
+					"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/desk.ts#L25"
+				}
+			]
+		},
+		{
+			"id": 2995,
+			"name": "DashboardLanguage",
+			"variant": "declaration",
+			"kind": 2097152,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "store.ts",
+					"line": 6,
+					"character": 12,
+					"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/store.ts#L6"
+				}
+			],
+			"type": {
+				"type": "union",
+				"types": [
+					{
+						"type": "literal",
+						"value": "nl"
+					},
+					{
+						"type": "literal",
+						"value": "en"
+					}
+				]
+			}
+		},
+		{
+			"id": 2987,
+			"name": "DashboardMode",
+			"variant": "declaration",
+			"kind": 2097152,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "mode.ts",
+					"line": 3,
+					"character": 12,
+					"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/mode.ts#L3"
+				}
+			],
+			"type": {
+				"type": "union",
+				"types": [
+					{
+						"type": "literal",
+						"value": "off"
+					},
+					{
+						"type": "literal",
+						"value": "embedded"
+					},
+					{
+						"type": "literal",
+						"value": "bridge"
+					},
+					{
+						"type": "literal",
+						"value": "desk"
+					}
+				]
+			}
+		},
+		{
+			"id": 2963,
+			"name": "ServeKind",
+			"variant": "declaration",
+			"kind": 2097152,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "server.ts",
+					"line": 47,
+					"character": 12,
+					"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/server.ts#L47"
+				}
+			],
+			"type": {
+				"type": "union",
+				"types": [
+					{
+						"type": "literal",
+						"value": "embedded"
+					},
+					{
+						"type": "literal",
+						"value": "bridge"
+					}
+				]
+			}
+		},
+		{
+			"id": 2940,
+			"name": "version",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 3,
+					"character": 13,
+					"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/index.ts#L3"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": "0.1.0"
+			},
+			"defaultValue": "\"0.1.0\""
+		},
+		{
+			"id": 3004,
+			"name": "appendAudit",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "audit.ts",
+					"line": 14,
+					"character": 22,
+					"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/audit.ts#L14"
+				}
+			],
+			"signatures": [
+				{
+					"id": 3005,
+					"name": "appendAudit",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "audit.ts",
+							"line": 14,
+							"character": 22,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/audit.ts#L14"
+						}
+					],
+					"parameters": [
+						{
+							"id": 3006,
+							"name": "root",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						},
+						{
+							"id": 3007,
+							"name": "entry",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"packageName": "typescript",
+									"packagePath": "lib/lib.es5.d.ts",
+									"qualifiedName": "Omit"
+								},
+								"typeArguments": [
+									{
+										"type": "reference",
+										"target": 3012,
+										"name": "AuditEntry",
+										"package": "@draeven/bridge"
+									},
+									{
+										"type": "literal",
+										"value": "at"
+									}
+								],
+								"name": "Omit",
+								"package": "typescript"
+							}
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "typescript",
+							"packagePath": "lib/lib.es5.d.ts",
+							"qualifiedName": "Promise"
+						},
+						"typeArguments": [
+							{
+								"type": "reference",
+								"target": 3012,
+								"name": "AuditEntry",
+								"package": "@draeven/bridge"
+							}
+						],
+						"name": "Promise",
+						"package": "typescript"
+					}
+				}
+			]
+		},
+		{
+			"id": 3028,
+			"name": "bridgePublicDir",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "paths.ts",
+					"line": 6,
+					"character": 16,
+					"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/paths.ts#L6"
+				}
+			],
+			"signatures": [
+				{
+					"id": 3029,
+					"name": "bridgePublicDir",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "paths.ts",
+							"line": 6,
+							"character": 16,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/paths.ts#L6"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				}
+			]
+		},
+		{
+			"id": 3021,
+			"name": "clientIp",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "hardening.ts",
+					"line": 14,
+					"character": 16,
+					"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/hardening.ts#L14"
+				}
+			],
+			"signatures": [
+				{
+					"id": 3022,
+					"name": "clientIp",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "hardening.ts",
+							"line": 14,
+							"character": 16,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/hardening.ts#L14"
+						}
+					],
+					"parameters": [
+						{
+							"id": 3023,
+							"name": "req",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"packageName": "@types/node",
+									"packagePath": "http.d.ts",
+									"qualifiedName": "\"node:http\".IncomingMessage"
+								},
+								"name": "IncomingMessage",
+								"package": "@types/node",
+								"qualifiedName": "\"node:http\".IncomingMessage"
+							}
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				}
+			]
+		},
+		{
+			"id": 3024,
+			"name": "ipAllowed",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "hardening.ts",
+					"line": 24,
+					"character": 16,
+					"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/hardening.ts#L24"
+				}
+			],
+			"signatures": [
+				{
+					"id": 3025,
+					"name": "ipAllowed",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "hardening.ts",
+							"line": 24,
+							"character": 16,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/hardening.ts#L24"
+						}
+					],
+					"parameters": [
+						{
+							"id": 3026,
+							"name": "ip",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						},
+						{
+							"id": 3027,
+							"name": "allowIps",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "union",
+								"types": [
+									{
+										"type": "typeOperator",
+										"operator": "readonly",
+										"target": {
+											"type": "array",
+											"elementType": {
+												"type": "intrinsic",
+												"name": "string"
+											}
+										}
+									},
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									}
+								]
+							}
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "boolean"
+					}
+				}
+			]
+		},
+		{
+			"id": 2988,
+			"name": "loadSettings",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "store.ts",
+					"line": 29,
+					"character": 22,
+					"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/store.ts#L29"
+				}
+			],
+			"signatures": [
+				{
+					"id": 2989,
+					"name": "loadSettings",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "store.ts",
+							"line": 29,
+							"character": 22,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/store.ts#L29"
+						}
+					],
+					"parameters": [
+						{
+							"id": 2990,
+							"name": "root",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "typescript",
+							"packagePath": "lib/lib.es5.d.ts",
+							"qualifiedName": "Promise"
+						},
+						"typeArguments": [
+							{
+								"type": "reference",
+								"target": 2996,
+								"name": "DashboardSettings",
+								"package": "@draeven/bridge"
+							}
+						],
+						"name": "Promise",
+						"package": "typescript"
+					}
+				}
+			]
+		},
+		{
+			"id": 3018,
+			"name": "readAllowIps",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "hardening.ts",
+					"line": 36,
+					"character": 16,
+					"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/hardening.ts#L36"
+				}
+			],
+			"signatures": [
+				{
+					"id": 3019,
+					"name": "readAllowIps",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "hardening.ts",
+							"line": 36,
+							"character": 16,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/hardening.ts#L36"
+						}
+					],
+					"parameters": [
+						{
+							"id": 3020,
+							"name": "raw",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "union",
+								"types": [
+									{
+										"type": "intrinsic",
+										"name": "string"
+									},
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									}
+								]
+							},
+							"defaultValue": "process.env.BRIDGE_ALLOW_IPS"
+						}
+					],
+					"type": {
+						"type": "array",
+						"elementType": {
+							"type": "intrinsic",
+							"name": "string"
+						}
+					}
+				}
+			]
+		},
+		{
+			"id": 3008,
+			"name": "readAudit",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "audit.ts",
+					"line": 22,
+					"character": 22,
+					"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/audit.ts#L22"
+				}
+			],
+			"signatures": [
+				{
+					"id": 3009,
+					"name": "readAudit",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "audit.ts",
+							"line": 22,
+							"character": 22,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/audit.ts#L22"
+						}
+					],
+					"parameters": [
+						{
+							"id": 3010,
+							"name": "root",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						},
+						{
+							"id": 3011,
+							"name": "limit",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "intrinsic",
+								"name": "number"
+							},
+							"defaultValue": "200"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "typescript",
+							"packagePath": "lib/lib.es5.d.ts",
+							"qualifiedName": "Promise"
+						},
+						"typeArguments": [
+							{
+								"type": "array",
+								"elementType": {
+									"type": "reference",
+									"target": 3012,
+									"name": "AuditEntry",
+									"package": "@draeven/bridge"
+								}
+							}
+						],
+						"name": "Promise",
+						"package": "typescript"
+					}
+				}
+			]
+		},
+		{
+			"id": 2983,
+			"name": "readBridgeSecret",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "mode.ts",
+					"line": 23,
+					"character": 16,
+					"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/mode.ts#L23"
+				}
+			],
+			"signatures": [
+				{
+					"id": 2984,
+					"name": "readBridgeSecret",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "mode.ts",
+							"line": 23,
+							"character": 16,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/mode.ts#L23"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				}
+			]
+		},
+		{
+			"id": 2985,
+			"name": "readBridgeUrl",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "mode.ts",
+					"line": 35,
+					"character": 16,
+					"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/mode.ts#L35"
+				}
+			],
+			"signatures": [
+				{
+					"id": 2986,
+					"name": "readBridgeUrl",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "mode.ts",
+							"line": 35,
+							"character": 16,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/mode.ts#L35"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				}
+			]
+		},
+		{
+			"id": 2980,
+			"name": "readDashboardMode",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "mode.ts",
+					"line": 5,
+					"character": 16,
+					"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/mode.ts#L5"
+				}
+			],
+			"signatures": [
+				{
+					"id": 2981,
+					"name": "readDashboardMode",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "mode.ts",
+							"line": 5,
+							"character": 16,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/mode.ts#L5"
+						}
+					],
+					"parameters": [
+						{
+							"id": 2982,
+							"name": "raw",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "union",
+								"types": [
+									{
+										"type": "intrinsic",
+										"name": "string"
+									},
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									}
+								]
+							},
+							"defaultValue": "process.env.DASHBOARD"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": 2987,
+						"name": "DashboardMode",
+						"package": "@draeven/bridge"
+					}
+				}
+			]
+		},
+		{
+			"id": 2991,
+			"name": "saveSettings",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "store.ts",
+					"line": 59,
+					"character": 22,
+					"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/store.ts#L59"
+				}
+			],
+			"signatures": [
+				{
+					"id": 2992,
+					"name": "saveSettings",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "store.ts",
+							"line": 59,
+							"character": 22,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/store.ts#L59"
+						}
+					],
+					"parameters": [
+						{
+							"id": 2993,
+							"name": "root",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						},
+						{
+							"id": 2994,
+							"name": "next",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": 2996,
+								"name": "DashboardSettings",
+								"package": "@draeven/bridge"
+							}
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "typescript",
+							"packagePath": "lib/lib.es5.d.ts",
+							"qualifiedName": "Promise"
+						},
+						"typeArguments": [
+							{
+								"type": "intrinsic",
+								"name": "void"
+							}
+						],
+						"name": "Promise",
+						"package": "typescript"
+					}
+				}
+			]
+		},
+		{
+			"id": 2941,
+			"name": "startDashboard",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "server.ts",
+					"line": 107,
+					"character": 22,
+					"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/server.ts#L107"
+				}
+			],
+			"signatures": [
+				{
+					"id": 2942,
+					"name": "startDashboard",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "server.ts",
+							"line": 107,
+							"character": 22,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/server.ts#L107"
+						}
+					],
+					"parameters": [
+						{
+							"id": 2943,
+							"name": "options",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": 2950,
+								"name": "DashboardOptions",
+								"package": "@draeven/bridge"
+							}
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "typescript",
+							"packagePath": "lib/lib.es5.d.ts",
+							"qualifiedName": "Promise"
+						},
+						"typeArguments": [
+							{
+								"type": "reference",
+								"target": 2944,
+								"name": "DashboardHandle",
+								"package": "@draeven/bridge"
+							}
+						],
+						"name": "Promise",
+						"package": "typescript"
+					}
+				}
+			]
+		},
+		{
+			"id": 2964,
+			"name": "startDesk",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "desk.ts",
+					"line": 49,
+					"character": 22,
+					"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/desk.ts#L49"
+				}
+			],
+			"signatures": [
+				{
+					"id": 2965,
+					"name": "startDesk",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "desk.ts",
+							"line": 49,
+							"character": 22,
+							"url": "https://github.com/tonymelonely/Draeven-framework/blob/e622db94954ed75c2f68a3dcb50ecb9554b11d6c/packages/bridge/src/desk.ts#L49"
+						}
+					],
+					"parameters": [
+						{
+							"id": 2966,
+							"name": "options",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": 2971,
+								"name": "DeskOptions",
+								"package": "@draeven/bridge"
+							}
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "typescript",
+							"packagePath": "lib/lib.es5.d.ts",
+							"qualifiedName": "Promise"
+						},
+						"typeArguments": [
+							{
+								"type": "reference",
+								"target": 2967,
+								"name": "DeskHandle",
+								"package": "@draeven/bridge"
+							}
+						],
+						"name": "Promise",
+						"package": "typescript"
+					}
+				}
+			]
+		}
+	],
+	"groups": [
+		{
+			"title": "Interfaces",
+			"children": [
+				3012,
+				2944,
+				2950,
+				2996,
+				2967,
+				2971
+			]
+		},
+		{
+			"title": "Type Aliases",
+			"children": [
+				2995,
+				2987,
+				2963
+			]
+		},
+		{
+			"title": "Variables",
+			"children": [
+				2940
+			]
+		},
+		{
+			"title": "Functions",
+			"children": [
+				3004,
+				3028,
+				3021,
+				3024,
+				2988,
+				3018,
+				3008,
+				2983,
+				2985,
+				2980,
+				2991,
+				2941,
+				2964
+			]
+		}
+	],
+	"packageName": "@draeven/bridge",
+	"symbolIdMap": {
+		"2939": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/index.ts",
+			"qualifiedName": ""
+		},
+		"2940": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/index.ts",
+			"qualifiedName": "version"
+		},
+		"2941": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/server.ts",
+			"qualifiedName": "startDashboard"
+		},
+		"2942": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/server.ts",
+			"qualifiedName": "startDashboard"
+		},
+		"2943": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/server.ts",
+			"qualifiedName": "options"
+		},
+		"2944": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/server.ts",
+			"qualifiedName": "DashboardHandle"
+		},
+		"2945": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/server.ts",
+			"qualifiedName": "DashboardHandle.url"
+		},
+		"2946": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/server.ts",
+			"qualifiedName": "DashboardHandle.kind"
+		},
+		"2947": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/server.ts",
+			"qualifiedName": "DashboardHandle.settings"
+		},
+		"2948": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/server.ts",
+			"qualifiedName": "DashboardHandle.stop"
+		},
+		"2949": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/server.ts",
+			"qualifiedName": "DashboardHandle.stop"
+		},
+		"2950": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/server.ts",
+			"qualifiedName": "DashboardOptions"
+		},
+		"2951": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/server.ts",
+			"qualifiedName": "DashboardOptions.bot"
+		},
+		"2952": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/server.ts",
+			"qualifiedName": "DashboardOptions.root"
+		},
+		"2953": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/server.ts",
+			"qualifiedName": "DashboardOptions.botToken"
+		},
+		"2954": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/server.ts",
+			"qualifiedName": "DashboardOptions.kind"
+		},
+		"2955": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/server.ts",
+			"qualifiedName": "DashboardOptions.guildId"
+		},
+		"2956": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/server.ts",
+			"qualifiedName": "DashboardOptions.logChannelId"
+		},
+		"2957": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/server.ts",
+			"qualifiedName": "DashboardOptions.host"
+		},
+		"2958": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/server.ts",
+			"qualifiedName": "DashboardOptions.port"
+		},
+		"2959": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/server.ts",
+			"qualifiedName": "DashboardOptions.bridgeSecret"
+		},
+		"2960": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/server.ts",
+			"qualifiedName": "DashboardOptions.allowIps"
+		},
+		"2961": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/server.ts",
+			"qualifiedName": "DashboardOptions.tlsCertPath"
+		},
+		"2962": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/server.ts",
+			"qualifiedName": "DashboardOptions.tlsKeyPath"
+		},
+		"2963": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/server.ts",
+			"qualifiedName": "ServeKind"
+		},
+		"2964": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/desk.ts",
+			"qualifiedName": "startDesk"
+		},
+		"2965": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/desk.ts",
+			"qualifiedName": "startDesk"
+		},
+		"2966": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/desk.ts",
+			"qualifiedName": "options"
+		},
+		"2967": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/desk.ts",
+			"qualifiedName": "DeskHandle"
+		},
+		"2968": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/desk.ts",
+			"qualifiedName": "DeskHandle.url"
+		},
+		"2969": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/desk.ts",
+			"qualifiedName": "DeskHandle.stop"
+		},
+		"2970": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/desk.ts",
+			"qualifiedName": "DeskHandle.stop"
+		},
+		"2971": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/desk.ts",
+			"qualifiedName": "DeskOptions"
+		},
+		"2972": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/desk.ts",
+			"qualifiedName": "DeskOptions.root"
+		},
+		"2973": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/desk.ts",
+			"qualifiedName": "DeskOptions.bridgeUrl"
+		},
+		"2974": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/desk.ts",
+			"qualifiedName": "DeskOptions.bridgeSecret"
+		},
+		"2975": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/desk.ts",
+			"qualifiedName": "DeskOptions.host"
+		},
+		"2976": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/desk.ts",
+			"qualifiedName": "DeskOptions.port"
+		},
+		"2977": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/desk.ts",
+			"qualifiedName": "DeskOptions.allowIps"
+		},
+		"2978": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/desk.ts",
+			"qualifiedName": "DeskOptions.tlsCertPath"
+		},
+		"2979": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/desk.ts",
+			"qualifiedName": "DeskOptions.tlsKeyPath"
+		},
+		"2980": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/mode.ts",
+			"qualifiedName": "readDashboardMode"
+		},
+		"2981": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/mode.ts",
+			"qualifiedName": "readDashboardMode"
+		},
+		"2982": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/mode.ts",
+			"qualifiedName": "raw"
+		},
+		"2983": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/mode.ts",
+			"qualifiedName": "readBridgeSecret"
+		},
+		"2984": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/mode.ts",
+			"qualifiedName": "readBridgeSecret"
+		},
+		"2985": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/mode.ts",
+			"qualifiedName": "readBridgeUrl"
+		},
+		"2986": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/mode.ts",
+			"qualifiedName": "readBridgeUrl"
+		},
+		"2987": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/mode.ts",
+			"qualifiedName": "DashboardMode"
+		},
+		"2988": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/store.ts",
+			"qualifiedName": "loadSettings"
+		},
+		"2989": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/store.ts",
+			"qualifiedName": "loadSettings"
+		},
+		"2990": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/store.ts",
+			"qualifiedName": "root"
+		},
+		"2991": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/store.ts",
+			"qualifiedName": "saveSettings"
+		},
+		"2992": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/store.ts",
+			"qualifiedName": "saveSettings"
+		},
+		"2993": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/store.ts",
+			"qualifiedName": "root"
+		},
+		"2994": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/store.ts",
+			"qualifiedName": "next"
+		},
+		"2995": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/store.ts",
+			"qualifiedName": "DashboardLanguage"
+		},
+		"2996": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/store.ts",
+			"qualifiedName": "DashboardSettings"
+		},
+		"2997": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/store.ts",
+			"qualifiedName": "DashboardSettings.language"
+		},
+		"2998": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/store.ts",
+			"qualifiedName": "DashboardSettings.prefix"
+		},
+		"2999": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/store.ts",
+			"qualifiedName": "DashboardSettings.presenceText"
+		},
+		"3000": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/store.ts",
+			"qualifiedName": "DashboardSettings.presenceStatus"
+		},
+		"3001": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/store.ts",
+			"qualifiedName": "DashboardSettings.showBotMessagesInFeed"
+		},
+		"3002": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/store.ts",
+			"qualifiedName": "DashboardSettings.feedLimit"
+		},
+		"3003": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/store.ts",
+			"qualifiedName": "DashboardSettings.selectedGuildId"
+		},
+		"3004": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/audit.ts",
+			"qualifiedName": "appendAudit"
+		},
+		"3005": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/audit.ts",
+			"qualifiedName": "appendAudit"
+		},
+		"3006": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/audit.ts",
+			"qualifiedName": "root"
+		},
+		"3007": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/audit.ts",
+			"qualifiedName": "entry"
+		},
+		"3008": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/audit.ts",
+			"qualifiedName": "readAudit"
+		},
+		"3009": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/audit.ts",
+			"qualifiedName": "readAudit"
+		},
+		"3010": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/audit.ts",
+			"qualifiedName": "root"
+		},
+		"3011": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/audit.ts",
+			"qualifiedName": "limit"
+		},
+		"3012": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/audit.ts",
+			"qualifiedName": "AuditEntry"
+		},
+		"3013": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/audit.ts",
+			"qualifiedName": "AuditEntry.at"
+		},
+		"3014": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/audit.ts",
+			"qualifiedName": "AuditEntry.actorId"
+		},
+		"3015": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/audit.ts",
+			"qualifiedName": "AuditEntry.actorName"
+		},
+		"3016": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/audit.ts",
+			"qualifiedName": "AuditEntry.action"
+		},
+		"3017": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/audit.ts",
+			"qualifiedName": "AuditEntry.detail"
+		},
+		"3018": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/hardening.ts",
+			"qualifiedName": "readAllowIps"
+		},
+		"3019": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/hardening.ts",
+			"qualifiedName": "readAllowIps"
+		},
+		"3020": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/hardening.ts",
+			"qualifiedName": "raw"
+		},
+		"3021": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/hardening.ts",
+			"qualifiedName": "clientIp"
+		},
+		"3022": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/hardening.ts",
+			"qualifiedName": "clientIp"
+		},
+		"3023": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/hardening.ts",
+			"qualifiedName": "req"
+		},
+		"3024": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/hardening.ts",
+			"qualifiedName": "ipAllowed"
+		},
+		"3025": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/hardening.ts",
+			"qualifiedName": "ipAllowed"
+		},
+		"3026": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/hardening.ts",
+			"qualifiedName": "ip"
+		},
+		"3027": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/hardening.ts",
+			"qualifiedName": "allowIps"
+		},
+		"3028": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/paths.ts",
+			"qualifiedName": "bridgePublicDir"
+		},
+		"3029": {
+			"packageName": "@draeven/bridge",
+			"packagePath": "src/paths.ts",
+			"qualifiedName": "bridgePublicDir"
+		}
+	},
+	"files": {
+		"entries": {
+			"1": "../Draeven-framework/packages/bridge/src/index.ts"
+		},
+		"reflections": {
+			"1": 2939
+		}
+	}
+}

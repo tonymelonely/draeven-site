@@ -1,0 +1,90 @@
+---
+title: Starter-bots
+description: Copy-paste starters voor mod, tickets en welkom.
+order: 13
+---
+
+Drie kleine bots met dezelfde conventies: `ping` voor health, `greet` als je een optie nodig hebt, en `Start({ guildId })` terwijl je itereert.
+
+<TrySimulate />
+
+## Conventies
+
+- Commandobestanden exporteren `command(...)` met positionele args (naam, beschrijving, …).
+- Health check is altijd `/ping` → `pong`.
+- Wijs `draeven.config.js` naar `./dist/commands`.
+
+## Mod-bot
+
+Timeout + clear onder één slash-parent. Volledige boom: [Subcommando's](/docs/subcommands).
+
+```js
+import { Start, command, sub, user } from "@draeven/core";
+
+export const mod = command(
+  "mod",
+  "Moderation tools",
+  {
+    timeout: sub(
+      "Timeout a member",
+      { who: user("Who?").required() },
+      async (ctx) => {
+        await ctx.timeout(ctx.who, 600, "Via /mod timeout");
+        return ctx.reply(`Timed out ${ctx.who.name}.`);
+      }
+    ),
+  },
+  { need: "ModerateMembers" }
+);
+
+await Start({
+  token: process.env.DISCORD_TOKEN,
+  guildId: process.env.DISCORD_GUILD_ID,
+  commands: [mod],
+});
+```
+
+Gebruik `number()` uit [Opties](/docs/options) voor minuten. Kant-en-klaar mute-recept: [Recepten](/docs/recipes).
+
+## Ticket-bot
+
+Bevestig met een knop. Een `edit` die alleen tekst is, houdt de knoppenrij. `remove()` verwijdert het antwoord. [Verzamelaars](/docs/collectors).
+
+```js
+import { command, button, row } from "@draeven/core";
+
+export const ticket = command("ticket", "Open een supportticket", async (ctx) => {
+  ctx.reply({
+    text: "Open een ticket?",
+    rows: [row(button({ id: "open", label: "Openen" }))],
+  });
+  const click = await ctx.collect({ ids: "open", seconds: 30 });
+  if (!click) return ctx.edit("Time-out.");
+  return ctx.edit("Ticket genoteerd — een moderator volgt op.");
+});
+```
+
+## Welcome-bot
+
+Begroet op `memberJoin`. Juiste intents: [Events en intents](/docs/events-intents).
+
+```js
+import { Start, intentsFor } from "@draeven/core";
+
+const bot = await Start({
+  token: process.env.DISCORD_TOKEN,
+  guildId: process.env.DISCORD_GUILD_ID,
+  intents: intentsFor("memberJoin"),
+  events: {
+    memberJoin: async (member) => {
+      const channelId = process.env.WELCOME_CHANNEL_ID;
+      if (!channelId || !member.id) return;
+      await bot.send(channelId, `Welkom <@${member.id}>.`);
+    },
+  },
+});
+```
+
+<Tip>
+Vast? Vraag in Discord **#help** zodra de invite live is, of open [Waarom faalt dit?](/docs/why-failing).
+</Tip>

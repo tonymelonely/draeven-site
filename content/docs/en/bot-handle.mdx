@@ -1,0 +1,60 @@
+---
+title: Bot handle
+description: What Start() returns.
+order: 64
+---
+
+`Start()` returns the running bot. Keep that value when the entry file sends messages, changes presence, or stops the process. A command file does not receive it unless you close over it yourself.
+
+## Surface
+
+| Member | What it does |
+|--------|----------------|
+| `commands` | Commands and menus loaded right now. |
+| `stop()` | Close the gateway and release the alone lock. |
+| `setPresence(presence)` | Change status while the process is up. See [Presence](/docs/presence). |
+| `syncState()` | Snapshot: `watch`, `commandCount`, last reload times, last reload errors. |
+| `onSync(handler)` | Runs after a commands or events reload. Returns a function that unsubscribes. |
+| `send(channel, message)` | Post outside a slash reply. See [Sending messages](/docs/sending-messages). |
+| `onMemberJoin` / `onMemberLeave` | Gateway member events. Each call returns an unsubscribe function. |
+| `onMessage` | Gateway messages. The message intent still has to be on. |
+| `onEvent(name, handler)` | Any gateway event this connection exposes. Returns unsubscribe. |
+
+A folder of event modules is the usual path ([Events & intents](/docs/events-intents)). `onMemberJoin` and `onEvent` are for the entry file, after `Start` has returned. `onMemberJoin(handler)` is sugar for `onEvent("memberJoin", handler)` — use whichever reads clearer.
+
+## Example
+
+```js
+import { Start } from "@draeven/core";
+
+const bot = await Start({
+  token: process.env.DISCORD_TOKEN,
+  alone: true,
+});
+
+const stopWatching = bot.onSync((state) => {
+  console.log(state.commandCount, state.lastCommandsError ?? "ok");
+});
+
+bot.onMemberJoin(async (member) => {
+  const channelId = process.env.WELCOME_CHANNEL_ID;
+  if (!channelId || !member.id) return;
+  await bot.send(channelId, `Welcome <@${member.id}>.`);
+});
+
+process.on("SIGINT", async () => {
+  stopWatching();
+  await bot.stop();
+});
+```
+
+## Pitfalls
+
+- `send` cannot be private and cannot carry a `form()`.
+- `setPresence` throws when this connection cannot update presence.
+- `onEvent`, `onMemberJoin`, `onMemberLeave`, and `onMessage` throw when the connection has no events of that kind.
+- You can ignore the return value if the process simply runs until it exits. You need it to `send` from a handler in this file, or to call `stop()`.
+
+## Related
+
+- [Start options](/docs/start-options) · [Presence](/docs/presence) · [Sending messages](/docs/sending-messages) · [Events & intents](/docs/events-intents) · [One process](/docs/alone)

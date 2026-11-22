@@ -1,0 +1,77 @@
+---
+title: Commands
+description: command(), ctx, and command metadata.
+order: 20
+---
+
+`command()` builds a slash command. `Start()` registers it and calls your handler with one `ctx`.
+
+Related actions → [subcommands](/docs/subcommands). Right-click → [context menus](/docs/context-menus).
+
+## Without options · With options
+
+Name 1–32 (`a-z`, digits, hyphens). Description 1–100. Option keys land on `ctx`.
+
+<Compare id="cmd-options" />
+
+## Metadata is the last argument
+
+Gates, cooldowns, locales, and defer flags are `CommandMeta`, never mixed into the options object.
+
+```js
+export const secret = command(
+  "secret",
+  "Server owner only",
+  async (ctx) => ctx.reply("ok"),
+  {
+    ownerOnly: true,
+    defer: { private: true },
+    cooldown: 10,
+    need: "ManageGuild",
+  }
+);
+```
+
+| Field | When it runs |
+|-------|----------------|
+| `permissions` | Registration. Default member permissions Discord stores on the command. |
+| `need` | Before the handler. Caller must hold these permission bits. |
+| `ownerOnly` | Before the handler. Caller must be the **server owner**. |
+| `when` | Before the handler. Return `false` to block. |
+| `cooldown` | Before the handler. In-memory wait ([Cooldowns](/docs/cooldowns)). |
+| `locales` | Registration. Translated name and description. |
+| `defer` | `true` defers publicly. `{ private: true }` defers ephemerally. |
+| `autoDefer` | `false` turns off the 2s safety defer for this command. |
+| `nsfw` | Only in age-restricted channels. |
+| `places` | `"guild"`, `"bot dm"`, `"private"`. |
+| `install` | `"guild"`, `"user"`. |
+
+Details: [Permissions](/docs/permissions).
+
+## What is on ctx
+
+| Area | Members |
+|------|---------|
+| Caller | `author` (`{ id }`), `locale`, `opt` (the raw option bag) |
+| Options | One property per key, already resolved (`ctx.who` is a `User`) |
+| Lookups | `getUser`, `getMember`, `getBot`, `getGuild`, `getChannel`, `getRole`, `getRoles`, `getFile` |
+| Replies | `reply`, `followup`, `wait`, `edit`, `remove`, `transcript` |
+| Channel post | `send(channel, ...)` — not ephemeral ([Sending messages](/docs/sending-messages)) |
+| Components | `collect` — not a package import ([Collectors](/docs/collectors)) |
+| Moderation | `timeout`, `kick`, `ban`, `purge`, `pin`, `unpin`, `react`, `editMessage`, `deleteMessage`, `moveVoice` |
+
+`getGuild()` and `getMember()` are `undefined` in a DM.
+
+<Warn>
+Option names use the same pattern as command names, and these keys are reserved: `author`, `opt`, `reply`, `followup`, `send`, `wait`, `edit`, `remove`, `collect`, `locale`, `transcript`, and the lookup names (`getuser`, `getguild`, …).
+</Warn>
+
+## Pitfalls
+
+- Returning the `Reply` from `ctx.reply()` is enough. You do not also `await` a second send.
+- `reply()` throws `A command can only reply once.` only when a reply is already stored and you have neither `wait()`ed nor flushed a `collect`. After `wait()`, use `edit()` or another `reply()` to fill. After a collect flush, another `reply()` replaces the stored reply. Use `followup()` for an extra message.
+- Slow work should `await ctx.wait()` then `ctx.edit(...)`, or rely on the default auto-defer at 2 seconds ([Replies](/docs/replies)).
+
+## Related
+
+- [Options](/docs/options) · [Subcommands](/docs/subcommands) · [Locales](/docs/locales)

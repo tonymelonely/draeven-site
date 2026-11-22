@@ -1,0 +1,51 @@
+---
+title: Subcommands
+description: Flat subs and one group level.
+order: 22
+---
+
+Subcommands split one slash name into leaves: `/mod kick`, `/mod ban`. Discord allows options on the leaf, and **one** group level under the parent (`/mod user ban`). Use them when several actions share a name. Unrelated tools should stay separate top-level commands.
+
+`command()` takes a map of `sub()` and `group()` instead of a handler. The parent has **no** top-level `run`.
+
+<DocMedia id="subcommands" />
+
+## Flat leaves
+
+`sub(description, options?, run, locales?)` — description first, then options, then the handler. The fourth argument is only `{ locales }`. It is not `need` or `cooldown`.
+
+`timeout(user, 0)` clears a timeout. Both leaves share the parent gate: `need`, `ownerOnly`, `when`, `cooldown`, and `defer` live on `command()`, and they apply to every leaf.
+
+## One group
+
+`group(description, { leaf: sub(...) })` nests a single level. A group only holds `sub()` entries, not more groups. That registers `/mod user kick`. The `locales` value may be a string (description only) or `{ description, name }`.
+
+<Compare id="sub-shapes" />
+
+```text
+/mod
+ ├── timeout          sub + options + handler
+ ├── clear            sub + options + handler
+ └── user             group
+      └── kick        sub
+```
+
+<Warn>
+Do not pass `group({ kick: sub(...) })` with a single object. `group` wants a description string first. Do not put `{ need: "BanMembers" }` on `sub()`. `need` is not read as locales. It is dropped. Only `.locales` is read.
+</Warn>
+
+## When gates differ
+
+`need` cannot differ per leaf. If kick needs `KickMembers` and ban needs `BanMembers`, register two commands. A shared `ModerateMembers` parent is fine when every leaf is a timeout.
+
+Leaf descriptions follow the same 1–100 rule. Leaf and group names follow `^[a-z0-9-]{1,32}$`.
+
+## Pitfalls
+
+- Options on the parent `command()` are not allowed once the third argument is a sub map.
+- A group with zero subs throws. A group that contains another group throws.
+- Parent `cooldown: 10` buckets the whole `/mod` name, not each leaf separately.
+
+## Related
+
+- [Commands](/docs/commands) · [Moderation actions](/docs/mod-actions) · [Permissions](/docs/permissions)

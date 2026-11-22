@@ -1,0 +1,60 @@
+---
+title: Transcripten
+description: Sla de kanaalgeschiedenis op als HTML.
+order: 49
+---
+
+`await ctx.transcript()` leest het huidige kanaal en geeft een `TranscriptFile` terug: HTML-bytes, een bestandsnaam en een korte notitie. Geef dat bestand aan `reply` of `followup`. Discord krijgt de notitie als berichttekst en de HTML als bijlage.
+
+## Het kanaal opslaan
+
+```js
+import { command } from "@draeven/core";
+
+export const save = command("save", "Sla dit kanaal op", async (ctx) => {
+  const file = await ctx.transcript({
+    timeZone: "Europe/Amsterdam",
+    link: "https://archive.example/{guild}/{channel}/{message}",
+  });
+  return ctx.reply(file);
+});
+```
+
+De aanroep defert de interactie als je dat nog niet deed, en haalt daarna de geschiedenis op. De notitie wordt het bericht, bijvoorbeeld `12 messages from #general.` De bestandsnaam volgt het kanaal, zoals `general.html`.
+
+## Opties
+
+| Veld | Betekenis |
+|------|-----------|
+| `timeZone` | IANA-zone voor de klokken op de pagina. Overschrijft `Start({ timeZone })`. Zijn beide weggelaten, dan gebruikt de pagina `UTC`. |
+| `link` | Sjabloon voor het adres van elk bericht. `{guild}`, `{channel}` en `{message}` worden ingevuld. Moet beginnen met `http://` of `https://`, en binnen 500 tekens blijven. Weglaten linkt elke regel naar het bericht op Discord. |
+
+Discord stuurt berichten nieuwste eerst. De pagina toont ze **oudste eerst**, met tekst, bestanden, embeds, reacties, stickers, peilingen, knoppen en systeemregels. Een pagina boven 10 MB gooit. Eerdere transcriptbestanden van deze bot blijven buiten de pagina, zodat een nieuwe pagina zichzelf niet meeneemt.
+
+Een kanaal is verplicht. In een guild komen de servernaam en rolkleuren erbij. Zonder kanaal gooit de aanroep `[Draeven] This command has no channel.`
+
+## Waar de zone vandaan komt
+
+```js
+await Start({
+  token: process.env.DISCORD_TOKEN,
+  timeZone: "Europe/Amsterdam",
+});
+```
+
+`ctx.transcript()` zonder opties gebruikt dan `Europe/Amsterdam`. Geef `timeZone` mee op de aanroep als deze ene pagina moet afwijken. `"Amsterdam"` gooit. De naam moet een IANA-zone zijn. Die zone formatteert de HTML-klokken. Ze verandert `time()` in embeds niet ([Start-opties](/docs/start-options)).
+
+<Note>
+`simulate()` heeft geen kanaalgeschiedenis, dus `ctx.transcript()` gooit. Draai het commando op een live gateway. Roep in een unittest de geëxporteerde `renderTranscript(history, options)` aan met een geschiedenis die je zelf bouwde.
+</Note>
+
+## Valkuilen
+
+- Het commando heeft het kanaal nodig dat Discord met de interactie meestuurde. Een context zonder kanaal kan geen pagina bouwen.
+- `link` zonder schema gooit. `https://archive.example/{guild}/{channel}/{message}` is de vorm. `{guild}` wordt `@me` als het kanaal geen guild heeft.
+- Geschiedenis ophalen defert eerst. Open later in hetzelfde commando geen `form()`.
+- De HTML is een bestand op het antwoord, geen embed. Stuur een follow-up met een embed als je ook een samenvatting wilt.
+
+## Verder
+
+- [Start-opties](/docs/start-options) · [Antwoorden](/docs/replies) · [Simuleren](/docs/simulate) · [Bekende grenzen](/docs/known-limits)

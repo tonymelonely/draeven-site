@@ -1,0 +1,121 @@
+---
+title: Collectors
+description: Wait for a button, menu, or form on ctx.
+order: 43
+---
+
+`ctx.collect` waits for a click or form submit on what you just showed. Method on `ctx`, not an import.
+
+<InteractChoice />
+<WhenToUse topic="collectors" />
+<DocTour id="collect" />
+
+No waiter → `PressContext` / `use()` ([Press & submit](/docs/press-handlers)). Timeout → `undefined`. Update with `ctx.edit` (no `.update`).
+
+<DocMedia id="collectors" />
+
+## Buttons
+
+```js
+import { command, button, row } from "@draeven/core";
+
+export const confirm = command("confirm", "Yes or no", async (ctx) => {
+  await ctx.wait();
+  await ctx.edit({
+    text: "Pick one.",
+    rows: [
+      row(
+        button({ id: "yes", label: "Yes", color: "green" }),
+        button({ id: "no", label: "No", color: "red" })
+      ),
+    ],
+  });
+
+  const pick = await ctx.collect({ ids: ["yes", "no"], seconds: 30 });
+  if (!pick) return ctx.edit("Timed out.");
+  return ctx.edit(`You pressed ${pick.id}`);
+});
+```
+
+Button colors are `blurple` (default), `grey`, `green`, and `red`. `row()` holds up to five `button()`, `link()`, or `sku()` pieces. A select `menu()`, and the pickers `people()`, `roles()`, `channels()`, and `mentions()`, each take the row alone.
+
+## Select menu
+
+```js
+import { command, menu, row } from "@draeven/core";
+
+export const pick = command("pick", "Choose a tool", async (ctx) => {
+  await ctx.reply({
+    text: "Tool?",
+    rows: [
+      row(
+        menu({
+          id: "tool",
+          placeholder: "Choose",
+          choices: [
+            { label: "ESLint", value: "eslint" },
+            { label: "Vitest", value: "vitest" },
+          ],
+        })
+      ),
+    ],
+  });
+
+  const chosen = await ctx.collect({ ids: "tool", seconds: 30 });
+  return ctx.reply(chosen?.values[0] ?? "Timed out.");
+});
+```
+
+`Collected.values` is empty for a plain button. For a menu it holds the selected values.
+
+## Forms
+
+A form is the **entire** first reply. Do not `wait()` first — a defer consumes the interaction and the modal cannot open.
+
+```js
+import { command, form, fieldStyles } from "@draeven/core";
+
+export const ask = command("ask", "Ask for a note", async (ctx) => {
+  ctx.reply(
+    form({
+      id: "ask-form",
+      title: "Details",
+      fields: [
+        { id: "note", label: "Note", style: fieldStyles.long, required: true },
+      ],
+    })
+  );
+
+  const submitted = await ctx.collect({ ids: "ask-form", kind: "submit", seconds: 120 });
+  if (!submitted) return ctx.reply("Timed out.");
+  return ctx.reply(submitted.fields.note);
+});
+```
+
+A submit answers on the modal. A timeout edits the original interaction. Do not read `submitted?.fields` when the wait returned `undefined`.
+
+`fieldStyles.short` is one line (the default). `fieldStyles.long` is a paragraph. A form title is 1–45 characters, with 1–5 fields. Field ids must be unique and must not repeat the form id.
+
+## Options
+
+| Field | Meaning |
+|-------|---------|
+| `ids` | Custom id or list. Required. At least one. |
+| `seconds` | Timeout in seconds. Default **60**. `0`, a negative number, or a non-finite value throws. |
+| `who` | Who may answer. Default: the command author. `false` allows anyone. A user id or `{ id }` restricts to that user. |
+| `kind` | `"press"`, `"submit"`, or `"any"` (default). |
+
+<Warn fix="Call reply() or wait() before collect()." href="/docs/why-failing">
+`collect` throws if you have not replied or waited yet, and if the connection cannot collect (including `simulate()`).
+</Warn>
+
+## Pitfalls
+
+- Finish or time out one `collect` before starting another on the same flow. Overlapping waiters are easy to mismatch.
+- Custom ids on one message must be unique. Draeven throws while building the row if a button id repeats.
+- The collector wins only when the id, the kind, and who all match. A different user or a different kind still runs `press`.
+- After a timeout, the buttons stay. A text-only edit keeps the row. `rows: []` is dropped. `remove()` deletes the reply.
+
+## Related
+
+- [Buttons, menus & forms](/docs/pieces) · [Replies](/docs/replies) · [Embeds & layout](/docs/embeds-layout) · [Recipes](/docs/recipes)

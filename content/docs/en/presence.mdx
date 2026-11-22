@@ -1,0 +1,74 @@
+---
+title: Presence
+description: The bot status line at startup and later.
+order: 62
+---
+
+Presence is the status and activity under the bot's name in the member list. Set it on `Start`, and change it later with `bot.setPresence`. This only updates **the bot account**. It does not set a member's status.
+
+```js
+import { Start } from "@draeven/core";
+
+const bot = await Start({
+  token: process.env.DISCORD_TOKEN,
+  presence: {
+    status: "online",
+    activity: { kind: "watching", text: "slash commands" },
+  },
+});
+```
+
+## Status and activity
+
+| `status` | Meaning |
+|------------|---------|
+| `online` | Green |
+| `idle` | Away |
+| `dnd` | Do not disturb |
+| `invisible` | Shown as offline |
+
+| `activity.kind` | Needs |
+|-------------------|--------|
+| `playing` | `text` |
+| `streaming` | `text` and `url` |
+| `listening` | `text` |
+| `watching` | `text` |
+| `competing` | `text` |
+| `custom` | `text` |
+
+`afk: true` is optional on the same object.
+
+## Change it while running
+
+```js
+bot.setPresence({
+  status: "dnd",
+  activity: { kind: "playing", text: "with Draeven" },
+});
+```
+
+Omit `activity` to clear the activity. The gateway payload then sends an empty activity list.
+
+```js
+bot.setPresence({ status: "online" });
+```
+
+Activity text must be 1–128 characters. `kind: "streaming"` needs an `https://` URL on `twitch.tv` or `youtube.com`. Anything else throws `Streaming activity needs a Twitch or YouTube url.`
+
+## Hearing other people's presence
+
+`presenceUpdate` is a privileged event. Turn on Presence Intent in the portal and pass `intentsFor("presenceUpdate")`. That is separate from `setPresence`, which needs no extra intent.
+
+<Note>
+`setPresence` is a gateway update, not a REST call. Rapid loops waste the session. Change status when the mode actually changes.
+</Note>
+
+## Pitfalls
+
+- `presence` on `Start` is the initial identify payload. Calling `setPresence` before `Start` resolves is unnecessary — you do not have the `bot` yet.
+- Custom activities still go through Discord's rules for bots. A kind of `"custom"` is accepted by the type; Discord may ignore text it does not allow.
+- Invisible is not the same as `bot.stop()`. The process keeps running.
+
+## Related
+
+- [Quickstart](/docs/quickstart) · [Events & intents](/docs/events-intents)

@@ -1,0 +1,172 @@
+---
+title: Bridge & desk
+description: Owner ops UI — embedded (bot+UI), bridge (API only), or desk (UI → BRIDGE_URL).
+order: 75
+---
+
+`@draeven/bridge` is an optional HTTP UI for the person who runs **this** bot. It shows status and owner actions against your process. It is not a hosted moderation panel for every guild that invites the bot. Guild mods keep using slash commands such as `/ban`.
+
+Install it with the scaffold flag `--with-dashboard`, or `pnpm add @draeven/bridge`. Node 20+ is required. `root` in the calls below is your project directory. Audit lines and desk settings are written under that directory.
+
+## Modes
+
+`readDashboardMode()` reads `DASHBOARD`. If the variable is **unset**, the mode is `embedded`.
+
+| Value | Process | Role |
+|-------|---------|------|
+| `embedded` (default) | Bot process | Bot and OAuth desk UI together. The scaffold writes this. |
+| `off`, `0`, `false`, `no` | Bot process | Bot only. |
+| `bridge` or `api` | Bot process | Hardened API only. No UI. |
+| `desk`, `ui`, or `remote` | Separate process | UI only. It proxies to `BRIDGE_URL`. Run `pnpm desk`, not the bot entry. |
+
+## Mode map
+
+```text
+ embedded                        bridge                         desk
++-------------------------+   +-------------------------+   +-------------------------+
+| one process             |   | bot process             |   | UI process              |
+| Start() + desk UI       |   | Start() + API, no UI    |   | listens on :3847        |
+| DASHBOARD=embedded      |   | DASHBOARD=bridge        |   | DASHBOARD=desk          |
+| open the printed url    |   | BRIDGE_SECRET           |   | BRIDGE_URL + secret     |
++-------------------------+   +-------------------------+   +------------+------------+
+                                                                  |
+                                                                  | HTTP
+                                                                  v
+                                                       +-------------------------+
+                                                       | bridge API on the bot  |
+                                                       +-------------------------+
+```
+
+![Desk login — Discord OAuth gate for owners listed in DASHBOARD_OWNER_IDS](/docs/desk-login.png)
+
+The embedded and desk UIs share this login gate. Bridge mode has no page; it only checks `BRIDGE_SECRET`.
+
+## Walkthrough
+
+1. Scaffold with `--with-dashboard` (the command below).
+2. Set the env that mode needs: the bot token, and for the UI `DISCORD_CLIENT_ID`, `DISCORD_CLIENT_SECRET`, `DASHBOARD_OWNER_IDS`, and `DASHBOARD_SESSION_SECRET`.
+3. Leave `DASHBOARD=embedded`. Unset means embedded.
+4. Start the bot and open the URL `startDashboard` prints. The desk UI listens on **3847** by default (`DASHBOARD_PORT` replaces it).
+5. To split them, set the bot to `DASHBOARD=bridge` and run `pnpm desk` in a second process with `BRIDGE_URL` and `BRIDGE_SECRET`. Starting the bot entry with `DASHBOARD=desk` throws. That value belongs on the desk process.
+
+```bash
+npm create draeven@latest -- init my-bot --with-dashboard
+```
+
+The scaffold adds `pnpm desk` (`node dist/desk-main.js`). Starting the bot entry with `DASHBOARD=desk` throws and tells you to run `pnpm desk`.
+
+Embedded and bridge run beside `Start()` in the bot process:
+
+```ts
+import { Start } from "@draeven/core";
+import { readDashboardMode, readBridgeSecret, startDashboard } from "@draeven/bridge";
+
+const bot = await Start({ token });
+const mode = readDashboardMode();
+
+if (mode === "embedded") {
+  const desk = await startDashboard({ bot, root, botToken: token, kind: "embedded" });
+  console.log(desk.url);
+} else if (mode === "bridge") {
+  const api = await startDashboard({
+    bot,
+    root,
+    botToken: token,
+    kind: "bridge",
+    bridgeSecret: readBridgeSecret(),
+  });
+  console.log(api.url);
+}
+```
+
+Desk-only process:
+
+```ts
+import { readBridgeSecret, readBridgeUrl, startDesk } from "@draeven/bridge";
+
+const desk = await startDesk({
+  root,
+  bridgeUrl: readBridgeUrl(),
+  bridgeSecret: readBridgeSecret(),
+});
+```
+
+```text
+Desk UI  -- HTTP + BRIDGE_SECRET -->  Bridge API  -->  your Start() process
+```
+
+## OAuth
+
+The embedded UI and the desk process sign owners in with Discord OAuth. Bridge mode itself does not show that login page. It checks the bearer secret.
+
+| Variable | Role |
+|----------|------|
+| `DISCORD_CLIENT_ID` | Application id. Required for embedded and desk. |
+| `DISCORD_CLIENT_SECRET` | OAuth client secret. Same processes. |
+| `DISCORD_REDIRECT_URI` | Callback. When unset, the default is `http://127.0.0.1:3847/auth/callback`, using `DASHBOARD_PORT` when that is set. |
+| `DASHBOARD_OWNER_IDS` | Comma-separated Discord **user** ids. After OAuth, only these ids may use the desk. |
+| `DASHBOARD_SESSION_SECRET` | Signs the session cookie. |
+| `DASHBOARD_HOST`, `DASHBOARD_PORT` | Where the UI listens. Port default `3847`. Host default `127.0.0.1`. |
+
+The redirect URI in the Developer Portal must be the URL you actually listen on, including the port.
+
+## Bridge environment
+
+| Variable | When |
+|----------|------|
+| `BRIDGE_SECRET` or `DASHBOARD_TOKEN` | Bridge mode, and the desk that calls it. At least **12** characters. |
+| `BRIDGE_URL` | Desk mode. Example `http://127.0.0.1:3848`. A trailing slash is stripped. |
+| `BRIDGE_HOST`, `BRIDGE_PORT` | Where the API listens. Host default `0.0.0.0`. Port example `3848`. |
+| `BRIDGE_ALLOW_IPS` | Optional allow list, for example `127.0.0.1,::1`. |
+| `BRIDGE_TLS_CERT`, `BRIDGE_TLS_KEY` | Optional PEM paths. Set both for HTTPS on bridge or desk. |
+
+<Warn fix="Use a long BRIDGE_SECRET; keep the desk on localhost without TLS." href="/docs/why-failing">
+A short `BRIDGE_SECRET` throws at startup in bridge mode. Do not commit the secret. Leave the desk on localhost unless you have TLS and an IP allow list.
+</Warn>
+
+## API surface
+
+On the **bridge** process, `GET /api/health` needs no secret. It reports that the process is up and how many commands are loaded. Every other `/api` route requires the bearer secret or an OAuth session.
+
+| Route | Method | What it does |
+|-------|--------|----------------|
+| `/api/health` | `GET` | Unauthenticated liveness on the bridge process. |
+| `/api/status` | `GET` | Bot user, uptime, selected guild, settings, sync snapshot. |
+| `/api/sync` | `GET` | `bot.syncState()`. |
+| `/api/commands` | `GET` | Commands loaded in this process. |
+| `/api/guilds` | `GET` | Guilds the bot is in. |
+| `/api/members` | `GET` | Members of the selected guild. |
+| `/api/channels` | `GET` | Channels of the selected guild. |
+| `/api/roles` | `GET` | Roles of the selected guild. |
+| `/api/logs` | `GET` | Recent desk log lines. |
+| `/api/audit` | `GET` | Recent audit lines. |
+| `/api/settings` | `GET`, `PUT` | Language, prefix, presence, feed. `PUT` also calls `setPresence`. |
+| `/api/events` | `GET` | Server-sent events for the live feed. |
+| `/api/actions/send` | `POST` | `bot.send` — `channelId` and text, 1–2000 characters. |
+| `/api/actions/kick` | `POST` | Kick `userId` in the selected guild. |
+| `/api/actions/ban` | `POST` | Ban `userId` in the selected guild. |
+| `/api/actions/timeout` | `POST` | Timeout `userId` for `seconds`. |
+| `/api/actions/pin` | `POST` | Pin `messageId` in `channelId`. |
+| `/api/actions/react` | `POST` | React with `emoji` on that message. |
+| `/api/actions/purge` | `POST` | Delete `count` recent messages, from 2 to 100. |
+
+Members, channels, roles, kick, ban, and timeout need a selected guild. The desk is calling **your** bot. It does not open a session as a guild moderator in someone else's community.
+
+## Security
+
+- **Owners.** Only ids in `DASHBOARD_OWNER_IDS` can use the desk after Discord OAuth. A role id in that list does nothing.
+- **Secret.** `BRIDGE_SECRET` is the bearer token between desk and bridge. Shorter than 12 characters throws.
+- **IP allow list.** `BRIDGE_ALLOW_IPS` drops other clients. When `X-Forwarded-For` is present, that header is what gets checked, so put the desk behind a proxy you trust.
+- **TLS.** Set `BRIDGE_TLS_CERT` and `BRIDGE_TLS_KEY` together before the port is reachable off the machine.
+- **Audit.** Actions append one JSON line each to `.draeven/audit.jsonl` under `root`.
+
+## Pitfalls
+
+- `DASHBOARD` is not a `Start()` option. The scaffold's bot entry reads it and calls the bridge helpers.
+- `embedded` is one process. Do not also run `pnpm desk` against it.
+- A redirect URI that names the wrong port fails the OAuth callback even when the secret is long enough.
+- `BRIDGE_HOST=0.0.0.0` without an allow list and TLS exposes the moderation actions. Prefer `DASHBOARD=off` on a host that should only run the bot ([Deploy](/docs/deploy)).
+
+## Related
+
+- [Install](/docs/install) · [Project layout](/docs/project-layout) · [Deploy](/docs/deploy) · [Known limits](/docs/known-limits)

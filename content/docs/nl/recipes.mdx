@@ -1,0 +1,359 @@
+---
+title: Recepten
+description: Kant-en-klare commando's om te kopiëren.
+order: 8
+---
+
+Kant-en-klare commandobestanden voor `src/commands`. Letters heeft ook een `use()`-bestand in `src/events` nodig.
+
+## Eén bestand plaatsen
+
+1. Sla op als `src/commands/<name>.ts` (named `export`).
+2. `pnpm build`, daarna starten (`watch: true` herlaadt).
+
+| Recept | Wat het toont |
+|--------|----------------|
+| Ping | `cooldown: 5` per gebruiker |
+| Bevestigen | `button` + `ctx.collect` |
+| Letters | knoppen zonder `press`, `use()` in de events-map |
+| Melding | `form` + `kind: "submit"` |
+| Status | `embed()` met `header`, `fields`, `breakline`, `wide` |
+| Timeout | `ctx.timeout` achter `need` |
+| Paneel | testbot-`layout()`: `show`, `divide`, `pack`, `beside`, `thumb`, `album` |
+
+## Ping met een wachttijd
+
+Vijf seconden per gebruiker. Binnen dat venster draait de handler niet.
+
+<CodeResult id="ping" />
+
+```js
+import { command } from "@draeven/core";
+
+export const ping = command(
+  "ping",
+  "Checkt of de bot leeft",
+  async (ctx) => ctx.reply("pong"),
+  { cooldown: 5 }
+);
+```
+
+[Wachttijden](/docs/cooldowns)
+
+## Bevestigen met knoppen
+
+Vraag, dan `collect`. Timeout → `undefined`. Alleen-tekst-`reply()` haalt de rij niet weg.
+
+<CodeResult id="confirm" />
+
+```js
+import { button, command, row } from "@draeven/core";
+
+export const confirm = command("confirm", "Bevestig een opruiming", async (ctx) => {
+  ctx.reply({
+    text: "De vastgezette mededeling weghalen?",
+    rows: [
+      row(
+        button({ id: "yes", label: "Weghalen", color: "red" }),
+        button({ id: "no", label: "Laten", color: "grey" })
+      ),
+    ],
+  });
+
+  const pick = await ctx.collect({ ids: ["yes", "no"], seconds: 20 });
+  if (!pick || pick.id !== "yes") return ctx.reply("Blijft staan.");
+  return ctx.reply("Mededeling weggehaald.");
+});
+```
+
+Antwoord niet met exact `"Removed."` — dat is de `remove()`-sentinel. [Knoppen, menu's & formulieren](/docs/pieces) · [Verzamelaars](/docs/collectors)
+
+## Letters die een herstart overleven
+
+Commando plaatst knoppen. `use()` in de events-map beantwoordt `hangman_*`, ook na een herstart.
+
+<CodeResult id="letters" />
+
+`src/commands/letters.ts`:
+
+```js
+import { button, command, row } from "@draeven/core";
+
+export const letters = command("letters", "Posts letter buttons", async (ctx) =>
+  ctx.reply({
+    text: "Pick a letter.",
+    rows: [
+      row(
+        button({ id: "hangman_A", label: "A" }),
+        button({ id: "hangman_B", label: "B" }),
+        button({ id: "hangman_C", label: "C" })
+      ),
+    ],
+  })
+);
+```
+
+`src/events/letters.ts`:
+
+```js
+import { button, row, use } from "@draeven/core";
+
+export const letters = use({
+  ids: "hangman_*",
+  run(ctx) {
+    const letter = ctx.id.slice("hangman_".length);
+    return ctx.reply({
+      text: `You picked **${letter}**`,
+      rows: [row(button({ id: "hangman_A", label: "A" }))],
+    });
+  },
+});
+```
+
+[Press & submit](/docs/press-handlers) · [Events en intents](/docs/events-intents)
+
+## Modaal formulier
+
+Het formulier is het hele eerste antwoord. Roep niet eerst `wait()` aan. `kind: "submit"` wacht op de modal, en `fields` is gekeyed op veld-id.
+
+```js
+import { command, fieldStyles, form } from "@draeven/core";
+
+export const report = command("report", "Dien een korte melding in", async (ctx) => {
+  ctx.reply(
+    form({
+      id: "report-form",
+      title: "Melding",
+      fields: [
+        { id: "title", label: "Titel", style: fieldStyles.short, max: 80 },
+        { id: "body", label: "Wat er gebeurde", style: fieldStyles.long, max: 1000 },
+      ],
+    })
+  );
+
+  const sent = await ctx.collect({
+    ids: "report-form",
+    kind: "submit",
+    seconds: 180,
+  });
+
+  if (!sent) return ctx.reply("Timeout.");
+  return ctx.reply(`${sent.fields.title}\n${sent.fields.body}`);
+});
+```
+
+Een submit is een nieuwe interactie. Het antwoord na `collect` beantwoordt de modal. Een timeout is `undefined`, en dat antwoord bewerkt de oorspronkelijke interactie. Lees `sent?.fields` niet op het timeout-pad.
+
+[Knoppen, menu's & formulieren](/docs/pieces) · [Verzamelaars](/docs/collectors)
+
+## Status-embed
+
+Een embed is `embed({ ... })`. De titel staat op `header`. `breakline` begint een nieuwe veldrij. `wide: true` neemt die rij alleen. `time()` rendert in de zone van de lezer.
+
+```js
+import { breakline, colors, command, embed, time } from "@draeven/core";
+
+export const status = command("status", "Toon de botstatus", async (ctx) => {
+  const guild = ctx.getGuild();
+  const you = ctx.getUser(ctx.author);
+
+  return ctx.reply(
+    embed({
+      color: colors.blurple,
+      header: { title: guild?.name ?? "Privébericht" },
+      description: `Gecontroleerd ${time(new Date(), "relative")}.`,
+      fields: [
+        { name: "Lid", value: you.name },
+        { name: "Online", value: String(guild?.online ?? "—") },
+        breakline,
+        { name: "Notitie", value: "Slash-commando's zijn live.", wide: true },
+      ],
+      footer: { text: "Draeven" },
+    })
+  );
+});
+```
+
+[Embeds en layout](/docs/embeds-layout)
+
+## Timeout voor een lid
+
+`need` controleert de aanroeper vóór de handler. `minutes` is 1–40320 (28 dagen). `timeout` verwacht seconden, dus vermenigvuldig. `places: ["guild"]` verbergt het commando in DM's, waar een timeout niet kan.
+
+```js
+import { command, number, user } from "@draeven/core";
+
+export const mute = command(
+  "mute",
+  "Geef een lid een timeout",
+  {
+    who: user("Lid").required(),
+    minutes: number("Minuten", { min: 1, max: 40320 }).required(),
+  },
+  async (ctx) => {
+    await ctx.timeout(ctx.who, ctx.minutes * 60, "Timeout via /mute");
+    return ctx.reply(`Timeout voor ${ctx.who.name}: ${ctx.minutes} minuten.`);
+  },
+  { need: "ModerateMembers", places: ["guild"] }
+);
+```
+
+De rol van de bot heeft nog steeds Moderate Members nodig. `need` geeft dat recht niet. [Rechten](/docs/permissions) · [Mod-acties](/docs/mod-actions)
+
+## Layout-paneel
+
+`layout()` is het hele antwoord. Dit bestand is `src/commands/panel.ts` uit de publieke testbot. `show` is tekst, `divide` is een scheiding, `pack` groepeert onderdelen en kan een accentkleur zetten, `beside` zet een `thumb` naast tekst, en `album` is een rij afbeeldingen. Zet op ditzelfde antwoord geen embed en geen canvas-afbeelding. De teksten hieronder zijn die van de testbot.
+
+```js
+import {
+  album,
+  beside,
+  colors,
+  command,
+  divide,
+  layout,
+  pack,
+  show,
+  thumb,
+} from "@draeven/core";
+
+export const panel = command("panel", "Shows a Components V2 layout", async (ctx) => {
+  const { reply } = ctx;
+
+  return reply(
+    layout(
+      show("**Draeven** layout"),
+      divide({ line: true }),
+      pack(
+        { color: colors.blurple },
+        show("Containers group related parts."),
+        beside({
+          text: "Thumbnails sit beside text.",
+          with: thumb("https://cdn.discordapp.com/embed/avatars/0.png"),
+        })
+      ),
+      album(
+        "https://cdn.discordapp.com/embed/avatars/1.png",
+        "https://cdn.discordapp.com/embed/avatars/2.png"
+      )
+    )
+  );
+});
+```
+
+[Embeds en layout](/docs/embeds-layout)
+
+## Uit de Draeven-testbot
+
+Deze drie bestanden spiegelen de publieke testbot (`src/commands/*.ts`). Het layout-paneel hierboven is het vierde, `panel.ts`.
+
+### Ping met wait, edit, say en een wachttijd
+
+`wait` bevestigt, `edit` vult het uitgestelde bericht, en `say` kiest een regel uit `ctx.locale`. `cooldown: 5` is per gebruiker. De Nederlandse description is registratietekst, niet de `say`-map.
+
+```js
+import { command, say } from "@draeven/core";
+
+export const ping = command(
+  "ping",
+  "Checks the bot with a short wait",
+  async (ctx) => {
+    const { wait, edit, reply, locale } = ctx;
+
+    await wait();
+    await edit(say({ en: "Thinking…", nl: "Even denken…" }, locale));
+    await new Promise((resolve) => setTimeout(resolve, 400));
+    return reply(say({ en: "Pong.", nl: "Pong." }, locale));
+  },
+  {
+    cooldown: 5,
+    locales: {
+      nl: { description: "Checkt de bot met een korte wachttijd" },
+    },
+  }
+);
+```
+
+[Wachttijden](/docs/cooldowns) · [Taalvarianten](/docs/locales) · [Antwoorden](/docs/replies)
+
+### Kiezen met knoppen
+
+`wait` + `edit` toont de rij. `collect` wacht op een van de twee ids. De knoppen hebben geen `press`: dit commando houdt de interactie.
+
+```js
+import { button, command, row } from "@draeven/core";
+
+export const choose = command("choose", "Asks yes or no and waits for a press", async (ctx) => {
+  const { wait, edit, collect, reply } = ctx;
+
+  await wait();
+  await edit({
+    text: "Pick one.",
+    rows: [
+      row(
+        button({ id: "choose-yes", label: "Yes", color: "green" }),
+        button({ id: "choose-no", label: "No", color: "red" })
+      ),
+    ],
+  });
+
+  const pick = await collect({ ids: ["choose-yes", "choose-no"], seconds: 30 });
+
+  if (!pick) {
+    return reply("Timed out.");
+  }
+
+  return reply(pick.id === "choose-yes" ? "You chose yes." : "You chose no.");
+});
+```
+
+[Verzamelaars](/docs/collectors) · [Knoppen, menu's & formulieren](/docs/pieces)
+
+### Vragen met een formulier
+
+Het formulier is het eerste antwoord. `kind: "submit"` wacht op die modal. `fields` is gekeyed op veld-id.
+
+```js
+import { command, form, fieldStyles } from "@draeven/core";
+
+export const ask = command("ask", "Opens a short form and waits for the answer", async (ctx) => {
+  const { reply, collect } = ctx;
+
+  reply(
+    form({
+      id: "ask-form",
+      title: "Quick ask",
+      fields: [
+        {
+          id: "note",
+          label: "Your note",
+          style: fieldStyles.short,
+          required: true,
+        },
+      ],
+    })
+  );
+
+  const submitted = await collect({ ids: "ask-form", kind: "submit", seconds: 120 });
+
+  if (!submitted) {
+    return reply("Timed out.");
+  }
+
+  return reply(`Got it: ${submitted.fields.note ?? ""}`);
+});
+```
+
+[Knoppen, menu's & formulieren](/docs/pieces) · [Verzamelaars](/docs/collectors)
+
+## Valkuilen
+
+- Het wachttijdboek zit in het procesgeheugen. Een herstart wist het. `simulate()` past wachttijden niet toe.
+- Een tweede `reply()` gooit alleen als er al een antwoord is opgeslagen en je noch `wait()` hebt gedaan, noch een `collect` hebt geflusht. Na `wait()` vult `edit()` of een nieuwe `reply()` de defer. Na een collect-flush vervangt een nieuwe `reply()` het opgeslagen antwoord.
+- Een `form()` na `wait()`, `defer` of `transcript()` gooit. De modal moet de eerste bevestiging zijn.
+- `embed()` heeft geen titel op de wortel. Zet die in `header: { title }`.
+- `layout()` deelt het antwoord niet met tekst, een embed, een peiling of een canvas-afbeelding.
+
+## Verder
+
+- [Commando's](/docs/commands) · [Wachttijden](/docs/cooldowns) · [Knoppen, menu's & formulieren](/docs/pieces) · [Verzamelaars](/docs/collectors) · [Embeds en layout](/docs/embeds-layout) · [Mod-acties](/docs/mod-actions)

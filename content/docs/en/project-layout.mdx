@@ -1,0 +1,103 @@
+---
+title: Project layout
+description: Folders and files of a Draeven app — entry, commands, events, env, scripts.
+order: 6
+---
+
+A Draeven app is a small Node project: one `Start()` entry, a folder of compiled commands, an events folder, and a config file that points at those folders. Use this layout whether you scaffolded or added core by hand.
+
+## Tree
+
+```text
+my-bot/
+  draeven.config.js     # or draeven.config.mjs
+  package.json
+  tsconfig.json
+  src/
+    main.ts             # Start()
+    commands/
+      ping.ts           # export const ping = command(...)
+      later.ts          # inline press
+    events/
+      ready.ts          # export function ready
+      letters.ts        # use()
+  dist/                 # tsc output — this is what Draeven loads
+  scripts/
+    dev.mjs             # tsc -w + bot
+  .env
+  .env.example
+```
+
+## draeven.config.js
+
+```js
+export default {
+  commands: "./dist/commands",
+  events: "./dist/events",
+};
+```
+
+`Start()` calls `readConfig()` when you omit `commands`. The search walks from the working directory upward for `draeven.config.js` or `draeven.config.mjs`. With no file, the commands folder defaults to `./commands` next to the process. Omit `events` on `Start` and Draeven uses `events` from this file when that field is set. A missing `events` field loads no events folder.
+
+You can also pass commands inline and skip the folder (hot reload will not see them):
+
+```js
+import { Start } from "@draeven/core";
+import { ping } from "./dist/commands/ping.js";
+
+await Start({ token: process.env.DISCORD_TOKEN, commands: [ping] });
+```
+
+A string or `URL` is a folder path, same as the config.
+
+## What gets loaded
+
+`loadCommands()` imports every `.js` file in the folder, skips tests (`.test.js`), names that end with `old.js` (so `fold.js` too, not only `file.old.js`), and dotfiles, and keeps every export for which `isCommand()` or `isMenu()` is true. A default export is loaded when it is a command or menu. Named exports stay easier to scan.
+
+Duplicate slash names throw at startup. So do two user menus with the same name, and two message menus with the same name.
+
+## src/main.ts
+
+```js
+import { Start, intentsFor } from "@draeven/core";
+
+await Start({
+  token: process.env.DISCORD_TOKEN,
+  guildId: process.env.DISCORD_GUILD_ID,
+  watch: process.env.NODE_ENV !== "production",
+  intents: intentsFor("ready"),
+});
+```
+
+## Environment
+
+| Variable | Purpose |
+|----------|---------|
+| `DISCORD_TOKEN` | Bot token. Required by your `Start({ token })` call. |
+| `DISCORD_GUILD_ID` | Guild command sync while developing. |
+| `DASHBOARD` | `embedded`, `off`, `bridge`, or `desk` when bridge is installed. |
+| `BRIDGE_URL`, `BRIDGE_SECRET` | Desk process talking to the bot host. |
+
+`DASHBOARD` is read by `@draeven/bridge`, not by `Start()`. See [Bridge & desk](/docs/bridge-desk).
+
+## Optional events folder
+
+Pass `events: "./dist/events"`, or set that path in `draeven.config.js` and omit `events` on `Start`. The folder loads two kinds of export:
+
+- A function whose **name is an event name** (`export function memberJoin...`)
+- A value built with `use()` — a durable button, menu, or form handler
+
+The same `watch: true` flag reloads that folder ([Events & intents](/docs/events-intents), [Press & submit](/docs/press-handlers)).
+
+<Note>
+`timeZone` on `Start` is an IANA zone used when a transcript does not set its own. It does not change `time()` stamps inside embeds.
+</Note>
+
+## Pitfalls
+
+- Editing `src/commands/ping.ts` does nothing until `tsc` writes `dist/commands/ping.js`.
+- `watch: true` with `commands: [ping]` throws `[Draeven] watch: true needs commands from a folder path or draeven.config.` There is no folder to watch.
+
+## Related
+
+- [Start options](/docs/start-options) · [Commands](/docs/commands) · [Hot-reload & guard](/docs/hot-reload-guard)

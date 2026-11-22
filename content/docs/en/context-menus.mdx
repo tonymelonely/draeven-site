@@ -1,0 +1,82 @@
+---
+title: Context menus
+description: User and message right-click commands.
+order: 23
+---
+
+Context menus are commands that appear under **Apps** when you right-click a user or a message. They have no slash options. The target arrives on `ctx.target`. Use them for "do this to *that* person or message" without asking the user to type an id.
+
+They load from the same folder as slash commands. `loadCommands()` keeps any export where `isMenu()` is true.
+
+## Two builders
+
+| Builder | `ctx.target` |
+|---------|----------------|
+| `userMenu(name, run)` | `User` (`id`, `name`, `bot`, `createdAt`, `icon?`) |
+| `messageMenu(name, run)` | `{ id, content, authorId }` |
+
+The name is 1–32 characters and may include spaces, letters, digits, underscores, and hyphens (`[\w -]`). That is looser than a slash name.
+
+Metadata, when you need it, sits **between** the name and the handler: `userMenu(name, meta, run)`. You can pass `ownerOnly`, `cooldown`, `locales`, and `defer`. Do not rely on `need` here: menus do not get `memberPermissions`, so any non-zero `need` always blocks.
+
+## Inspect a user
+
+```js
+import { userMenu, embed, colors } from "@draeven/core";
+
+export const whois = userMenu("Who is this", async (ctx) => {
+  const u = ctx.target;
+  return ctx.reply(
+    embed({
+      header: { title: u.name },
+      description: `ID ${u.id}`,
+      color: colors.blurple,
+    })
+  );
+});
+```
+
+## Quote a message
+
+```js
+import { messageMenu } from "@draeven/core";
+
+export const quote = messageMenu("Quote", async (ctx) => {
+  const msg = ctx.target;
+  return ctx.reply(`> ${msg.content}\n— <@${msg.authorId}>`);
+});
+```
+
+## Menu reply
+
+```js
+import { form, userMenu } from "@draeven/core";
+
+export const report = userMenu("Report", { defer: { private: true } }, async (ctx) =>
+  ctx.reply(
+    form({
+      id: "report-form",
+      title: "Report",
+      fields: [{ id: "why", label: "Why?" }],
+    })
+  )
+);
+```
+
+The menu context has `reply`, `wait`, `edit`, lookups, `author`, and `locale`. It does not have slash option fields, `followup`, `collect`, or the moderation helpers. `reply(form())` works from a menu. A form is not limited to slash commands. Menu `reply` does not take `poll()`, `layout()`, or a `{ private: true }` options object. That second argument must be an embed. For an ephemeral menu, call `await ctx.wait({ private: true })` and then `edit`, or set `defer: { private: true }` in metadata.
+
+Menu `need` does not receive `memberPermissions`. The bitfield is `0`. Any non-zero `need` always blocks, including `Administrator`. Use `ownerOnly` or `when` when you need a gate.
+
+<Note>
+Menus sync with the same guild or global rules as slash commands. A missing menu after deploy is usually a stale global registration, not a failed export.
+</Note>
+
+## Pitfalls
+
+- `ctx.target` on a message menu is not a full message object. You get `id`, `content`, and `authorId` only.
+- Two user menus with the same name throw when the folder loads. Two message menus with the same name throw too.
+- Do not invent slash options on a menu. Discord will not show them.
+
+## Related
+
+- [Commands](/docs/commands) · [Embeds & layout](/docs/embeds-layout) · [Replies](/docs/replies)

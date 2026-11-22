@@ -1,0 +1,166 @@
+---
+title: Buttons, menus & forms
+description: Buttons, menus, pickers, and forms on a reply.
+order: 41
+---
+
+Controls on a reply: buttons, links, SKUs, menus, pickers. `form()` must be the **whole** first reply.
+
+<InteractChoice />
+
+## A row of buttons
+
+```js
+import { button, command, link, row } from "@draeven/core";
+
+export const confirm = command("confirm", "Yes or no", async (ctx) => {
+  ctx.reply({
+    text: "Delete the last report?",
+    rows: [
+      row(
+        button({ id: "yes", label: "Delete", color: "red" }),
+        button({ id: "no", label: "Keep", color: "grey" }),
+        link({ url: "https://example.com", label: "Docs" })
+      ),
+    ],
+  });
+
+  const pick = await ctx.collect({ ids: ["yes", "no"], seconds: 30 });
+  if (!pick) return ctx.edit("Timed out.");
+  return ctx.edit(pick.id === "yes" ? "Deleted." : "Kept.");
+});
+```
+
+Rules for layout:
+
+- One row: up to **five** `button()`, `link()`, or `sku()` pieces.
+- A `menu()`, `people()`, `roles()`, `channels()`, or `mentions()` takes that row **alone**.
+- One reply: up to **five** rows.
+- Every `id` on the same message must be unique.
+
+## What `id` means
+
+You choose the string yourself: `"yes"`, `"confirm-report"`, anything you like. Discord (and Draeven) then limit **how long** that string may be:
+
+| Field | Meaning |
+|-------|---------|
+| `id` on `button` / menu / picker / form | **Your** custom id string — length **1–100 characters** |
+| `label` on `button` / `link` | Text on the control — length **1–80 characters** |
+| SKU `id` | Discord’s shop SKU — **1–20 digits**, not a custom string |
+
+So `id: "yes"` is correct. `1–100` is not “pick a number from 1 to 100”.
+
+## Button tour
+
+Use the arrows (or the tabs) to walk colors, id, emoji, disabled, press, links, and how autocomplete works — same surface as discord.js `ButtonStyle.`, but Draeven-shaped.
+
+<PieceTour />
+
+### Colors and autocomplete
+
+There are **four** colors: `blurple` (default), `grey`, `green`, `red`.
+
+- **TypeScript:** type `color: "` and the union lists the four names (like IntelliSense after a dot).
+- **JS or TS:** import `buttonColors` and use `buttonColors.green` — a real property list after `.`, including in plain JavaScript.
+
+`color` maps to Discord’s button styles. There is no `ButtonStyle.Primary`; write `color: "blurple"` or `buttonColors.blurple`.
+
+## Buttons, links, and SKUs
+
+The tour above walks the surface. Open the cheatsheet when you need field limits.
+
+<CollapsibleCheatsheet title="Button / link / SKU fields">
+
+| Piece | You must pass | Optional / notes |
+|-------|---------------|------------------|
+| `button` | `id` (your string, 1–100 chars), `label` (1–80 chars) | `color` (four names), `emoji`, `disabled`, `press` |
+| `link` | `url` (`http`/`https`, ≤512 chars), `label` (1–80) | `emoji`, `disabled`. No custom id → `collect` never sees it |
+| `sku` | Discord SKU id (1–20 digits) | Purchase button. No `press` ([SKU buttons](/docs/sku)) |
+
+</CollapsibleCheatsheet>
+
+A <Explain topic="sku-button">SKU</Explain> is a purchase control, not a custom id you invent.
+
+## Menus and pickers
+
+```js
+import { channelKinds, channels, command, row } from "@draeven/core";
+
+export const route = command("route", "Pick a channel", async (ctx) => {
+  ctx.reply({
+    text: "Where should the log go?",
+    rows: [
+      row(
+        channels({
+          id: "log",
+          placeholder: "Text channel",
+          kinds: [channelKinds.text],
+        })
+      ),
+    ],
+  });
+
+  const chosen = await ctx.collect({ ids: "log", seconds: 60 });
+  if (!chosen) return ctx.edit("Timed out.");
+  return ctx.edit(`Channel ${chosen.values[0]}`);
+});
+```
+
+`menu({ id, placeholder, choices, min?, max?, disabled?, press? })` needs a placeholder (**1–150 characters**) and **1–25** choices. Each choice: `label` + `value` (each **1–100 characters**). Optional `description` (1–100). `min` / `max` default to 1. `max` cannot exceed 25 or the number of choices. Values on one menu must be unique.
+
+`people`, `roles`, `channels`, and `mentions` share `id`, optional placeholder, `min`, `max`, `disabled`, and `press`. Omit `kinds` on `channels` to allow every kind. Kind names live on `channelKinds`: `text`, `voice`, `category`, `announcement`, `announcement thread`, `thread`, `private thread`, `stage`, `forum`, `media`.
+
+After `collect`, a button hit has empty `values`. A menu or picker fills `values` with the selected values or ids. Full shape: [Collectors](/docs/collectors).
+
+## Forms
+
+A form is the entire first reply. Title **1–45 characters**, **1–5** fields. `fieldStyles.short` is one line (default). `fieldStyles.long` is a paragraph. Field labels **1–45**. `required` defaults to true. Field ids must be unique and must not repeat the form id.
+
+```js
+import { command, fieldStyles, form } from "@draeven/core";
+
+export const note = command("note", "Write a note", async (ctx) => {
+  ctx.reply(
+    form({
+      id: "note-form",
+      title: "Note",
+      fields: [
+        { id: "body", label: "Note", style: fieldStyles.long, max: 500 },
+      ],
+    })
+  );
+
+  const sent = await ctx.collect({ ids: "note-form", kind: "submit", seconds: 120 });
+  if (!sent) return ctx.reply("Timed out.");
+  return ctx.reply(sent.fields.body);
+});
+```
+
+A submit answers on the modal. A timeout is `undefined`, and that reply edits the original interaction. Do not read `sent?.fields` when `sent` is missing.
+
+Do not `wait()` or set metadata `defer` first (<Explain topic="form-first">the form is the first reply</Explain>). Discord will not open a modal after an acknowledgement.
+
+## press and collect
+
+The collector wins only when the custom id, the kind, and the user all match. A wrong user, or the wrong kind, still runs `press` or `submit`. <Explain topic="collect-vs-press">Use collect when the same command should continue. Use press when the control should answer on its own later.</Explain>
+
+A one-off button can carry `press`:
+
+```js
+button({ id: "yes", label: "Yes", press: (ctx) => ctx.reply("Yes.") })
+```
+
+For buttons that should still work after a restart, leave `press` off and export `use()` from the events folder. The command only posts the buttons. `use()` owns the ids ([Press & submit](/docs/press-handlers)).
+
+A `press` function receives `id`, optional `messageId`, `author`, `values`, `fields`, and `reply`. It returns one reply (same shapes as a command). `values` is empty for a button. `fields` is filled on a form submit. `id` is the custom id.
+
+<Warn fix="Reply with form() first — never wait() or defer before it." href="/docs/why-failing">
+A form cannot follow `wait()` or a metadata `defer`. Reply with the form first. A form cannot be `{ private: true }`, and `ctx.send` cannot carry one.
+</Warn>
+
+## Pitfalls
+
+- A repeated id throws while the row is built.
+- `link()` never arrives in `collect`. Do not list a link in `ids`.
+- A menu or picker beside a button throws: "A menu takes the whole row."
+- After a timeout the controls stay. A text-only `edit` keeps the row, because `components` is omitted. `rows: []` is dropped too. `remove()` deletes the reply.

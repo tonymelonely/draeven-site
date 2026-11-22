@@ -1,0 +1,194 @@
+---
+title: Embeds en layout
+description: Onderdelen van embed(), en Components V2 via layout().
+order: 45
+---
+
+## Anatomie van een embed
+
+<DocMedia id="embeds" />
+
+Een Draeven-embed bouw je met `embed({ ... })` en verstuur je via <Explain topic="embed-reply">reply</Explain>, `edit`, `followup` of `bot.send`.
+
+Dit is **geen** discord.js: geen `EmbedBuilder`, geen root-`title`, geen `inline`. Je bouwt er één met `embed({ ... })`.
+
+| discord.js-gewoonte | Draeven |
+|---------------------|---------|
+| `title: "..."` | `header: { title: "..." }` |
+| `inline: true` | rij delen, of `wide: true` |
+| `time(Date.now())` | `time(new Date(), "relative")` |
+
+Klik gestippelde termen — <Explain topic="embed-header">header</Explain>, <Explain topic="embed-fields">fields</Explain>, <Explain topic="embed-footer">footer</Explain>, <Explain topic="embed-time">time()</Explain> — voor een popup met regels en voorbeelden.
+
+## Volledig voorbeeld
+
+```js
+import { command, embed, colors, time, breakline } from "@draeven/core";
+
+export const status = command("status", "Toon status", async (ctx) =>
+  ctx.reply(
+    embed({
+      color: colors.green,
+      author: { name: "Ops" },
+      header: { title: "Botstatus" },
+      description: `Online sinds ${time(new Date(), "relative")}`,
+      fields: [
+        { name: "Shard", value: "OK" },
+        { name: "Ping", value: "42ms" },
+        breakline,
+        { name: "Notities", value: "Brede rijen met wide: true.", wide: true },
+      ],
+      footer: { text: "Draeven" },
+      timestamp: new Date(),
+    })
+  )
+);
+```
+
+## Onderdelen van de embed
+
+### color
+
+Accentbalk links. Gebruik <Explain topic="embed-colors">colors</Explain> (inclusief `colors.blurple`), een `#RRGGBB`-string of een getal `0`–`0xffffff`.
+Uitleg: <Explain topic="embed-color">color</Explain>.
+
+### author
+
+Optionele naamregel **boven** de titel — `name` (1–256), optioneel `icon` en `link`.
+Uitleg: <Explain topic="embed-author">author</Explain>.
+
+### header
+
+Het echte titelblok: `{ title, link?, image? }`.
+**Fout:** `title: "…"` op de root. **Goed:** `header: { title: "…" }`.
+Een header heeft een titel of een afbeelding nodig. Een `link` heeft een titel nodig.
+Uitleg: <Explain topic="embed-header">header</Explain>.
+
+### description
+
+Paragraaf onder de header (≤ 4096). Markdown en `time()` mogen.
+Uitleg: <Explain topic="embed-description">description</Explain>.
+
+### fields
+
+Array van `{ name, value, wide? }` plus <Explain topic="embed-breakline">breakline</Explain>.
+
+- Max **drie** fields per rij
+- `breakline` start een nieuwe rij
+- `wide: true` = volle breedte
+- `value`: tekst, getal, boolean, `Date` of `time()`-string
+- `name` is 1–256 tekens; `value` is 1–1024
+- Er is geen `inline`
+
+Uitleg: <Explain topic="embed-fields">fields</Explain>.
+
+### image
+
+Grote afbeelding **onder** de fields (niet `header.image`). De URL moet `http` of `https` zijn.
+Uitleg: <Explain topic="embed-image">image</Explain>.
+
+### footer
+
+Onderregel `{ text, icon? }`. `text` is 1–2048 als gezet. Combineer met `timestamp: new Date()`.
+Uitleg: <Explain topic="embed-footer">footer</Explain>.
+
+### rows & picture
+
+Knoppen en menu's die met de embed meegaan (<Explain topic="embed-rows">rows</Explain>), hoogstens vijf rijen, en een optionele `canvas()`-bitmap (<Explain topic="embed-picture">picture</Explain>). Klikken lopen via `ctx.collect`.
+
+## Tekst boven een embed
+
+Een klassieke embed mag onder een contentregel staan. `layout()` niet — zie hieronder.
+
+```js
+return ctx.reply(
+  "Let op:",
+  embed({ header: { title: "Details" }, color: colors.blurple })
+);
+```
+
+## Components V2 — `layout()`
+
+`layout()` bouwt Discord **Components V2**-berichten (vlag `IS_COMPONENTS_V2`). Dat is Discords naam voor dit UI-systeem — in Draeven begin je met `layout()`, er is geen aparte `section()`-export.
+
+Discord zelf heeft wel een stuk genaamd **Section** (tekst + één accessory). In Draeven is dat `beside()`. De andere helpers zijn de weergavestukken van Discord: tekst, scheiding, container, galerij, bestand, thumbnail en actierij.
+
+Op één antwoord mag een layout <Explain topic="layout-mix">niet mengen</Explain> met berichttekst, `embed()`, `poll()` of een `canvas()`-afbeelding. `reply("tekst", layout(...))` gooit `A reply takes text, an embed, or text and an embed.` De mix-fout `A layout cannot mix with text, embeds, or polls.` is voor `{ text, layout }`. Een `form()` is ook een eigen antwoord. Je mag de layout wel privé maken met `{ private: true }`, en extra `row()`-waarden aan hetzelfde antwoord hangen — die actierijen gaan ná de layout-onderdelen mee.
+
+`layout(...parts)` houdt **1–40** onderdelen. Elk onderdeel komt van `show`, `divide`, `pack`, `beside`, `album`, `showFile` of `row`. `thumb()` is zelf geen layout-onderdeel. Het is alleen de afbeelding-accessory die je aan `beside({ with })` geeft.
+
+| Helper | Discord-stuk | Vorm |
+|--------|----------------|------|
+| `show(text)` | Text Display | 1–4000 tekens |
+| `divide({ size?, line? })` | Separator | `size` is `"sm"` (standaard) of `"lg"`. `line: true` tekent een lijn |
+| `pack({ color?, spoiler? }, ...parts)` | Container | Minstens één genest onderdeel. `color` is `colors.*`, `#RRGGBB` of een getal |
+| `beside({ text, with })` | Section | Tekst 1–4000. `with` is `thumb()` of een `row()` |
+| `thumb(url \| { url, description? })` | Thumbnail | `https`-URL. Beschrijving 1–1024. Alleen als accessory van `beside` |
+| `album(...items)` | Media Gallery | 1–10 afbeeldingen. Een URL-string, of `{ url, description?, spoiler? }` |
+| `showFile(name \| { name, spoiler? })` | File | Een `https`-URL, of de bestandsnaam van een bijlage die al op het bericht staat |
+| `row(...)` | Action Row | Dezelfde knoppen, links en menu's als een klassieke rij |
+
+De rij-accessory van `beside` gebruikt het **eerste** component van die rij. Zet er één knop op. `pack()` mag dezelfde onderdelen nesten, ook een `beside()` of `album()`.
+
+```js
+import {
+  album,
+  beside,
+  button,
+  colors,
+  command,
+  divide,
+  layout,
+  pack,
+  row,
+  show,
+  showFile,
+  thumb,
+} from "@draeven/core";
+
+export const panel = command("panel", "Toon paneel", async (ctx) =>
+  ctx.reply(
+    layout(
+      show("**Welkom**"),
+      divide({ size: "sm", line: true }),
+      pack(
+        { color: colors.blurple },
+        show("Inhoud in een container"),
+        beside({
+          text: "Tekst plus een accessory. Discord noemt dit een Section.",
+          with: thumb("https://cdn.discordapp.com/embed/avatars/0.png"),
+        })
+      ),
+      album("https://cdn.discordapp.com/embed/avatars/1.png"),
+      showFile("https://cdn.discordapp.com/embed/avatars/2.png"),
+      row(button({ id: "ok", label: "OK", color: "green" }))
+    )
+  )
+);
+```
+
+Een knop naast de tekst, in plaats van een thumbnail:
+
+```js
+beside({
+  text: "Bevestigen?",
+  with: row(button({ id: "yes", label: "Ja", color: "green" })),
+});
+```
+
+<Tip>
+`time(new Date(), "relative")` is de gebruikelijke stempel in een embed-description of field. Andere stijlen zijn `"time"`, `"long time"`, `"date"`, `"long date"`, `"date and time"` en `"full"` — of de korte letters `t`, `T`, `d`, `D`, `f`, `F`, `R`. `time()` verwacht een `Date`, geen `Date.now()`.
+</Tip>
+
+## Limieten
+
+- Header-titel ≤ 256, description ≤ 4096, author-naam ≤ 256
+- Field-naam ≤ 256, field-waarde ≤ 1024, max **25** fields (lege vulvelden van korte rijen tellen mee)
+- Totaal zichtbare embed-tekst ≤ 6000 tekens
+- Footer-tekst 1–2048 als gezet
+- `layout()` houdt 1–40 onderdelen. Tekst van `show()` en `beside()` is 1–4000. `album()` houdt 1–10 afbeeldingen
+- Een layout deelt zijn antwoord niet met tekst, een embed, een peiling of een canvas-afbeelding
+
+## Verder
+
+- [Antwoorden](/docs/replies) · [Verzamelaars](/docs/collectors) · [Peilingen](/docs/polls) · [Berichten sturen](/docs/sending-messages)

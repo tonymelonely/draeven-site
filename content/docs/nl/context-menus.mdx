@@ -1,0 +1,82 @@
+---
+title: Contextmenu's
+description: User- en berichtmenu's via rechtermuisklik.
+order: 23
+---
+
+Contextmenu's zijn commando's onder **Apps** als je met rechts op een gebruiker of een bericht klikt. Ze hebben geen slash-opties. Het doel komt binnen op `ctx.target`. Gebruik ze voor "doe dit met *die* persoon of dat bericht" zonder dat iemand een id typt.
+
+Ze laden uit dezelfde map als slash-commando's. `loadCommands()` houdt elke export waar `isMenu()` waar is.
+
+## Twee builders
+
+| Builder | `ctx.target` |
+|---------|----------------|
+| `userMenu(name, run)` | `User` (`id`, `name`, `bot`, `createdAt`, `icon?`) |
+| `messageMenu(name, run)` | `{ id, content, authorId }` |
+
+De naam is 1–32 tekens en mag spaties, letters, cijfers, underscores en koppeltekens bevatten (`[\w -]`). Dat is ruimer dan een slash-naam.
+
+Metadata staat **tussen** de naam en de handler: `userMenu(name, meta, run)`. Je kunt `ownerOnly`, `cooldown`, `locales` en `defer` meegeven. Vertrouw hier niet op `need`: menu's krijgen geen `memberPermissions`, dus elke `need` die niet nul is blokkeert altijd.
+
+## Gebruiker bekijken
+
+```js
+import { userMenu, embed, colors } from "@draeven/core";
+
+export const wieisdit = userMenu("Wie is dit", async (ctx) => {
+  const u = ctx.target;
+  return ctx.reply(
+    embed({
+      header: { title: u.name },
+      description: `ID ${u.id}`,
+      color: colors.blurple,
+    })
+  );
+});
+```
+
+## Bericht citeren
+
+```js
+import { messageMenu } from "@draeven/core";
+
+export const quote = messageMenu("Citeer", async (ctx) => {
+  const msg = ctx.target;
+  return ctx.reply(`> ${msg.content}\n— <@${msg.authorId}>`);
+});
+```
+
+## Menu-antwoord
+
+```js
+import { form, userMenu } from "@draeven/core";
+
+export const report = userMenu("Rapporteer", { defer: { private: true } }, async (ctx) =>
+  ctx.reply(
+    form({
+      id: "report-form",
+      title: "Melding",
+      fields: [{ id: "why", label: "Waarom?" }],
+    })
+  )
+);
+```
+
+De menucontext heeft `reply`, `wait`, `edit`, lookups, `author` en `locale`. Geen slash-opties, geen `followup`, geen `collect` en geen moderatiehelpers. `reply(form())` werkt vanuit een menu. Een formulier is niet beperkt tot slash-commando's. Menu-`reply` neemt geen `poll()`, `layout()` of een `{ private: true }`-optieobject. Dat tweede argument moet een embed zijn. Voor een efemeer menu roep je `await ctx.wait({ private: true })` aan en daarna `edit`, of zet je `defer: { private: true }` in metadata.
+
+Menu-`need` krijgt geen `memberPermissions`. Het bitveld is `0`. Elke `need` die niet nul is blokkeert altijd, ook `Administrator`. Gebruik `ownerOnly` of `when` als je een gate nodig hebt.
+
+<Note>
+Menu's synchroniseren met dezelfde guild- of globale regels als slash-commando's. Een ontbrekend menu na een deploy is meestal een verouderde globale registratie, geen mislukte export.
+</Note>
+
+## Valkuilen
+
+- `ctx.target` bij een berichtmenu is geen volledig bericht. Je krijgt alleen `id`, `content` en `authorId`.
+- Twee user-menu's met dezelfde naam gooien bij het laden van de map. Twee berichtmenu's met dezelfde naam gooien ook.
+- Verzin geen slash-opties op een menu. Discord toont ze niet.
+
+## Verder
+
+- [Commando's](/docs/commands) · [Embeds en layout](/docs/embeds-layout) · [Antwoorden](/docs/replies)

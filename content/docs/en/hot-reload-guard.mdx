@@ -1,0 +1,80 @@
+---
+title: Hot-reload & guard
+description: Reload compiled files, and keep the process alive.
+order: 72
+---
+
+Hot reload and the guard solve two different problems. `watch: true` replaces command and event modules when `dist/` changes, without closing Discord. `guard()` catches handler and process errors so one throw does not kill the bot, and writes them where you ask.
+
+## Watch
+
+```js
+import { Start } from "@draeven/core";
+
+const bot = await Start({
+  token: process.env.DISCORD_TOKEN,
+  watch: true,
+});
+```
+
+Requirements:
+
+- Commands come from a **folder** (`draeven.config.js`, or `commands: "./dist/commands"`). An in-memory array is not watched.
+- Something rewrites that folder. `pnpm dev` runs `tsc -w` after the first build.
+- Event folders are watched only when `events` is a path, not an object.
+
+`bot.syncState()` is a snapshot. `bot.onSync(handler)` subscribes and returns an unsubscribe function.
+
+| Field | Meaning |
+|-------|---------|
+| `watch` | Whether folder watching is on |
+| `commandCount` | Loaded slash commands and menus |
+| `lastCommandsReloadAt` | ISO time of the last good command reload |
+| `lastEventsReloadAt` | ISO time of the last good event reload |
+| `lastCommandsError` | Last reload failure, if any |
+| `lastEventsError` | Last event-folder failure, if any |
+
+A syntax error in `dist` sets `lastCommandsError` and keeps the previous command set. The gateway stays up.
+
+## Guard
+
+Field-by-field behavior, `formatUptime`, and a file log are on [Error guard](/docs/guard). This section is the short form next to hot reload.
+
+```js
+import { Start, guard } from "@draeven/core";
+
+await Start({
+  token: process.env.DISCORD_TOKEN,
+  watch: true,
+  guard: guard({
+    via: ["console", "channel"],
+    of: "all",
+    channel: process.env.LOG_CHANNEL_ID,
+    uptime: true,
+  }),
+});
+```
+
+| Option | Values |
+|--------|--------|
+| `via` | `"console"`, `"channel"`, `"file"`, an array, or `"all"` |
+| `of` | `"commands"`, `"events"`, `"process"`, an array, or `"all"` |
+| `channel` | Required when `via` includes `"channel"` |
+| `file` | Required when `via` includes `"file"` |
+| `uptime` | Adds uptime on the ready line, and as a trailing line on a report. It does not prefix every line. |
+
+`of: "process"` listens for `uncaughtException` and `unhandledRejection`. `of: "commands"` reports throws from slash handlers. `of: "events"` reports throws from gateway handlers.
+
+<Warn fix="Pass channel as a snowflake string when via is channel." href="/docs/why-failing">
+`via: "channel"` without `channel` throws at `guard()` time. The channel id is a snowflake string the bot can post in.
+</Warn>
+
+## Pitfalls
+
+- Watching `src/` does nothing. Draeven imports the compiled `.js`.
+- Guard logs are lines of text, not a metrics system.
+- `uptime: true` uses the guard's start time, not Discord's session time.
+
+## Related
+
+- [Project layout](/docs/project-layout) · [One process](/docs/alone) · [Simulate & tests](/docs/simulate)

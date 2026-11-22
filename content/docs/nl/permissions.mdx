@@ -1,0 +1,72 @@
+---
+title: Rechten & gates
+description: Registratierechten, need, ownerOnly en when.
+order: 25
+---
+
+**Registratie** verbergt het commando in Discords kiezer. **Gates** (`ownerOnly` → `need` → `when`) blokkeren `run` in jouw proces.
+
+<WhenToUse topic="permissions" />
+
+## need
+
+`need` is één `PermissionName`, een lijst (allemaal vereist), of een ruw bitveld (`string` of `bigint`). Namen volgen Discord's PascalCase, waaronder `BanMembers`, `KickMembers`, `ModerateMembers`, `ManageMessages`, `ManageGuild` en `SendPolls`.
+
+```js
+import { command, user } from "@draeven/core";
+
+export const ban = command(
+  "ban",
+  "Ban een lid",
+  { who: user("Wie?").required() },
+  async (ctx) => {
+    await ctx.ban(ctx.who, { reason: "Moderatie" });
+    return ctx.reply(`Geband: ${ctx.who.name}.`);
+  },
+  { need: "BanMembers" }
+);
+```
+
+Het bitveld is de kanaalrechten van het lid, zoals Discord ze op de interactie zette. Draeven rekent de rolhiërarchie niet opnieuw uit.
+
+## ownerOnly
+
+`ownerOnly: true` laat alleen de **servereigenaar** toe (`author.id` moet gelijk zijn aan de guild-owner-id). De frameworktekst is "Alleen de servereigenaar kan dit gebruiken." Het is niet de eigenaar van de Discord-applicatie. In een DM is er geen owner-id, dus de gate faalt.
+
+## when
+
+`when(ctx)` geeft `false` terug om te blokkeren. Deze `ctx` is een gate-context: `author`, `locale` en de lookups. Het is niet de volledige commando-`ctx` (nog geen `reply` — de handler is niet gestart). `getChannel()` is hier altijd `undefined`. De dispatcher geeft geen kanaal mee. `getGuild()` werkt als de interactie een guild heeft.
+
+```js
+{
+  need: "ManageMessages",
+  when: (ctx) => ctx.getGuild()?.id === "123456789012345678",
+}
+```
+
+Gebruik `when` voor "alleen deze guild" of "niet in een DM" (`Boolean(ctx.getGuild())`). Gebruik `need` voor rechtenbits.
+
+## Registratievelden
+
+| Veld | Effect |
+|------|--------|
+| `permissions` | Standaard lid-rechten die op het commando worden opgeslagen. Zelfde naamtype als `need`. |
+| `places` | `"guild"`, `"bot dm"`, `"private"`. |
+| `install` | Installatiecontext `"guild"` of `"user"`. |
+| `nsfw` | Commando alleen in leeftijdsbegrensde kanalen. |
+
+`permissions` vervangt `need` niet. Discord kan de interactie nog leveren als een beheerder de standaard overschrijft. `need` is de check die jij beheert.
+
+<Tip>
+Subcommando's kunnen geen eigen `need` dragen. Zet de gate op de parent `command()`. Als twee bladeren verschillende bits nodig hebben, maak je twee commando's ([Subcommando's](/docs/subcommands)).
+</Tip>
+
+## Valkuilen
+
+- `Administrator` slaagt voor `hasPermissions` en `need`. Draeven behandelt de Administrator-bit (`1 << 3`) als elk recht.
+- De auto-defer-timer start ná de gates. Een trage `when()` wordt niet gedefered. Houd de gate snel, anders kan de interactie verlopen vóór de handler start ([Antwoorden](/docs/replies)).
+- `hasPermissions(have, need)` is geëxporteerd als je bitvelden zelf vergelijkt. Het commandopad roept het al aan voor `need`.
+
+## Verder
+
+- [Commando's](/docs/commands) · [Wachttijden](/docs/cooldowns) · [Mod-acties](/docs/mod-actions)

@@ -1,0 +1,186 @@
+---
+title: Press & submit
+description: press en submit op een element. use() voor handlers die een herstart overleven.
+order: 44
+---
+
+Inline `press` voor een eenmalige knop. `use()` in de events-map als het een herstart moet overleven.
+
+<InteractChoice />
+<WhenToUse topic="use" />
+
+Zet `press` op knoppen/menu’s/kiezers, `submit` op formulieren. `link()` / `sku()` hebben geen van beide. Collect wint alleen bij id + kind + user ([Verzamelaars](/docs/collectors)).
+
+<Note>Afgestemd op @draeven/core **0.1.9**.</Note>
+
+## PressContext
+
+`PressContext` is wat `runPress` bouwt. Het is niet de commando-`ctx`. <Explain topic="press-context">PressContext</Explain>
+
+| Veld | Wat je krijgt |
+|------|----------------|
+| `author` | `{ id }` van wie drukte of verstuurde. |
+| `id` | De custom id die Discord stuurde. |
+| `messageId` | Het bericht dat het element droeg, als Discord het meestuurde. |
+| `values` | Keuzes van een menu of kiezer. Leeg bij een knop of een formulier. |
+| `fields` | Formulierwaarden op veld-id. Leeg bij een knop of een menu. |
+| lookups | `getUser`, `getMember`, `getGuild`, `getChannel` en de rest uit [Lookups](/docs/lookups). |
+| `reply` | Eén keer. Een string, een `embed()`, beide, een rij, een formulier, een peiling, een layout, een canvas, of `{ text, rows }`. |
+
+`id` is die custom id. `messageId` staat er als Discord het bericht meestuurde. Roep `reply` precies één keer aan. Een tweede reply gooit `[Draeven] A command can only reply once.` Terugkeren zonder `reply` gooit `[Draeven] The command did not reply.`
+
+## press en collect
+
+```js
+import { command, button, row, menu, form } from "@draeven/core";
+
+const again = button({
+  id: "ping-again",
+  label: "Ping again",
+  press: (ctx) => {
+    const user = ctx.getUser(ctx.author);
+    return ctx.reply(user.name + " drukte opnieuw.");
+  },
+});
+
+export const later = command("later", "Een knop die zelf antwoordt", async (ctx) => {
+  return ctx.reply({
+    text: "Er wacht geen verzamelaar. De knop antwoordt later.",
+    rows: [row(again)],
+  });
+});
+
+export const stay = command("stay", "De verzamelaar pakt deze press", async (ctx) => {
+  await ctx.wait();
+  await ctx.edit({
+    text: "Deze press blijft in het commando.",
+    rows: [
+      row(
+        button({
+          id: "stay-yes",
+          label: "Ja",
+          color: "green",
+          press: (pressCtx) => pressCtx.reply("niet gebruikt zolang collect wacht"),
+        })
+      ),
+    ],
+  });
+
+  const pick = await ctx.collect({ ids: ["stay-yes"], seconds: 20 });
+  if (!pick) return ctx.reply("De tijd is om.");
+  return ctx.reply("Verzameld " + pick.id);
+});
+
+export const choose = command("choose", "Een menu met een eigen press", async (ctx) => {
+  return ctx.reply({
+    text: "Kies er een. Geen collect.",
+    rows: [
+      row(
+        menu({
+          id: "color",
+          placeholder: "Kleur",
+          choices: [
+            { label: "Rood", value: "red" },
+            { label: "Blauw", value: "blue" },
+          ],
+          press: (ctx) => ctx.reply(ctx.values.join(", ")),
+        })
+      ),
+    ],
+  });
+});
+```
+
+Een formulier gebruikt `submit`, en `ctx.fields` is ingedeeld op veld-id:
+
+```js
+form({
+  id: "note",
+  title: "Notitie",
+  fields: [{ id: "body", label: "Tekst" }],
+  submit: (ctx) => ctx.reply(ctx.fields.body || "leeg"),
+})
+```
+
+Kiezers (`people`, `roles`, `channels`, `mentions`) gebruiken `press` net als `menu`: gekozen ids komen binnen op `values`.
+
+## use() in de events-map
+
+`use({ ids, kind?, run })` is een duurzame component-handler. Hij staat in de events-map, dezelfde plek als `export function memberJoin`. `Start` laadt hem met die map. Hij overleeft een herstart. Het is geen discord.js `InteractionCreate`-listener.
+
+Houd `press` voor een eenvoudige eenmalige knop:
+
+```js
+button({ id: "yes", label: "Yes", press: (ctx) => ctx.reply("Yes.") })
+```
+
+Een commando kan knoppen plaatsen zonder `press`. `use()` is dan de eigenaar:
+
+```js
+import { button, command, row } from "@draeven/core";
+
+export const letters = command("letters", "Posts letter buttons", async (ctx) =>
+  ctx.reply({
+    text: "Pick a letter.",
+    rows: [row(button({ id: "hangman_A", label: "A" }))],
+  })
+);
+```
+
+`src/events/letters.ts`:
+
+```js
+import { button, row, use } from "@draeven/core";
+
+export const letters = use({
+  ids: "hangman_*",
+  run(ctx) {
+    const letter = ctx.id.slice("hangman_".length);
+    return ctx.reply({
+      text: `You picked **${letter}**`,
+      rows: [row(button({ id: "hangman_A", label: "A" }))],
+    });
+  },
+});
+```
+
+## ids
+
+| `ids` | Treffer |
+|---------|---------|
+| `"hangman_A"` | Precies die id |
+| `"hangman_*"` | Prefix. `*` alleen aan het eind |
+| `["yes", "no"]` | Een van die exacte ids |
+| `(id) => boolean` | Je eigen test. Geef `true` terug om de id te pakken |
+
+`kind` is standaard `"press"`. Geef `"submit"` mee voor een formulier. Een `"press"`-handler pakt presses. Een `"submit"`-handler pakt formulier-submits.
+
+## Als collect wint
+
+`CollectorBook.take` draait eerst. Als een wachter klopt op id, soort en gebruiker, worden `press`, `submit` en `use()` overgeslagen.
+
+| Er wacht iets op | Wat Draeven doet |
+|------------------|------------------|
+| een knop, menu of kiezer | Bevestigt met een component-update en laat het commando doorgaan. |
+| een formulier-submit | Laat de modal onbevestigd zodat het wachtende commando hem kan beantwoorden. |
+
+Als er niets wacht, kiest Draeven de volgende treffer in deze volgorde:
+
+1. De inline `press` of `submit` die op die custom id is onthouden.
+2. Een `use()` uit de events-map.
+3. De tekst `Received.`
+
+De onthouden functie wint van `use()` als beide kloppen. Dat geheugen duurt tot het proces stopt. `use()` wordt bij de volgende start opnieuw geladen.
+
+<Warn fix="Gebruik aparte ids voor een open collect() en een press-handler." href="/docs/why-failing">
+Deel één id niet tussen een lopende `collect()` en een `press` waarvan je verwacht dat hij draait. De verzamelaar houdt de interactie zolang hij wacht.
+</Warn>
+
+## Valkuilen
+
+- `press` en `use()` kunnen niet `wait`, `collect`, `followup` of mod-acties aanroepen. Die zitten op de commandocontext ([Vuistregels](/docs/rules)).
+- De `values` van een knop zijn leeg. Lees `ctx.id` voor de custom id.
+- `*` in `ids` is alleen een prefix als het het laatste teken is. `hang*man` is een exacte id.
+- Als twee `use()`-handlers kloppen, draait de eerste die geladen is. Bestanden worden op naam gelezen.
+- Een formulier-`submit` moet nog steeds één keer `reply` aanroepen. De modal-interactie is dat antwoord.
+- Stukken bouw je met `button`, `menu` en `form` ([Knoppen, menu's & formulieren](/docs/pieces)). `press` vervangt `row()` niet.

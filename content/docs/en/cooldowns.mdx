@@ -1,0 +1,73 @@
+---
+title: Cooldowns
+description: Per-command waits for a user, channel, or guild.
+order: 27
+---
+
+In-memory wait per command name — not Discord’s rate limit. Cool → private `frame("cooldown")`, `run` skipped.
+
+<WhenToUse topic="cooldowns" />
+
+Key is `name:scope:id` (slash + menu with the same name share a bucket).
+
+## Seconds
+
+A positive number means seconds, scope `user`, and a private rejection.
+
+```js
+import { command } from "@draeven/core";
+
+export const ping = command(
+  "ping",
+  "Checks whether the bot is alive",
+  async (ctx) => ctx.reply("pong"),
+  { cooldown: 5 }
+);
+```
+
+`0`, negative numbers, and non-finite values throw when the command runs, not when `command()` is built. `readCooldown` runs in the dispatcher. Fractional seconds are allowed.
+
+## Scope
+
+```js
+export const spam = command("spam", "Don't", async (ctx) => ctx.reply("ok"), {
+  cooldown: { seconds: 30, scope: "guild", private: true },
+});
+```
+
+| `scope` | Key | If the id is missing |
+|-----------|-----|----------------------|
+| `user` (default) | `name:user:id` | always present |
+| `guild` | `name:guild:id` | no cooldown in DMs |
+| `channel` | `name:channel:id` | no cooldown when there is no channel |
+
+`private` defaults to `true`. Set `private: false` only when the whole channel should see the wait message.
+
+The English string is `Wait {seconds}s before using /{name} again.` Dutch is `Wacht {seconds}s voor je /{name} opnieuw gebruikt.`
+
+```js
+import { frame } from "@draeven/core";
+
+frame("cooldown", "nl", { name: "ping", seconds: 5 });
+```
+
+Keys are `cooldown`, `need`, `when`, `owner`, and `failed`. There is no `cooldown.wait` key.
+
+<Note>
+The book is process memory. A restart clears every cooldown. `simulate()` does **not** apply cooldowns — it only runs the handler ([Simulate](/docs/simulate)).
+</Note>
+
+## Subcommands
+
+One `cooldown` on the parent covers every leaf under that slash name. You cannot attach a cooldown to `sub()` alone.
+
+## Pitfalls
+
+- `take()` runs before the gates. A failed `need`, `ownerOnly`, or `when` still consumed the cooldown.
+- Guild scope with a missing guild id returns no key, so the command runs. Do not use `guild` as a DM rate limit.
+- Very chatty commands with `scope: "user"` still allow the rest of the server to call at the same time. Use `channel` or `guild` when that matters.
+- Cooldown copy is ephemeral by default, which hides it from mods watching the channel.
+
+## Related
+
+- [Permissions](/docs/permissions) · [Locales](/docs/locales) · [Commands](/docs/commands)

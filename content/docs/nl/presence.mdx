@@ -1,0 +1,74 @@
+---
+title: Aanwezigheid
+description: De statusregel van de bot bij start en daarna.
+order: 62
+---
+
+Aanwezigheid is de status en activiteit onder de naam van de bot in de ledenlijst. Zet hem op `Start`, en wijzig hem later met `bot.setPresence`. Dit werkt alleen voor **het botaccount**. Het zet niet de status van een lid.
+
+```js
+import { Start } from "@draeven/core";
+
+const bot = await Start({
+  token: process.env.DISCORD_TOKEN,
+  presence: {
+    status: "online",
+    activity: { kind: "watching", text: "slash commands" },
+  },
+});
+```
+
+## Status en activiteit
+
+| `status` | Betekenis |
+|------------|-----------|
+| `online` | Groen |
+| `idle` | Afwezig |
+| `dnd` | Niet storen |
+| `invisible` | Lijkt offline |
+
+| `activity.kind` | Nodig |
+|-------------------|-------|
+| `playing` | `text` |
+| `streaming` | `text` en `url` |
+| `listening` | `text` |
+| `watching` | `text` |
+| `competing` | `text` |
+| `custom` | `text` |
+
+`afk: true` is optioneel op hetzelfde object.
+
+## Wijzigen terwijl de bot draait
+
+```js
+bot.setPresence({
+  status: "dnd",
+  activity: { kind: "playing", text: "met Draeven" },
+});
+```
+
+Laat `activity` weg om de activiteit te wissen. De gateway stuurt dan een lege activiteitenlijst.
+
+```js
+bot.setPresence({ status: "online" });
+```
+
+Activiteitstekst moet 1–128 tekens zijn. `kind: "streaming"` heeft een `https://`-URL op `twitch.tv` of `youtube.com` nodig. Alles anders gooit `Streaming activity needs a Twitch or YouTube url.`
+
+## Andermans aanwezigheid horen
+
+`presenceUpdate` is een privileged event. Zet Presence Intent aan in het portaal en geef `intentsFor("presenceUpdate")` mee. Dat staat los van `setPresence`, dat geen extra intent nodig heeft.
+
+<Note>
+`setPresence` is een gateway-update, geen REST-aanroep. Snelle lussen verspillen de sessie. Verander de status als de modus echt verandert.
+</Note>
+
+## Valkuilen
+
+- `presence` op `Start` is de eerste identify-payload. `setPresence` aanroepen vóór `Start` klaar is heeft geen zin — je hebt `bot` nog niet.
+- Custom activiteiten lopen nog steeds via de regels van Discord voor bots. Het type accepteert `"custom"`; Discord kan tekst negeren die het niet toestaat.
+- Invisible is niet hetzelfde als `bot.stop()`. Het proces blijft draaien.
+
+## Verder
+
+- [Snelstart](/docs/quickstart) · [Events en intents](/docs/events-intents)

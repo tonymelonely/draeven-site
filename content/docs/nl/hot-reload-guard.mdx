@@ -1,0 +1,80 @@
+---
+title: Hot-reload en guard
+description: Gecompileerde bestanden herladen, en het proces laten leven.
+order: 72
+---
+
+Hot reload en de guard lossen twee verschillende problemen op. `watch: true` vervangt commando- en eventmodules als `dist/` verandert, zonder Discord te sluiten. `guard()` vangt handler- en procesfouten zodat één throw de bot niet doodt, en schrijft ze waar je vraagt.
+
+## Watch
+
+```js
+import { Start } from "@draeven/core";
+
+const bot = await Start({
+  token: process.env.DISCORD_TOKEN,
+  watch: true,
+});
+```
+
+Voorwaarden:
+
+- Commando's komen uit een **map** (`draeven.config.js`, of `commands: "./dist/commands"`). Een array in het geheugen wordt niet bekeken.
+- Iets moet die map herschrijven. `pnpm dev` draait `tsc -w` na de eerste build.
+- Eventmappen worden alleen bekeken als `events` een pad is, geen object.
+
+`bot.syncState()` is een momentopname. `bot.onSync(handler)` abonneert en geeft een afmeldfunctie terug.
+
+| Veld | Betekenis |
+|------|-----------|
+| `watch` | Of map-watching aan staat |
+| `commandCount` | Geladen slash-commando's en menu's |
+| `lastCommandsReloadAt` | ISO-tijd van de laatste geslaagde commandoreload |
+| `lastEventsReloadAt` | ISO-tijd van de laatste geslaagde eventreload |
+| `lastCommandsError` | Laatste reload-fout, indien aanwezig |
+| `lastEventsError` | Laatste fout in de eventmap, indien aanwezig |
+
+Een syntaxfout in `dist` zet `lastCommandsError` en houdt de vorige commandoset. De gateway blijft open.
+
+## Guard
+
+Veld voor veld, `formatUptime` en een bestandslog staan op [Error-guard](/docs/guard). Dit stuk is de korte vorm naast hot reload.
+
+```js
+import { Start, guard } from "@draeven/core";
+
+await Start({
+  token: process.env.DISCORD_TOKEN,
+  watch: true,
+  guard: guard({
+    via: ["console", "channel"],
+    of: "all",
+    channel: process.env.LOG_CHANNEL_ID,
+    uptime: true,
+  }),
+});
+```
+
+| Optie | Waarden |
+|-------|---------|
+| `via` | `"console"`, `"channel"`, `"file"`, een array, of `"all"` |
+| `of` | `"commands"`, `"events"`, `"process"`, een array, of `"all"` |
+| `channel` | Verplicht als `via` `"channel"` bevat |
+| `file` | Verplicht als `via` `"file"` bevat |
+| `uptime` | Zet uptime op de ready-regel, en als laatste regel van een rapport. Het zet geen prefix op elke regel. |
+
+`of: "process"` luistert naar `uncaughtException` en `unhandledRejection`. `of: "commands"` meldt throws uit slash-handlers. `of: "events"` meldt throws uit gateway-handlers.
+
+<Warn fix="Geef channel als snowflake-string als via channel is." href="/docs/why-failing">
+`via: "channel"` zonder `channel` gooit al bij `guard()`. De kanaal-id is een snowflake-string waarin de bot mag plaatsen.
+</Warn>
+
+## Valkuilen
+
+- `src/` bekijken doet niets. Draeven importeert de gecompileerde `.js`.
+- Guard-logs zijn tekstregels, geen meetsysteem.
+- `uptime: true` gebruikt de starttijd van de guard, niet de sessietijd van Discord.
+
+## Verder
+
+- [Projectstructuur](/docs/project-layout) · [Één proces](/docs/alone) · [Simuleren en tests](/docs/simulate)

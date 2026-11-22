@@ -1,0 +1,51 @@
+---
+title: SKU buttons
+description: A Discord premium purchase button.
+order: 42
+---
+
+<Explain topic="sku-button">`sku({ id })`</Explain> is a purchase button for a Discord SKU. You put it on a reply. Discord opens the checkout when someone clicks it. Your handler does not run for that click, and `ctx.collect` never sees it. There is no `press`.
+
+`id` is the SKU id from the Developer Portal, not a custom component id. Draeven checks the shape of that id while the row is built. It does not create the product, and it does not talk to monetization. The application needs a real SKU or the button has nothing to sell.
+
+The button sits in `row()` beside `button()` and `link()`. That row holds at most five of those pieces. A menu or a picker still takes the row alone.
+
+## Worked example
+
+The portal id below is a placeholder (18 digits). Replace it with the id from **Monetization** on your application. The link is an ordinary URL button in the same row. The SKU click never arrives in `collect`; the link does not either.
+
+```js
+import { command, link, row, sku } from "@draeven/core";
+
+export const premium = command("premium", "Supporter button", async (ctx) => {
+  return ctx.reply({
+    text: "Support the bot.",
+    rows: [
+      row(
+        sku({ id: "123456789012345678" }),
+        link({ url: "https://example.com/premium", label: "What you get" })
+      ),
+    ],
+  });
+});
+```
+
+A `button({ id: "later", label: "Not now" })` can sit in that same row. That button has a custom id, so `collect` or `press` can answer it. `sku()` still cannot.
+
+## Limits
+
+| Limit | Detail |
+|-------|--------|
+| `id` | 1–20 digits after trim. Empty, letters, or 21 digits throws `A SKU id is a number of 1-20 digits.` |
+| Row size | At most five `button()`, `link()`, or `sku()` pieces |
+| Menu or picker | Takes the row alone. `sku()` beside `menu()` throws |
+| Fields | `label`, `color`, and `press` are not fields on `sku()` |
+| Collector | `ctx.collect` never sees the click. There is no `press` |
+| Product | The SKU must already exist on the application. Draeven does not create it |
+
+## Pitfalls
+
+- An empty id, letters, or more than 20 digits throws while the row is built, before Discord sees the message.
+- It is not a custom button. Copying `label` or `color` from `button()` is not part of `sku()`.
+- Putting `sku()` in the `ids` list of `ctx.collect` does nothing useful. The click never arrives. Do the same for `link()`.
+- A test id that is only digits still passes Draeven and fails in Discord if that SKU is not on this application.

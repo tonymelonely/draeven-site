@@ -1,0 +1,53 @@
+---
+title: One process
+description: Stop a second Start() from sharing the token.
+order: 74
+---
+
+Two Node processes with the same bot token fight over the gateway session and overwrite each other's commands. `Start` calls `claimAlone` first. The default mode is `"ask"`.
+
+The lock file is `.draeven.pid` in the project root (`process.cwd()`). It stores the pid and the script path. Draeven also scans for other `node` processes running the same script.
+
+```js
+import { Start } from "@draeven/core";
+
+await Start({
+  token: process.env.DISCORD_TOKEN,
+  alone: "ask",
+});
+```
+
+## Modes
+
+| `alone` | Behavior |
+|-----------|----------|
+| `"ask"` (default) | If another live pid exists and stdin is a TTY, ask whether to stop it. Yes kills it and continues. No throws. |
+| `true` | Kill the other pid and continue. No prompt. |
+| `false` | Do not look. Two processes are allowed, and they will conflict. |
+
+On a non-TTY (CI, a service manager, many Windows task runners) `"ask"` does **not** prompt. A live sibling throws and tells you to stop it or pass `alone: true`.
+
+<Warn fix="alone: false only with a process supervisor; alone: true to replace the old process." href="/docs/why-failing">
+Set `alone: false` only when a supervisor already guarantees one process. Set `alone: true` when a new deploy should replace the old one.
+</Warn>
+
+## The helpers
+
+| Export | Role |
+|--------|------|
+| `claimAlone({ mode, root, script })` | Same check `Start` uses. Returns `{ release() }`. |
+| `listSiblingPids(script)` | Pids whose command line contains that script. |
+| `isAlive(pid)` | Whether the pid still exists. |
+| `killPid(pid)` | Stop that pid. |
+
+`release()` deletes `.draeven.pid` only if it still names this process. `Start` releases it on `bot.stop()`.
+
+## Pitfalls
+
+- A crashed process can leave a stale file. Draeven ignores a pid that is not alive, then writes its own.
+- `root` defaults to the working directory. Two checkouts started from different directories do not share a lock, and can still share a token.
+- Killing a sibling waits up to 3 seconds for it to exit.
+
+## Related
+
+- [Install](/docs/install) · [Hot-reload & guard](/docs/hot-reload-guard)

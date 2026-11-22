@@ -1,0 +1,359 @@
+---
+title: Recipes
+description: Copy-paste commands for common bot jobs.
+order: 8
+---
+
+Copy-paste command files for `src/commands`. Letters also needs a `use()` file in `src/events`.
+
+## How to drop one in
+
+1. Save as `src/commands/<name>.ts` (named `export`).
+2. `pnpm build`, then start (`watch: true` reloads).
+
+| Recipe | What it shows |
+|--------|----------------|
+| Ping | `cooldown: 5` per user |
+| Confirm | `button` + `ctx.collect` |
+| Letters | buttons with no `press`, `use()` in the events folder |
+| Report | `form` + `kind: "submit"` |
+| Status | `embed()` with `header`, `fields`, `breakline`, `wide` |
+| Mute | `ctx.timeout` behind `need` |
+| Panel | testbot `layout()`: `show`, `divide`, `pack`, `beside`, `thumb`, `album` |
+
+## Ping with a cooldown
+
+Five seconds per user. Inside that window the handler does not run.
+
+<CodeResult id="ping" />
+
+```js
+import { command } from "@draeven/core";
+
+export const ping = command(
+  "ping",
+  "Checks whether the bot is alive",
+  async (ctx) => ctx.reply("pong"),
+  { cooldown: 5 }
+);
+```
+
+[Cooldowns](/docs/cooldowns)
+
+## Confirm with buttons
+
+Ask, then `collect`. Timeout → `undefined`. Text-only `reply()` does not clear the row.
+
+<CodeResult id="confirm" />
+
+```js
+import { button, command, row } from "@draeven/core";
+
+export const confirm = command("confirm", "Confirm a cleanup", async (ctx) => {
+  ctx.reply({
+    text: "Remove the pinned notice?",
+    rows: [
+      row(
+        button({ id: "yes", label: "Remove", color: "red" }),
+        button({ id: "no", label: "Keep", color: "grey" })
+      ),
+    ],
+  });
+
+  const pick = await ctx.collect({ ids: ["yes", "no"], seconds: 20 });
+  if (!pick || pick.id !== "yes") return ctx.reply("Kept.");
+  return ctx.reply("Notice removed.");
+});
+```
+
+Do not reply with the exact text `"Removed."` — that is the `remove()` sentinel. [Buttons, menus & forms](/docs/pieces) · [Collectors](/docs/collectors)
+
+## Letters that survive a restart
+
+Command posts buttons. `use()` in the events folder answers `hangman_*` after a restart too.
+
+<CodeResult id="letters" />
+
+`src/commands/letters.ts`:
+
+```js
+import { button, command, row } from "@draeven/core";
+
+export const letters = command("letters", "Posts letter buttons", async (ctx) =>
+  ctx.reply({
+    text: "Pick a letter.",
+    rows: [
+      row(
+        button({ id: "hangman_A", label: "A" }),
+        button({ id: "hangman_B", label: "B" }),
+        button({ id: "hangman_C", label: "C" })
+      ),
+    ],
+  })
+);
+```
+
+`src/events/letters.ts`:
+
+```js
+import { button, row, use } from "@draeven/core";
+
+export const letters = use({
+  ids: "hangman_*",
+  run(ctx) {
+    const letter = ctx.id.slice("hangman_".length);
+    return ctx.reply({
+      text: `You picked **${letter}**`,
+      rows: [row(button({ id: "hangman_A", label: "A" }))],
+    });
+  },
+});
+```
+
+[Press & submit](/docs/press-handlers) · [Events & intents](/docs/events-intents)
+
+## Modal form
+
+The form is the whole first reply. Do not `wait()` first. `kind: "submit"` waits for the modal, and `fields` is keyed by field id.
+
+```js
+import { command, fieldStyles, form } from "@draeven/core";
+
+export const report = command("report", "File a short report", async (ctx) => {
+  ctx.reply(
+    form({
+      id: "report-form",
+      title: "Report",
+      fields: [
+        { id: "title", label: "Title", style: fieldStyles.short, max: 80 },
+        { id: "body", label: "What happened", style: fieldStyles.long, max: 1000 },
+      ],
+    })
+  );
+
+  const sent = await ctx.collect({
+    ids: "report-form",
+    kind: "submit",
+    seconds: 180,
+  });
+
+  if (!sent) return ctx.reply("Timed out.");
+  return ctx.reply(`${sent.fields.title}\n${sent.fields.body}`);
+});
+```
+
+A submit is a new interaction. The reply after `collect` answers the modal. A timeout is `undefined`, and that reply edits the original interaction. Do not read `sent?.fields` on the timeout path.
+
+[Buttons, menus & forms](/docs/pieces) · [Collectors](/docs/collectors)
+
+## Status embed
+
+An embed is `embed({ ... })`. The title lives on `header`. `breakline` starts a new field row. `wide: true` takes that row alone. `time()` renders in the reader's zone.
+
+```js
+import { breakline, colors, command, embed, time } from "@draeven/core";
+
+export const status = command("status", "Show bot status", async (ctx) => {
+  const guild = ctx.getGuild();
+  const you = ctx.getUser(ctx.author);
+
+  return ctx.reply(
+    embed({
+      color: colors.blurple,
+      header: { title: guild?.name ?? "Direct message" },
+      description: `Checked ${time(new Date(), "relative")}.`,
+      fields: [
+        { name: "Member", value: you.name },
+        { name: "Online", value: String(guild?.online ?? "—") },
+        breakline,
+        { name: "Note", value: "Slash commands are live.", wide: true },
+      ],
+      footer: { text: "Draeven" },
+    })
+  );
+});
+```
+
+[Embeds & layout](/docs/embeds-layout)
+
+## Timeout a member
+
+`need` checks the caller before the handler. `minutes` is 1–40320 (28 days). `timeout` takes seconds, so multiply. `places: ["guild"]` hides the command in DMs, where a timeout cannot run.
+
+```js
+import { command, number, user } from "@draeven/core";
+
+export const mute = command(
+  "mute",
+  "Timeout a member",
+  {
+    who: user("Member").required(),
+    minutes: number("Minutes", { min: 1, max: 40320 }).required(),
+  },
+  async (ctx) => {
+    await ctx.timeout(ctx.who, ctx.minutes * 60, "Timed out via /mute");
+    return ctx.reply(`Timed out ${ctx.who.name} for ${ctx.minutes} minutes.`);
+  },
+  { need: "ModerateMembers", places: ["guild"] }
+);
+```
+
+The bot's role still needs Moderate Members. `need` does not grant it. [Permissions](/docs/permissions) · [Moderation actions](/docs/mod-actions)
+
+## Layout panel
+
+`layout()` is the whole reply. This file is `src/commands/panel.ts` from the public testbot. `show` is text, `divide` is a separator, `pack` groups parts and can set an accent color, `beside` places a `thumb` next to text, and `album` is a row of images. Do not add an embed or a canvas picture on this same reply.
+
+```js
+import {
+  album,
+  beside,
+  colors,
+  command,
+  divide,
+  layout,
+  pack,
+  show,
+  thumb,
+} from "@draeven/core";
+
+export const panel = command("panel", "Shows a Components V2 layout", async (ctx) => {
+  const { reply } = ctx;
+
+  return reply(
+    layout(
+      show("**Draeven** layout"),
+      divide({ line: true }),
+      pack(
+        { color: colors.blurple },
+        show("Containers group related parts."),
+        beside({
+          text: "Thumbnails sit beside text.",
+          with: thumb("https://cdn.discordapp.com/embed/avatars/0.png"),
+        })
+      ),
+      album(
+        "https://cdn.discordapp.com/embed/avatars/1.png",
+        "https://cdn.discordapp.com/embed/avatars/2.png"
+      )
+    )
+  );
+});
+```
+
+[Embeds & layout](/docs/embeds-layout)
+
+## From the Draeven testbot
+
+These three files mirror the public testbot (`src/commands/*.ts`). The layout panel above is the fourth, `panel.ts`.
+
+### Ping with wait, edit, say, and a cooldown
+
+`wait` acknowledges, `edit` fills the deferred message, and `say` picks a line from `ctx.locale`. `cooldown: 5` is per user. The Dutch description is registration text, not the `say` map.
+
+```js
+import { command, say } from "@draeven/core";
+
+export const ping = command(
+  "ping",
+  "Checks the bot with a short wait",
+  async (ctx) => {
+    const { wait, edit, reply, locale } = ctx;
+
+    await wait();
+    await edit(say({ en: "Thinking…", nl: "Even denken…" }, locale));
+    await new Promise((resolve) => setTimeout(resolve, 400));
+    return reply(say({ en: "Pong.", nl: "Pong." }, locale));
+  },
+  {
+    cooldown: 5,
+    locales: {
+      nl: { description: "Checkt de bot met een korte wachttijd" },
+    },
+  }
+);
+```
+
+[Cooldowns](/docs/cooldowns) · [Locales](/docs/locales) · [Replies](/docs/replies)
+
+### Choose with buttons
+
+`wait` + `edit` shows the row. `collect` waits for one of the two ids. The buttons have no `press`: this command keeps the interaction.
+
+```js
+import { button, command, row } from "@draeven/core";
+
+export const choose = command("choose", "Asks yes or no and waits for a press", async (ctx) => {
+  const { wait, edit, collect, reply } = ctx;
+
+  await wait();
+  await edit({
+    text: "Pick one.",
+    rows: [
+      row(
+        button({ id: "choose-yes", label: "Yes", color: "green" }),
+        button({ id: "choose-no", label: "No", color: "red" })
+      ),
+    ],
+  });
+
+  const pick = await collect({ ids: ["choose-yes", "choose-no"], seconds: 30 });
+
+  if (!pick) {
+    return reply("Timed out.");
+  }
+
+  return reply(pick.id === "choose-yes" ? "You chose yes." : "You chose no.");
+});
+```
+
+[Collectors](/docs/collectors) · [Buttons, menus & forms](/docs/pieces)
+
+### Ask with a form
+
+The form is the first reply. `kind: "submit"` waits for that modal. `fields` is keyed by field id.
+
+```js
+import { command, form, fieldStyles } from "@draeven/core";
+
+export const ask = command("ask", "Opens a short form and waits for the answer", async (ctx) => {
+  const { reply, collect } = ctx;
+
+  reply(
+    form({
+      id: "ask-form",
+      title: "Quick ask",
+      fields: [
+        {
+          id: "note",
+          label: "Your note",
+          style: fieldStyles.short,
+          required: true,
+        },
+      ],
+    })
+  );
+
+  const submitted = await collect({ ids: "ask-form", kind: "submit", seconds: 120 });
+
+  if (!submitted) {
+    return reply("Timed out.");
+  }
+
+  return reply(`Got it: ${submitted.fields.note ?? ""}`);
+});
+```
+
+[Buttons, menus & forms](/docs/pieces) · [Collectors](/docs/collectors)
+
+## Pitfalls
+
+- The cooldown book is process memory. A restart clears it. `simulate()` does not apply cooldowns.
+- A second `reply()` throws only when a reply is already stored and you have neither `wait()`ed nor flushed a `collect`. After `wait()`, `edit()` or another `reply()` fills the defer. After a collect flush, another `reply()` replaces the stored reply.
+- A `form()` after `wait()`, `defer`, or `transcript()` throws. The modal has to be the first acknowledgement.
+- There is no root `title` on `embed()`. Put it in `header: { title }`.
+- `layout()` cannot share the reply with text, an embed, a poll, or a canvas picture.
+
+## Related
+
+- [Commands](/docs/commands) · [Cooldowns](/docs/cooldowns) · [Buttons, menus & forms](/docs/pieces) · [Collectors](/docs/collectors) · [Embeds & layout](/docs/embeds-layout) · [Moderation actions](/docs/mod-actions)

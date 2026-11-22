@@ -1,0 +1,63 @@
+---
+title: Lookups
+description: Users, members, guilds, channels, roles, and files on ctx.
+order: 29
+---
+
+A `user()`, `channel()`, `role()`, or `file()` option is already the object. Lookups are for the caller, the bot, and ids that were not options. They are methods on `ctx`. Do not import a lookup helper.
+
+## Records
+
+| Type | Fields |
+|------|--------|
+| `User` | `id`, `name`, `createdAt`, `bot`, optional `icon` |
+| `Member` | `id`, optional `nick`, optional `joinedAt`, `roles` |
+| `Guild` | `id`, `name`, optional `members`, `online`, `icon`, `ownerId` |
+| `Channel` | `id`, `name`, optional `kind` |
+| `Role` | `id`, `name`, optional `color` (`0` or missing means no color), optional `position` |
+| `File` | `id`, `name`, `url`, optional `size`, optional `type` |
+
+## Calls
+
+| Call | Result |
+|------|--------|
+| `getUser(ref)` | `User`. Throws when the id is missing or unknown. |
+| <Explain topic="lookup-member">`getMember(ref)`</Explain> | `Member` in this guild. `undefined` in a DM. Still throws if that user is unknown. |
+| `getBot()` | The bot as a `User`. Throws when this run has no bot. |
+| `getGuild()` | `Guild`, or `undefined` in a direct message. |
+| `getChannel()` | The channel this interaction is in, or `undefined`. |
+| `getChannel(ref)` | That channel. Throws when it is unknown. |
+| `getRole(ref)` | `Role`. Throws when it is unknown. |
+| `getRoles(ref)` | That person's roles, or `[]`. Throws when the user is unknown. |
+| `getFile(ref)` | `File`. Throws when it is unknown. |
+
+`ref` is `{ id }`. `ctx.author` already has that shape.
+
+`getChannel()` with no argument is the channel this slash ran in — the usual input for `ctx.send` in a guild command. `getChannel(ref)` resolves any channel id Discord attached to this interaction.
+
+## Example
+
+```js
+import { command } from "@draeven/core";
+
+export const whoami = command("whoami", "Who called this", async (ctx) => {
+  const person = ctx.getUser(ctx.author);
+  const member = ctx.getMember(ctx.author);
+  const roles = ctx.getRoles(ctx.author);
+  const name = member?.nick ?? person.name;
+  const list = roles.map((role) => role.name).join(", ");
+  return ctx.reply(list ? `${name} — ${list}` : name);
+});
+```
+
+A chosen `user()` option is the `User` already. Call `getMember` and `getRoles` when you need the nick or the role list for that same id.
+
+## Pitfalls
+
+- `getUser` only knows users Discord attached to this interaction. An id you invented throws `Unknown user …`.
+- `getMember` is not a failed lookup of the account. In a DM the user exists and the member does not, so the result is `undefined`.
+- `getRoles` in a DM is `[]` when the user is known. It does not throw for "no roles".
+
+## Related
+
+- [Options](/docs/options) · [Commands](/docs/commands) · [formatDate](/docs/format-date)

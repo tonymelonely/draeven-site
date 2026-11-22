@@ -1,0 +1,63 @@
+---
+title: Lookups
+description: Gebruikers, leden, guilds, kanalen, rollen en bestanden op ctx.
+order: 29
+---
+
+Een optie `user()`, `channel()`, `role()` of `file()` is al het object. Lookups zijn voor de aanroeper, de bot, en ids die geen optie waren. Het zijn methodes op `ctx`. Importeer geen lookup-helper.
+
+## Records
+
+| Type | Velden |
+|------|--------|
+| `User` | `id`, `name`, `createdAt`, `bot`, optioneel `icon` |
+| `Member` | `id`, optioneel `nick`, optioneel `joinedAt`, `roles` |
+| `Guild` | `id`, `name`, optioneel `members`, `online`, `icon`, `ownerId` |
+| `Channel` | `id`, `name`, optioneel `kind` |
+| `Role` | `id`, `name`, optioneel `color` (`0` of ontbrekend betekent geen kleur), optioneel `position` |
+| `File` | `id`, `name`, `url`, optioneel `size`, optioneel `type` |
+
+## Aanroepen
+
+| Aanroep | Resultaat |
+|---------|-----------|
+| `getUser(ref)` | `User`. Gooit als de id ontbreekt of onbekend is. |
+| <Explain topic="lookup-member">`getMember(ref)`</Explain> | `Member` in deze guild. `undefined` in een DM. Gooit nog steeds als die gebruiker onbekend is. |
+| `getBot()` | De bot als `User`. Gooit als deze run geen bot heeft. |
+| `getGuild()` | `Guild`, of `undefined` in een privébericht. |
+| `getChannel()` | Het kanaal van deze interactie, of `undefined`. |
+| `getChannel(ref)` | Dat kanaal. Gooit als het onbekend is. |
+| `getRole(ref)` | `Role`. Gooit als die onbekend is. |
+| `getRoles(ref)` | De rollen van die persoon, of `[]`. Gooit als de gebruiker onbekend is. |
+| `getFile(ref)` | `File`. Gooit als die onbekend is. |
+
+`ref` is `{ id }`. `ctx.author` heeft die vorm al.
+
+`getChannel()` zonder argument is het kanaal van deze slash — de gebruikelijke invoer voor `ctx.send` in een guild-commando. `getChannel(ref)` lost een kanaal-id op die Discord op deze interactie zette.
+
+## Voorbeeld
+
+```js
+import { command } from "@draeven/core";
+
+export const wiebenik = command("wiebenik", "Wie riep dit aan", async (ctx) => {
+  const person = ctx.getUser(ctx.author);
+  const member = ctx.getMember(ctx.author);
+  const roles = ctx.getRoles(ctx.author);
+  const name = member?.nick ?? person.name;
+  const list = roles.map((role) => role.name).join(", ");
+  return ctx.reply(list ? `${name} — ${list}` : name);
+});
+```
+
+Een gekozen `user()`-optie is al de `User`. Roep `getMember` en `getRoles` aan als je de nick of de rollenlijst bij diezelfde id nodig hebt.
+
+## Valkuilen
+
+- `getUser` kent alleen gebruikers die Discord aan deze interactie hing. Een id die je zelf verzon gooit `Unknown user …`.
+- `getMember` is geen mislukte lookup van het account. In een DM bestaat de gebruiker wel en het lid niet, dus het resultaat is `undefined`.
+- `getRoles` in een DM is `[]` als de gebruiker bekend is. Het gooit niet omdat er geen rollen zijn.
+
+## Verder
+
+- [Opties](/docs/options) · [Commando's](/docs/commands) · [formatDate](/docs/format-date)

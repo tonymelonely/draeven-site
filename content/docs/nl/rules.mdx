@@ -1,0 +1,102 @@
+---
+title: Vuistregels
+description: Harde regels die als [Draeven]-fout verschijnen als je ze breekt.
+order: 10
+---
+
+Dit zijn de grenzen die Draeven in code afdwingt. Breek je er een, dan begint de throw met `[Draeven]`. Elke sectie linkt de gids die de vorm toont die wél werkt. Dezelfde regels staan op een rij bij [Fouten & debuggen](/docs/debugging).
+
+## Bevestig binnen ongeveer 3 seconden
+
+Discord laat de interactie vallen na ongeveer 3 seconden. <Explain topic="auto-defer">Auto-defer</Explain> vuurt na 2 seconden, zodat een trage `await` alsnog bevestigt. Laat het aan, tenzij dit commando een formulier moet openen.
+
+`Start({ autoDefer: false })` zet het uit voor elk commando. Een getal wordt geklemd op 500–2500 ms. `autoDefer: false` op één commando zet het alleen voor dat commando uit. `defer: true` in metadata bevestigt meteen, vóór de handler. `defer: { private: true }` doet dat efemeer.
+
+Weet je dat het werk traag is, roep dan zelf `wait()` aan en daarna `edit()`:
+
+```js
+import { command } from "@draeven/core";
+
+export const slow = command("slow", "Duurt even", async (ctx) => {
+  await ctx.wait();
+  await ctx.edit("Bezig…");
+  await ctx.edit("Klaar.");
+});
+```
+
+`wait()` na `reply()` gooit. `edit()` vóór `wait()` of `reply()` gooit. Het hele oppervlak: [Antwoorden](/docs/replies).
+
+## Het formulier is het eerste antwoord
+
+Een modal moet de eerste bevestiging zijn. <Explain topic="form-first">Een form() kan niet na een defer</Explain>. Roep geen `wait()` aan, zet geen `defer` in metadata, en roep geen `transcript()` aan vóór `form()`. Een auto-defer die al is afgegaan telt ook: het token is dan al verbruikt. Discord opent daarna geen modal, en flush gooit `A form cannot follow wait()`.
+
+```js
+import { command, fieldStyles, form } from "@draeven/core";
+
+export const note = command("note", "Schrijf een notitie", async (ctx) => {
+  ctx.reply(
+    form({
+      id: "note-form",
+      title: "Notitie",
+      fields: [{ id: "body", label: "Notitie", style: fieldStyles.long, max: 500 }],
+    })
+  );
+
+  const sent = await ctx.collect({ ids: "note-form", kind: "submit", seconds: 120 });
+  if (!sent) return ctx.reply("Timeout.");
+  return ctx.reply(sent.fields.body);
+});
+```
+
+Een submit beantwoordt de modal. Dat is een nieuw interactietoken. Een timeout is `undefined`, en dat antwoord bewerkt de oorspronkelijke interactie. Vouw beide paden niet samen in `sent?.fields`.
+
+Een formulier kan niet `{ private: true }` zijn, en `ctx.send` kan er geen dragen. [Knoppen, menu's & formulieren](/docs/pieces).
+
+## layout() mengt niet
+
+<Explain topic="layout-mix">Een layout() is het hele antwoord</Explain>. Het deelt dat bericht niet met tekst, een `embed()`, een `poll()` of een `canvas()`-afbeelding. `reply("tekst", layout(...))` gooit `A reply takes text, an embed, or text and an embed.` De mix-fout `A layout cannot mix with text, embeds, or polls.` is voor een object zoals `{ text, layout }`.
+
+Je mag de layout wel privé maken met `{ private: true }`, en extra `row()`-waarden aan hetzelfde antwoord hangen. Die actierijen gaan ná de layout-onderdelen mee. Een peiling is ook een eigen antwoord, en een formulier ook. [Embeds en layout](/docs/embeds-layout).
+
+## Eén antwoordtoken
+
+De interactie heeft één antwoordtoken. Een tweede `reply()` gooit `A command can only reply once.` alleen als er al een antwoord is opgeslagen en je noch `wait()` hebt gedaan, noch een `collect` hebt geflusht. Na `wait()` vult `edit()` of een nieuwe `reply()` de defer. `followup()` voegt een extra bericht toe.
+
+`collect()` flusht het openstaande antwoord vóór het wacht. Na die flush vervangt een nieuwe `reply()` het opgeslagen antwoord. Dat gooit niet. Een formulier-submit wordt op de modal beantwoord. Een knop of menu, en een timeout, bewerken de oorspronkelijke interactie. Een vervanging die alleen tekst is, haalt de knoppenrij niet weg.
+
+Een tweede `reply()` vóór `wait()` en vóór die flush gooit nog steeds. [Antwoorden](/docs/replies) · [Verzamelaars](/docs/collectors).
+
+## ctx.collect tegenover press
+
+<Explain topic="collect-vs-press">ctx.collect laat dit commando doorgaan. press antwoordt later, op zichzelf.</Explain> De verzamelaar wint alleen als de custom id, de soort en de gebruiker alle drie kloppen.
+
+Doet hij dat niet, dan probeert Draeven de volgende treffer in deze volgorde: de inline `press` of `submit` die op die id is onthouden, dan een `use()` uit de events-map, dan de tekst `Received.`. De onthouden functie wint van `use()` zolang dit proces draait. `use()` is wat na een herstart nog draait.
+
+Gebruik `collect` als hetzelfde commando moet doorgaan. Gebruik inline `press` of `submit` voor een eenmalige knop in dit proces. Gebruik `use()` als de handler een herstart moet overleven. `link()` en `sku()` hebben geen `press` en komen nooit aan in `collect`. [Verzamelaars](/docs/collectors) · [Press & submit](/docs/press-handlers).
+
+## header: { title }
+
+Een embed heeft geen titel op de wortel en geen `inline`-vlag. De titel staat op <Explain topic="embed-header">header</Explain>: `header: { title }`. Een header heeft een titel of een afbeelding nodig. Een `link` op de header heeft een titel nodig.
+
+Velden delen een rij tot je iets anders zegt. `breakline` begint de volgende rij. `wide: true` neemt die rij alleen. `inline: true` is een discord.js-gewoonte en is geen Draeven-veld.
+
+```js
+import { breakline, embed } from "@draeven/core";
+
+embed({
+  header: { title: "Botstatus" },
+  fields: [
+    { name: "Ping", value: "42ms" },
+    breakline,
+    { name: "Notities", value: "Deze rij is breed.", wide: true },
+  ],
+});
+```
+
+[Embeds en layout](/docs/embeds-layout).
+
+## Gecompileerde JavaScript
+
+`loadCommands` importeert `.js` uit de commandomap. Het slaat `.ts`, `.test.js`, namen die eindigen op `old.js` (dus ook `fold.js`), en namen die met een punt beginnen over. Wijs `draeven.config.js` na `tsc` naar `./dist/commands`, niet naar `./src/commands`.
+
+Een ontbrekende map gooit `Cannot read commands folder`. Een map die alleen TypeScript bevat laadt nul commando's, en de volgende sync wist de commando's die Discord al had. [Configbestand](/docs/config) · [Deployen](/docs/deploy).

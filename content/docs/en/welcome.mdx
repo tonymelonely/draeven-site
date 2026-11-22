@@ -1,0 +1,58 @@
+---
+title: Welcome
+description: What Draeven is, and how a bot is put together.
+order: 1
+---
+
+Draeven is a Discord bot framework written from scratch. You describe slash commands with `command()`, start the gateway with `Start()`, and answer from one `ctx` (`reply`, `edit`, `wait`, `followup`, `collect`).
+
+Use it when you want a small, typed command layer. It is not discord.js: there is no `Client`, no `EmbedBuilder`, and no shared plugin ecosystem.
+
+<FiveMinPath />
+
+Examples across the docs reuse the same shapes: `/ping` → `pong`, and `/greet` when options appear. Starter bots (mod, ticket, welcome) live on [Starter bots](/docs/starters).
+
+The path from `Start()` to a reply is [How it fits](/docs/architecture). Names you already know from discord.js are on [From discord.js](/docs/from-discordjs). When a command or event misbehaves, open [Why is this failing?](/docs/why-failing) or [Troubleshooting](/docs/troubleshooting). Words like `ctx`, `wait()`, and `leaf` are in the [Glossary](/docs/glossary).
+
+## What you get
+
+- **One context.** Options, lookups, replies, collectors, and moderation helpers sit on `ctx`.
+- **Declarative commands.** Export `command()`, `userMenu()`, or `messageMenu()` from a file. Draeven registers them.
+- **Stay connected while you edit.** `Start({ watch: true })` reloads compiled commands without dropping the gateway.
+- **Test the handler offline.** `simulate()` runs a command with no token.
+
+<Note>
+Draeven talks to Discord through `@draeven/discord` (gateway and REST). You normally install only `@draeven/core`.
+</Note>
+
+## Packages
+
+| Package | Role |
+|---------|------|
+| `@draeven/core` | `Start`, `command`, collectors, `embed`, `layout`, `poll`, `guard` |
+| `@draeven/discord` | Gateway session. Core depends on it. |
+| `@draeven/bridge` | Optional owner desk for *your* process |
+| `create-draeven` | `npm create draeven@latest` |
+
+The open-source box is the framework plus an optional owner desk. A hosted guild dashboard is a separate product and is not included.
+
+## How a command runs
+
+`loadCommands()` reads compiled files, Discord stores the application commands, and a slash run arrives as one `ctx`.
+
+```text
+ dist/commands/*.js
+        │
+        ▼
+ loadCommands() ──► Discord application commands
+        │
+ user runs /cmd
+        ▼
+ gateway interaction ──► ctx (options, reply, collect, …)
+        │
+        ├── reply / wait+edit
+        ├── collect (buttons/menus/forms)
+        └── followup / send
+```
+
+Commands must be **compiled JavaScript**. Point `draeven.config.js` at `./dist/commands`, not at TypeScript sources. Discord also gives you about **3 seconds** to acknowledge an interaction. Draeven auto-defers at 2 seconds unless you turn that off ([Replies](/docs/replies)). The hard constraints are on [Rules of thumb](/docs/rules).

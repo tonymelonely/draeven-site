@@ -1,0 +1,98 @@
+---
+title: Options
+description: text, user, number, choice, file, and the rest.
+order: 21
+---
+
+Options are the inputs Discord shows under a slash command. Build them with `text()`, `user()`, and the other helpers, then pass the object as the third argument of `command()`. The key is the name on `ctx`. The string you pass to the helper is the description the user reads.
+
+Call `.required()` when the command cannot run without that value. Optional values are `undefined` in the handler.
+
+## Builders
+
+| Builder | Discord type | Resolved on `ctx` |
+|---------|--------------|---------------------|
+| `text(question, { min, max })` | STRING | `string` |
+| `user(question)` | USER | `User` (`id`, `name`, `bot`, `createdAt`, `icon?`) |
+| `role(question)` | ROLE | `Role` |
+| `channel(question, { kinds })` | CHANNEL | `Channel`. `kinds` filters with `channelKinds` |
+| `mentionable(question)` | MENTIONABLE | `User` or `Role` |
+| `number(question, { min, max, choices })` | INTEGER | `number` |
+| `decimal(question, { min, max, choices })` | NUMBER | `number` |
+| `flag(question)` | BOOLEAN | `boolean` |
+| `file(question)` | ATTACHMENT | `File` |
+| `choice(question, items)` | STRING + choices | the choice `value` |
+
+`channelKinds` is `text`, `voice`, `category`, `announcement`, `announcement thread`, `thread`, `private thread`, `stage`, `forum`, and `media`.
+
+`choice()` takes 1–25 entries. A string becomes both label and value. An object is `{ label, value, note? }`. Values must be unique and 1–100 characters. Discord only shows label and value. `note` is stored on the option and never sent.
+
+`number()` / `decimal()` may list numeric `choices`. Do not combine those fixed choices with `.suggest()`.
+
+## Worked example
+
+```js
+import { command, text, user, decimal, choice, channel, channelKinds, flag } from "@draeven/core";
+
+export const tip = command(
+  "tip",
+  "Send a tip note",
+  {
+    who: user("Who?").required(),
+    amount: decimal("Amount?", { min: 0.5, max: 50 }),
+    note: text("Note?", { max: 200 }),
+    tier: choice("Tier", [
+      { label: "Bronze", value: "b" },
+      { label: "Gold", value: "g" },
+    ]),
+    room: channel("Channel?", { kinds: [channelKinds.text] }),
+    loud: flag("Announce it?"),
+  },
+  async (ctx) =>
+    ctx.reply(`${ctx.who.name} · ${ctx.amount ?? 1} · ${ctx.tier ?? "none"}`)
+);
+```
+
+## User or role
+
+```js
+import { command, mentionable } from "@draeven/core";
+
+export const poke = command(
+  "poke",
+  "Ping a user or role",
+  { target: mentionable("Who or which role?").required() },
+  async (ctx) => {
+    if ("bot" in ctx.target) return ctx.reply(`User ${ctx.target.name}`);
+    return ctx.reply(`Role ${ctx.target.name}`);
+  }
+);
+```
+
+A `User` has `bot`. A `Role` does not. That is the split.
+
+<Tip>
+Autocomplete is `.suggest()` on `text()`, `number()`, or `decimal()` — not a separate option type. Static lists should stay on `choice()`. See [Autocomplete](/docs/autocomplete).
+</Tip>
+
+## Limits
+
+| Rule | Value |
+|------|--------|
+| Options on one command | 25, shared with the subcommand tree |
+| Question (description) | 1–100 characters |
+| Option name | `^[a-z0-9-]{1,32}$`, not a reserved `ctx` key |
+| `text` min / max | integers, min 0–6000, max 1–6000 |
+| `choice` list | 1–25, value ≤ 100 |
+
+Localized option copy uses `withLocales()` ([Locales](/docs/locales)). The JavaScript key does not change.
+
+## Pitfalls
+
+- There is no `attachment()` helper. Use `file()`.
+- `flag()` is a yes/no option, not a permissions bit.
+- Optional numbers stay `undefined` when the user skips them. Default in the handler (`ctx.amount ?? 1`), not inside the builder.
+
+## Related
+
+- [Commands](/docs/commands) · [Subcommands](/docs/subcommands) · [Autocomplete](/docs/autocomplete)

@@ -1,0 +1,47 @@
+---
+title: @draeven/discord
+description: De low-level client onder Start, en wanneer je hem importeert.
+order: 65
+---
+
+`@draeven/discord` is de gateway- en REST-client waar `@draeven/core` al van afhangt. Een applicatiebot installeert `@draeven/core` en roept `Start()` aan. Je opent dit pakket als je payload-types leest, `version` controleert, of een host bouwt die geen `Start` gebruikt. De bot-handle die je normaal bewaart is de return van `Start` ([Bot-handle](/docs/bot-handle)).
+
+Core exporteert ook `intents`, `intentBits`, `intentsFor`, `eventIntents` en de `Gateway*`-types. Importeer die in app-code, zodat een commandobestand niet aan het clientpakket hangt.
+
+## Exports
+
+| Export | Rol |
+|--------|-----|
+| `version` | Versiestring van het pakket. Deze boom publiceert `"0.1.5"`. Core's eigen `version` staat los (`0.1.9` in deze gidsen). |
+| `intents`, `intentBits`, `intentsFor`, `eventIntents` | Intent-namen en het bitmask voor [gateway-events](/docs/gateway-events). |
+| `gatewayEventNames`, `gatewayEventReaders` | Elke `GatewayEventName`, plus de Discord-`t`-string en reader. |
+| `GatewayReady`, `GatewayGuild`, `GatewayChannel`, `GatewayRole`, `GatewayMember`, `GatewayBan`, `GatewayMessage`, `GatewayMessageDelete`, `GatewayMessageBulkDelete`, `GatewayReaction`, `GatewayReactionClear`, `GatewayReactionClearEmoji`, `GatewayVoice`, `GatewayInvite`, `GatewayTyping`, `GatewayPresence`, `GatewaySchedule`, `GatewayPollVote`, `GatewayEvents`, `GatewayEventName` | Payload-types. |
+| `DiscordClient` | De sessie: `start`, `stop`, `setPresence`, `registerCommands`, `onCommand`, `onMenu`, `onSuggest`, `onUse`, `onEvent`, `onDispatch`, replies, en de moderatiehelpers die `Start` gebruikt. |
+| `DiscordRestClient` | REST-hulp met het token. Zie hieronder. |
+| `DiscordClientOptions` | `token`, optionele `presence`, `intents`, en gateway-overrides die alleen voor tests zijn. |
+| Interactie-readers | `IncomingCommand`, `IncomingMenu`, `IncomingSuggest`, `IncomingUse`, en de optievormen. |
+| `EPHEMERAL`, `normalizeEmoji`, `createdAtFromId` | Vlagbit, emoji-pad, snowflake-tijd. |
+
+De gegenereerde referentie van dit pakket is [/reference/discord](/reference/discord). Power-user-ingangen die op core zitten, zoals `startBot` en `answerCommand`, staan bij [Geavanceerde API](/docs/advanced-api).
+
+## DiscordRestClient
+
+`DiscordClient` maakt één `DiscordRestClient` van het bot-token en roept hem voor je aan. Het oppervlak, op hoofdlijnen:
+
+- Gateway-ontdekking (`getGatewayBot`) en reads: guild, rollen, user, kanaal, berichtpagina's.
+- Interacties: defer, defer-update, reply, edit, follow-up, autocomplete-keuzes, webhook-bericht bewerken en wissen.
+- Applicatiecommando's: vervang de guild- of globale commandoset.
+- Kanaalberichten: aanmaken, bewerken, wissen, purge, pin, unpin, reageren.
+- Leden: timeout, kick, ban, voice verplaatsen.
+
+App-code hoort via `ctx`, `bot.send` en de mod-helpers op de commandocontext te gaan. Een tweede REST-client naast `Start` verdubbelt het token en slaat Draeven's reply-regels over.
+
+<Warn fix="Eén library per token — meng discord.js niet in dit proces." href="/docs/why-failing">
+Meng deze client niet met discord.js in hetzelfde proces. Er is geen `Client`, geen `EmbedBuilder`, en geen gedeelde gateway-sessie. Twee libraries op één token vechten om identify en heartbeats.
+</Warn>
+
+## Valkuilen
+
+- Slash-commando's hebben geen gateway-intents nodig. `DiscordClient` importeren verandert dat niet. `intentsFor("ready")` is `0`.
+- `onDispatch` krijgt de ruwe gateway-payload. Getypeerde handlers krijgen de objecten op [Gateway event-payloads](/docs/gateway-events). Gebruik `onEvent` of `Start({ events })`.
+- `version` hier is het discord-pakket. `import { version } from "@draeven/core"` is de versie die deze gidsen pinnen.

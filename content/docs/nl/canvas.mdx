@@ -1,0 +1,67 @@
+---
+title: Canvas
+description: Teken een PNG met canvas() en verstuur die.
+order: 46
+---
+
+`canvas({ width, height })` begint een doorzichtige afbeelding. Roep `fill`, `box`, `dot` en `text` achter elkaar aan. Kleuren komen uit `colors.*` of elke kleur die een embed aanneemt: een naam zoals `colors.blurple`, een `#RRGGBB`-string, of een getal `0`–`0xffffff`. `png()` is het bestand dat Discord ontvangt. Normaal roept `reply` dat voor je aan.
+
+## Tekenen en antwoorden
+
+```js
+import { canvas, colors, command } from "@draeven/core";
+
+export const badge = command("badge", "Teken een naambordje", async (ctx) => {
+  const picture = canvas({ width: 280, height: 72 })
+    .fill(colors.white)
+    .box({ x: 0, y: 0, width: 8, height: 72, color: colors.blurple })
+    .text({ value: "DRAEVEN", x: 20, y: 24, color: colors.blurple, size: 3 });
+
+  return ctx.reply(picture);
+});
+```
+
+Elke zijde is een geheel getal van **1 tot 1024**. De bitmap begint volledig doorzichtig. Verf buiten de rand wordt genegeerd. `pixel(x, y)` leest `{ r, g, b, a }` en geeft nullen terug buiten de afbeelding.
+
+## Tekst
+
+Tekst gebruikt een ingebouwd **5×7**-lettertype voor ASCII, van spatie tot en met tilde. Tekens daarbuiten laten een gat en tekenen niets. `size` is een geheel getal van **1 tot 8** en staat standaard op **2**. Een string is hoogstens **200** tekens. Elk teken schuift `6 * size` pixels op, dus grootte 3 is 18 pixels per teken.
+
+## Versturen
+
+| Aanroep | Resultaat |
+|---------|-----------|
+| `ctx.reply(picture)` | Alleen de PNG, als bijlage `picture.png`. |
+| `ctx.reply({ text: "Bordje", picture })` | Een bijschrift plus de PNG. |
+| `ctx.reply(embed({ header: { title: "Bordje" }, picture }))` | De PNG op die embed, via `picture`. |
+| `ctx.send(channelId, picture)` of `bot.send(channelId, picture)` | Een gewoon kanaalbericht. |
+
+`followup` neemt dezelfde vormen. `ctx.reply("Bordje", picture)` is geen overload. Die gooit. Zet het bijschrift in `{ text, picture }`.
+
+<Note>
+Een canvas-afbeelding deelt een antwoord niet met `layout()`. `layout()` is Components V2. De afbeelding is een bestand op een klassiek bericht. Verstuur één van de twee.
+</Note>
+
+## Methoden
+
+| Methode | Argumenten |
+|---------|------------|
+| `fill(color)` | Verf elk pixel. |
+| `box({ x, y, width, height, color })` | Een rechthoek. Breedte en hoogte minstens 1. |
+| `dot({ x, y, radius, color })` | Een gevulde cirkel. Straal is 1–512. |
+| `text({ value, x, y, color, size? })` | ASCII, grootte 1–8. |
+| `pixel(x, y)` | Lees één pixel. |
+| `png()` | PNG-bytes. |
+
+Coördinaten en maten zijn gehele getallen. Een gebroken breedte gooit voordat er iets getekend is.
+
+## Valkuilen
+
+- Eén antwoord draagt één afbeelding. Een embed-`picture` plus een bericht-`picture` gooit.
+- Het lettertype heeft geen emoji en geen letters voorbij `~`. Teken die als vormen, of zet ze in de embedtekst.
+- Een canvas van 1024×1024 is een grote PNG. Gebruik de maat die het bordje echt nodig heeft.
+- `fill` dekt eerdere verf. Teken eerst de achtergrond, dan de balk, dan de letters.
+
+## Verder
+
+- [Embeds en layout](/docs/embeds-layout) · [Antwoorden](/docs/replies)

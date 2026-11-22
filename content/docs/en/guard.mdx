@@ -1,0 +1,64 @@
+---
+title: Error guard
+description: guard({ via, of, channel, file, uptime }) and formatUptime.
+order: 71
+---
+
+`guard()` keeps one throw from killing the process and writes the error where you ask. Pass the result to `Start({ guard })`. Hot reload is a separate switch; the short form next to `watch` is on [Hot-reload & guard](/docs/hot-reload-guard). This page is the full option list.
+
+`Start` calls `attach` once it can send. Command throws, event-handler throws, `uncaughtException`, and `unhandledRejection` then go through `report` when `of` includes that source. Without a guard, Draeven still prints `[Draeven] commands error.` or `[Draeven] events error.` to the console.
+
+## Options
+
+```js
+import { Start, guard } from "@draeven/core";
+
+await Start({
+  token: process.env.DISCORD_TOKEN,
+  guard: guard({
+    via: "all",
+    of: "all",
+    channel: process.env.LOG_CHANNEL_ID,
+    file: "logs/draeven.log",
+    uptime: true,
+  }),
+});
+```
+
+| Option | Values |
+|--------|--------|
+| `via` | `"console"`, `"channel"`, `"file"`, an array of those, or `"all"` (all three). |
+| `of` | `"commands"`, `"events"`, `"process"`, an array of those, or `"all"` (all three). |
+| `channel` | Snowflake the bot can post in. Required when `via` includes `"channel"`, including `"all"`. |
+| `file` | Path appended as UTF-8. Required when `via` includes `"file"`, including `"all"`. Parent folders are created. |
+| `uptime` | `true` adds time since `Start` on the ready line and on each report. |
+
+`of: "commands"` is a throw from a slash or menu handler. `of: "events"` is a throw from a gateway handler. `of: "process"` subscribes to `uncaughtException` and `unhandledRejection`, and `dispose` (from `bot.stop`) removes those listeners.
+
+An unknown `via` or `of` throws at `guard()` time. An empty list throws `guard() needs at least one via` or `at least one of`.
+
+Console output uses `console.error`. A file line is the same text plus a blank line. A channel post is clipped at 1900 characters. If the connection cannot send yet, the channel path prints the text to the console and logs `Guard channel log waiting for bot.send.`
+
+## formatUptime
+
+`formatUptime(ms)` is the same clock the guard appends. Negative values become `0s`. Hours omit the seconds. Minutes include the seconds. Under a minute is seconds only.
+
+```js
+import { formatUptime } from "@draeven/core";
+
+formatUptime(5_000); // 5s
+formatUptime(90_000); // 1m 30s
+formatUptime(3_700_000); // 1h 1m
+```
+
+The ready line looks like `[Draeven] Guard ready. uptime 0s` when `uptime` is on. An error report is `[Draeven] commands error.`, then the stack, then `uptime 1m 30s` on its own line.
+
+<Warn fix="Provide both channel and file when via is all." href="/docs/why-failing">
+`via: "all"` still needs both `channel` and `file`. `"all"` means every destination, not "whichever you filled in".
+</Warn>
+
+## Pitfalls
+
+- The guard logs text. It does not retry the command or restart the process ([Errors & debugging](/docs/debugging)).
+- Uptime is `Date.now()` minus the time `Start` attached the guard, not Discord's session age ([Start options](/docs/start-options)).
+- A channel log is a normal message in that channel. Do not point it at a channel members can read if stacks mention ids you meant to keep private.

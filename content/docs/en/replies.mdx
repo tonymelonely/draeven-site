@@ -1,0 +1,74 @@
+---
+title: Replies & followups
+description: reply, wait, edit, followup, and remove.
+order: 40
+---
+
+Acknowledge within about **3 seconds**. Then you have about 15 minutes for follow-ups. Methods on `ctx`: `reply`, `wait`, `edit`, `followup`, `remove`.
+
+<Explain topic="auto-defer">Auto-defer</Explain> fires at 2 seconds unless you turn it off.
+
+## Which method
+
+| Method | When |
+|--------|------|
+| `reply(...)` | Stores the response. A second call throws only when a reply is already stored and you have neither waited nor flushed a collect. After `wait()`, `edit()` or another `reply()` fills it. After a collect flush, another `reply()` replaces it. |
+| `wait({ private? })` | Acknowledge with no content yet. Required before `edit` if you have not replied. |
+| `edit(...)` | Replace the deferred or already sent reply. |
+| `followup(...)` | Another message after the first reply. Returns a promise. |
+| `remove()` | Delete the interaction reply. |
+
+`reply` and `edit` accept a string, an `embed()`, both (`reply(text, embed)`), or a `poll()`, `layout()`, `form()`, row, or canvas. <Explain topic="layout-mix">A layout() cannot share that reply</Explain> with text, an embed, a canvas picture, or a poll. A poll is the whole reply: no text, embed, rows, picture, or layout beside it. A form is the whole reply too.
+
+## Public vs private acknowledgement
+
+For slow handlers, call `await ctx.wait()` (public) or `await ctx.wait({ private: true })`, then `edit()` when work finishes. <Explain topic="form-first">A form() cannot follow wait()</Explain> — open the modal as the first reply.
+
+<Compare id="defer-privacy" />
+
+<Note>
+`CommandMeta` still supports `defer: true` or `defer: { private: true }` to acknowledge before the handler runs. Prefer `wait()` + `edit()` inside the handler when you can ([Commands](/docs/commands)).
+</Note>
+
+## Reply vs channel send
+
+Interaction replies stay on the slash token. `ctx.send` posts a normal channel message and cannot be private.
+
+<Compare id="reply-vs-send" />
+
+## Wait, then edit
+
+```js
+export const slow = command("slow", "Works a while", async (ctx) => {
+  await ctx.wait();
+  await ctx.edit("Working…");
+  await ctx.edit("Done.");
+});
+```
+
+`wait()` throws if you already called `reply()`. `edit()` throws if you have neither waited nor replied. `remove()` has the same precondition.
+
+## Follow-up
+
+```js
+export const two = command("two", "Two messages", async (ctx) => {
+  ctx.reply("First line.");
+  await ctx.followup("Second line.");
+});
+```
+
+If the first reply was private, keep later copy private yourself when you pass options. `followup` before any `reply` throws.
+
+<Note>
+`ctx.send(channel, ...)` posts a normal channel message. It cannot be private and it cannot carry a `form()`. That is separate from the interaction reply ([Sending messages](/docs/sending-messages)).
+</Note>
+
+## Pitfalls
+
+- A second `reply()` throws "A command can only reply once." only when a reply is stored and you have neither `wait()`ed nor flushed a collect. After `wait()`, `edit()` or another `reply()` fills the defer. After a collect flush, another `reply()` replaces the stored reply.
+- `simulate()` has no interaction token, so `wait()`, `edit()`, `remove()`, and `collect()` throw. `reply()` still returns the `Reply` object.
+- Returning `ctx.reply(...)` from the handler is the usual shape. You do not call a separate "send interaction" helper.
+
+## Related
+
+- [Buttons, menus & forms](/docs/pieces) · [Collectors](/docs/collectors) · [Embeds & layout](/docs/embeds-layout) · [Recipes](/docs/recipes)

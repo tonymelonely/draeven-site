@@ -1,0 +1,74 @@
+---
+title: Deploy
+description: Run a built bot under Node in production.
+order: 76
+---
+
+Ship the compiled bot. Use Node **20 or newer**, output from `tsc` in `dist`, `watch: false`, and `alone: true`. A service manager has no TTY, so the default `alone: "ask"` cannot prompt.
+
+## The process
+
+```js
+import { Start, guard } from "@draeven/core";
+
+await Start({
+  token: process.env.DISCORD_TOKEN,
+  guildId: process.env.DISCORD_GUILD_ID,
+  watch: false,
+  alone: true,
+  guard: guard({ via: "console", of: "all" }),
+});
+```
+
+Keep `guildId` while one server should see command edits within seconds. Omit it for a **global** registration. That sync can take up to an hour ([Creating an app](/docs/creating-app)). Put the token and the guild id in the environment, not in the repo.
+
+`draeven.config.js` should point `commands` at `./dist/commands` ([Config](/docs/config)).
+
+## PM2
+
+```js
+module.exports = {
+  apps: [
+    {
+      name: "draeven",
+      script: "dist/main.js",
+      cwd: "/opt/draeven",
+      env: { NODE_ENV: "production" },
+    },
+  ],
+};
+```
+
+```bash
+pm2 start ecosystem.config.cjs
+pm2 save
+```
+
+Load secrets from the host environment, or from an env file the process manager is allowed to read. Do not commit `.env`.
+
+## systemd
+
+```ini
+[Service]
+WorkingDirectory=/opt/draeven
+EnvironmentFile=/opt/draeven/.env
+ExecStart=/usr/bin/node dist/main.js
+Restart=on-failure
+User=draeven
+```
+
+Keep `EnvironmentFile` readable only by that service user.
+
+## Network
+
+The gateway connection is outbound. With the desk off you do not open an inbound port. Set `DASHBOARD=off` when this host should only run the bot ([Bridge & desk](/docs/bridge-desk)). If you do run bridge or desk, bind the port on purpose, put TLS in front of anything that is not localhost, and allow only the addresses that should call it.
+
+## Pitfalls
+
+- `watch: true` in production reloads files under the live process. Leave it off and restart when you deploy.
+- `alone: "ask"` under PM2 or systemd throws when another pid is already live, because stdin is not a TTY.
+- Starting `src/main.ts` without a build never sees the compiled commands folder.
+
+## Related
+
+- [Config](/docs/config) · [One process](/docs/alone) · [Start options](/docs/start-options) · [Bridge & desk](/docs/bridge-desk)

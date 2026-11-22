@@ -1,0 +1,64 @@
+---
+title: Error-guard
+description: guard({ via, of, channel, file, uptime }) en formatUptime.
+order: 71
+---
+
+`guard()` zorgt dat één throw het proces niet doodt, en schrijft de fout waar je vraagt. Geef het resultaat aan `Start({ guard })`. Hot reload is een aparte schakelaar; de korte vorm naast `watch` staat bij [Hot-reload en guard](/docs/hot-reload-guard). Deze pagina is de volledige optielijst.
+
+`Start` roept `attach` aan zodra het kan sturen. Throws uit commando's, throws uit event-handlers, `uncaughtException` en `unhandledRejection` gaan dan door `report` als `of` die bron bevat. Zonder guard print Draeven nog steeds `[Draeven] commands error.` of `[Draeven] events error.` naar de console.
+
+## Opties
+
+```js
+import { Start, guard } from "@draeven/core";
+
+await Start({
+  token: process.env.DISCORD_TOKEN,
+  guard: guard({
+    via: "all",
+    of: "all",
+    channel: process.env.LOG_CHANNEL_ID,
+    file: "logs/draeven.log",
+    uptime: true,
+  }),
+});
+```
+
+| Optie | Waarden |
+|-------|---------|
+| `via` | `"console"`, `"channel"`, `"file"`, een array daarvan, of `"all"` (alle drie). |
+| `of` | `"commands"`, `"events"`, `"process"`, een array daarvan, of `"all"` (alle drie). |
+| `channel` | Snowflake waarin de bot mag plaatsen. Verplicht als `via` `"channel"` bevat, ook bij `"all"`. |
+| `file` | Pad dat als UTF-8 wordt aangevuld. Verplicht als `via` `"file"` bevat, ook bij `"all"`. Bovenliggende mappen worden gemaakt. |
+| `uptime` | `true` zet de tijd sinds `Start` op de ready-regel en op elk rapport. |
+
+`of: "commands"` is een throw uit een slash- of menu-handler. `of: "events"` is een throw uit een gateway-handler. `of: "process"` abonneert op `uncaughtException` en `unhandledRejection`, en `dispose` (van `bot.stop`) haalt die listeners weg.
+
+Een onbekende `via` of `of` gooit al bij `guard()`. Een lege lijst gooit `guard() needs at least one via` of `at least one of`.
+
+Console-output gebruikt `console.error`. Een bestandsregel is dezelfde tekst plus een lege regel. Een kanaalbericht wordt afgekapt op 1900 tekens. Als de verbinding nog niet kan sturen, print het kanaalpad de tekst naar de console en logt het `Guard channel log waiting for bot.send.`
+
+## formatUptime
+
+`formatUptime(ms)` is dezelfde klok die de guard eraan hangt. Negatieve waarden worden `0s`. Uren laten de seconden weg. Minuten bevatten de seconden. Onder een minuut zijn het alleen seconden.
+
+```js
+import { formatUptime } from "@draeven/core";
+
+formatUptime(5_000); // 5s
+formatUptime(90_000); // 1m 30s
+formatUptime(3_700_000); // 1h 1m
+```
+
+De ready-regel ziet eruit als `[Draeven] Guard ready. uptime 0s` als `uptime` aan staat. Een foutrapport is `[Draeven] commands error.`, dan de stack, dan `uptime 1m 30s` op een eigen regel.
+
+<Warn fix="Geef zowel channel als file als via all is." href="/docs/why-failing">
+`via: "all"` heeft nog steeds zowel `channel` als `file` nodig. `"all"` betekent elke bestemming, niet "wat je invulde".
+</Warn>
+
+## Valkuilen
+
+- De guard logt tekst. Hij probeert het commando niet opnieuw en herstart het proces niet ([Fouten & debuggen](/docs/debugging)).
+- Uptime is `Date.now()` min de tijd waarop `Start` de guard koppelde, niet de sessieleeftijd van Discord ([Start-opties](/docs/start-options)).
+- Een kanaallog is een gewoon bericht in dat kanaal. Wijs het niet naar een kanaal dat leden kunnen lezen als stacks ids bevatten die privé hadden moeten blijven.

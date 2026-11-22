@@ -1,0 +1,60 @@
+---
+title: Transcripts
+description: Save channel history as an HTML file.
+order: 49
+---
+
+`await ctx.transcript()` reads the current channel and returns a `TranscriptFile`: HTML bytes, a filename, and a short note. `reply` or `followup` that file. Discord gets the note as the message text and the HTML as the attachment.
+
+## Save the channel
+
+```js
+import { command } from "@draeven/core";
+
+export const save = command("save", "Save this channel", async (ctx) => {
+  const file = await ctx.transcript({
+    timeZone: "Europe/Amsterdam",
+    link: "https://archive.example/{guild}/{channel}/{message}",
+  });
+  return ctx.reply(file);
+});
+```
+
+The call defers the interaction when you have not already, then fetches history. The note becomes the message, for example `12 messages from #general.` The file name follows the channel, such as `general.html`.
+
+## Options
+
+| Field | Meaning |
+|-------|---------|
+| `timeZone` | IANA zone for the clocks on the page. Overrides `Start({ timeZone })`. When both are omitted, the page uses `UTC`. |
+| `link` | Template for each message address. `{guild}`, `{channel}`, and `{message}` are filled in. Must start with `http://` or `https://`, and stay within 500 characters. Omit it and each line links to the message on Discord. |
+
+Discord returns messages newest first. The page lists them **oldest first**, with text, files, embeds, reactions, stickers, polls, buttons, and system lines. A page over 10 MB throws. Earlier transcript files from this bot are left out, so a new page does not include itself.
+
+A channel is required. In a guild, the server name and role colors are added. Without a channel the call throws `[Draeven] This command has no channel.`
+
+## Where the zone comes from
+
+```js
+await Start({
+  token: process.env.DISCORD_TOKEN,
+  timeZone: "Europe/Amsterdam",
+});
+```
+
+`ctx.transcript()` with no options then uses `Europe/Amsterdam`. Pass `timeZone` on the call when this one page should differ. `"Amsterdam"` throws. The name has to be an IANA zone. That zone formats the HTML clocks. It does not change `time()` inside embeds ([Start options](/docs/start-options)).
+
+<Note>
+`simulate()` has no channel history, so `ctx.transcript()` throws. Run the command on a live gateway. In a unit test, call the exported `renderTranscript(history, options)` with a history object you built.
+</Note>
+
+## Pitfalls
+
+- The command needs the channel Discord sent with the interaction. A context with no channel cannot build a page.
+- `link` without a scheme throws. `https://archive.example/{guild}/{channel}/{message}` is the shape. `{guild}` becomes `@me` when the channel has no guild.
+- Fetching history defers first. Do not open a `form()` later in the same command.
+- The HTML is a file on the reply, not an embed. Follow up with an embed when you also want a summary.
+
+## Related
+
+- [Start options](/docs/start-options) · [Replies](/docs/replies) · [Simulate](/docs/simulate) · [Known limits](/docs/known-limits)

@@ -1,0 +1,50 @@
+---
+title: From discord.js (cheat sheet)
+description: discord.js names beside the Draeven call that replaces them.
+order: 12
+---
+
+A name map only. Draeven is its own framework. There is no `Client`, and a discord.js `Client` does not mix into this process.
+
+| You know (discord.js) | In Draeven |
+|-----------------------|------------|
+| `Client` / Events | `Start` + `events` / `intentsFor` |
+| `SlashCommandBuilder` | `command()` |
+| `EmbedBuilder` | `embed({ header, description, color, fields, timestamp })`. `breakline` and `wide` are field helpers, not embed keys. `time()` fills a field value. |
+| `ActionRowBuilder` / `ButtonBuilder` | `row()` + `button()` |
+| Modal | `form()` |
+| Collectors | `ctx.collect` |
+| `interaction.reply` / `deferReply` / `editReply` | `reply` / `wait` / `edit` |
+| `GuildMemberManager` kicks | `ctx.timeout` / `kick` / `ban` |
+
+## Side by side
+
+Real shapes. Left is typical discord.js. Right is Draeven.
+
+### Start the bot
+
+<Compare id="djs-start" />
+
+### Slash command + reply
+
+<Compare id="djs-command" />
+
+### Embed
+
+<Compare id="djs-embed" />
+
+`color: "green"` is `#008000`. The discord.js sample uses `0x57f287`. Pass a number when you want that exact color.
+
+### Button row + collect
+
+<Compare id="djs-button" />
+
+discord.js clears the row with `components: []`. A Draeven text-only `edit` keeps the buttons. `rows: []` is dropped, so nothing sends `components: []`. `remove()` deletes the reply.
+
+<Warn fix="One library per token — drop discord.js from this process." href="/docs/why-failing">
+Do not install discord.js beside Draeven for the same bot. Two clients on one token fight over the gateway.
+</Warn>
+
+When you are ready to migrate for real, use the [Migration checklist](/docs/migration-checklist).
+
+Shapes for the right-hand column: [Embeds & layout](/docs/embeds-layout) · [Buttons, menus & forms](/docs/pieces) · [Collectors](/docs/collectors) · [Welcome](/docs/welcome) · [Known limits](/docs/known-limits).

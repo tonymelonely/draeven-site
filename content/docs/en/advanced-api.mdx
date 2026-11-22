@@ -1,0 +1,72 @@
+---
+title: Advanced API
+description: CooldownBook, CollectorBook, startBot, and the other host-level exports.
+order: 77
+---
+
+These exports are for a custom host or a test that does not want `Start` to own the process. A normal bot should call `Start`, and a handler test should call `simulate` ([Simulate & tests](/docs/simulate)). `@draeven/discord` stays the low-level client underneath ([@draeven/discord](/docs/discord-client)).
+
+<Note>Aligned with @draeven/core **0.1.9**. Field names on this page match that release.</Note>
+
+## What you can call
+
+| Export | When you would use it |
+|--------|------------------------|
+| `readCooldown(value)` | Turn a metadata `cooldown` into `{ seconds, scope, private }`. A number means scope `user` and `private: true`. `undefined` stays `undefined`. |
+| `cooldownKey(name, scope, ids)` | Build `name:user:id`, `name:guild:id`, or `name:channel:id`. Returns `undefined` when the guild or channel id that scope needs is missing. |
+| `CooldownBook` | `take(key, seconds)` returns remaining seconds (at least 1) or `0` after storing a new window. Memory only. |
+| `CollectorBook` | `wait` is what `ctx.collect` uses. `take` wins over `press` only when id, kind, and who match. `Start` owns the book. |
+| `checkGates(meta, world)` | Returns `"owner"`, `"need"`, `"when"`, or `undefined`. Order is owner, then need, then when. |
+| `hasPermissions(have, need)` | True when every needed bit is set. The Administrator bit passes on its own. |
+| `permissionBitfield(value)` | Names, a list, a digit string, or `bigint` become one `bigint`. Unknown names throw. |
+| `frame(key, locale, vars)` | Framework strings `cooldown`, `need`, `when`, `owner`, `failed`. Only `cooldown` uses `{name}` / `{seconds}`. |
+| `loadCommands(folder, { bust? })` | Import `.js` command and menu exports. Skips tests, names ending in `old.js` (so `fold.js` too), dotfiles, and reload copies. Duplicate message-menu names throw. |
+| `loadEvents(folder, { bust? })` | Import `.js` whose export name is a gateway event. A second export of the same name throws. |
+| `answerCommand(commands, incoming, bot, ...)` | Builds the command `ctx` and runs the handler. Cooldown and gates are not here. The `Start` dispatcher does those before it calls `answerCommand`. Returns the `Reply`, or `undefined` if the name is not loaded. |
+| `startBot(client, options)` | Register commands on a `BotConnection` and answer them. `Start` builds the Discord client, then calls this. |
+| `isCommand`, `isMenu` | Narrow a `loadCommands` value. |
+| `isLayout`, `isPoll` | Narrow a reply part in a custom renderer. |
+
+`answerCommand`'s later arguments are the hooks the live dispatcher fills in: guild, transcript, channel send, the interaction ack (`wait`, `edit`, `remove`, `collect`, `flush`), and mod actions. A test that only cares about reply text should use `simulate`. Building that bag yourself means you are the host.
+
+`startBot` options are `commands`, and optionally `commandsFolder`, `eventsFolder`, `guildId`, `timeZone`, `events`, `watch`, `guard`, and `autoDefer`. `watch` only reloads when the folder options are set. The `client` must implement `BotConnection` (`start`, `stop`, `readyUser`, `registerCommands`, `onCommand`, `onUse`, reads, and replies).
+
+## Cooldown book
+
+```js
+import { CooldownBook, cooldownKey, readCooldown } from "@draeven/core";
+
+const cooling = readCooldown({ seconds: 10, scope: "user", private: true });
+const book = new CooldownBook();
+const key = cooldownKey("ping", cooling.scope, { userId: "1" });
+const left = book.take(key, cooling.seconds);
+```
+
+`left` is `0` the first time and a positive number until the window ends. The live bot already does this before `run` ([Cooldowns](/docs/cooldowns)).
+
+## Gates and strings
+
+```js
+import { checkGates, frame, permissionBitfield } from "@draeven/core";
+
+const blocked = await checkGates(
+  { ownerOnly: true, need: "KickMembers" },
+  { author: { id: "1" }, ownerId: "2", memberPermissions: "0" }
+);
+
+frame("cooldown", "nl", { name: "ping", seconds: 5 });
+permissionBitfield(["KickMembers", "BanMembers"]);
+```
+
+`blocked` is `"owner"` here, because owner is checked first. `frame` returns the Dutch cooldown sentence with the name and seconds filled in.
+
+<Note>
+`loadCommands("./dist/commands")` is what `Start` calls for a folder. Call it yourself when a test wants the compiled modules without a token, and pass `{ bust: true }` when the same path must be imported again after a write.
+</Note>
+
+## Pitfalls
+
+- `CooldownBook` and `CollectorBook` are per process. A second `startBot` does not share the first book's windows or waiters.
+- `checkGates` does not reply. The host has to send `frame(blocked, locale)` itself. `Start` already does that.
+- `isCommand` is false for context menus. Filter with `isMenu` as well when you walk `loadCommands` output.
+- Do not call `answerCommand` and `Start` for the same interaction. One path should own the token.

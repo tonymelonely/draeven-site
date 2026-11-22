@@ -1,0 +1,98 @@
+---
+title: create-draeven CLI
+description: draeven init, the files it writes, and the dashboard scripts.
+order: 3
+---
+
+`create-draeven` scaffolds a bot: config, TypeScript, commands, an events folder, and the scripts that compile and start it. You need **Node.js 20+**. The package bins are `create-draeven` and `draeven`. Both run the same CLI.
+
+The only command is `init`. A folder name is optional. Flags are `--commands`, `--events`, and `--with-dashboard`.
+
+<Note>Aligned with @draeven/core **0.1.9**. Field names on this page match that release.</Note>
+
+## Invoke it
+
+`npm create draeven@latest` with no extra arguments runs `init` in the current directory.
+
+```bash
+npm create draeven@latest -- init my-bot
+cd my-bot
+pnpm install
+pnpm start
+```
+
+`npm create` forwards arguments to the bin. The first of those arguments has to be `init`. Put `--` before `init` when you also pass flags, so npm does not swallow them.
+
+```bash
+npm create draeven@latest -- init my-bot --commands ./src/slash --events ./src/events --with-dashboard
+```
+
+The same line after the package is installed:
+
+```bash
+draeven init my-bot --commands ./src/slash --events ./src/events --with-dashboard
+```
+
+Anything other than `init` prints the usage line and exits. `draeven init` with no folder writes into the current directory.
+
+## Files it writes
+
+It creates the folder, `src/`, the commands directory, and the events directory. It does **not** overwrite a file that is already there.
+
+| File | Role |
+|------|------|
+| `draeven.config.js` | `commands` and `events` point at compiled output. See [Config file](/docs/config). |
+| `package.json` | ESM, `@draeven/core` `^0.1.9`, the scripts below. |
+| `tsconfig.json` | `NodeNext`, `strict`, `outDir: "dist"`, `rootDir: "src"`. |
+| `.gitignore` | `node_modules/`, `dist/`, `.env`, `.draeven.pid`, `.draeven/`. |
+| `.env.example` | `DISCORD_TOKEN`. Dashboard mode adds OAuth and bridge vars. |
+| `README.md` | Copy `.env`, install, start. |
+| `src/main.ts` | `Start({ watch: true, intents: intentsFor("ready") })`. `events` is omitted, so the config folder loads. |
+| `src/commands/ping.ts` | A `command("ping")` that replies `pong`. The folder follows `--commands`. |
+| `src/commands/later.ts` | A button with inline `press`. Fine for a short reply. |
+| `src/commands/letters.ts` | Posts letter buttons. No `press`. |
+| `src/events/ready.ts` | `export function ready`. The folder follows `--events`. |
+| `src/events/letters.ts` | `use({ ids: "hangman_*", run })` owns those letter buttons. |
+| `scripts/dev.mjs` | One `pnpm build`, then `tsc -w` and `node dist/main.js`. |
+| `src/desk-main.ts` | Only with `--with-dashboard`. UI process for `pnpm desk`. |
+
+`package.json` dev dependencies are `typescript` `^5.9` and `@types/node` `^22`.
+
+## Scripts
+
+| Script | Runs |
+|--------|------|
+| `pnpm build` | `tsc -p tsconfig.json` |
+| `pnpm start` | build, then `node dist/main.js` |
+| `pnpm watch` | `tsc -w` only |
+| `pnpm dev` | `node scripts/dev.mjs` |
+| `pnpm desk` | build, then `node dist/desk-main.js` (dashboard scaffold only) |
+| `pnpm dev:desk` | same as `desk` |
+
+`--with-dashboard` also adds `@draeven/bridge` `^0.1.0`. The generated `main.ts` reads `DASHBOARD`: `embedded` (default) starts the bot and the UI, `bridge` starts the API only, `off` is the bot alone, and `desk` throws and tells you to run `pnpm desk`. Env vars and modes are on [Bridge & desk](/docs/bridge-desk).
+
+## Where commands land
+
+`--commands` defaults to `./src/commands`. The config does not store that source path. It stores the compiled mirror:
+
+| You pass | `draeven.config.js` gets |
+|----------|----------------------------|
+| `./src/commands` (default) | `./dist/commands` |
+| `./src/slash` | `./dist/slash` |
+| `src/slash` | `./dist/slash` |
+| a path that already contains `dist` | that path, unchanged |
+| anything else, such as `./lib/commands` | `./dist/commands` |
+
+`--events` defaults to `./src/events` and follows the same compiled-path rules (`./src/events` becomes `./dist/events`).
+
+`src/main.ts` turns `watch` on and omits `events`, so `pnpm dev` reloads compiled commands and the events folder from config without dropping the gateway ([Install](/docs/install)). `later.ts` keeps an inline `press`. `letters.ts` posts buttons, and `events/letters.ts` answers them with `use()`.
+
+<Note>
+Init fills gaps. It will not add `@draeven/bridge` to a `package.json` that already exists, and it will not rewrite `src/main.ts`. Scaffold a new folder when you want the dashboard files.
+</Note>
+
+## Pitfalls
+
+- `npm create draeven@latest my-bot` is not `init`. The CLI exits with the usage line. Pass `init` first.
+- A commands path outside `src/` and `dist/` still configures `./dist/commands`. Pass `./src/...` when the source folder is custom. `--events` uses the same fallback.
+- The scaffold is ESM. Node 20 is the engines floor. Do not compile it to CommonJS.

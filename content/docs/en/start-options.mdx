@@ -1,0 +1,90 @@
+---
+title: Start options
+description: Every field Start() accepts.
+order: 7
+---
+
+`Start()` opens the gateway and answers interactions. <Explain topic="start-token">token</Explain> is required.
+
+<DocTour id="start-options" />
+
+## The call
+
+```js
+import { Start, guard, intentsFor } from "@draeven/core";
+
+const bot = await Start({
+  token: process.env.DISCORD_TOKEN,
+  guildId: process.env.DISCORD_GUILD_ID,
+  timeZone: "Europe/Amsterdam",
+  presence: {
+    status: "online",
+    activity: { kind: "watching", text: "slash commands" },
+  },
+  intents: intentsFor("ready", "message"),
+  events: "./dist/events",
+  watch: process.env.NODE_ENV !== "production",
+  guard: guard({ via: "console", of: "all" }),
+  alone: "ask",
+  autoDefer: true,
+});
+```
+
+`commands` is omitted here, so Draeven reads `draeven.config.js` ([Config](/docs/config)). `events` is passed as a folder on this call, so the config `events` field is not used. Omit `events` as well when the file already points at `./dist/events`. `bot` is the [running handle](/docs/bot-handle): `setPresence`, `send`, `stop`, and `syncState`.
+
+## Fields
+
+| Field | What it does |
+|-------|----------------|
+| <Explain topic="start-token">`token`</Explain> | Bot token. Blank throws before the gateway opens. |
+| <Explain topic="start-commands">`commands`</Explain> | An array of commands and menus, a folder path or `URL`, or omit to use `draeven.config`. |
+| <Explain topic="start-guildId">`guildId`</Explain> | Snowflake (1–20 digits). Commands sync to that guild. Omit it and the next sync is global. Guild commands already registered stay in that server. |
+| `timeZone` | IANA name, such as `Europe/Amsterdam`. Used when `ctx.transcript()` does not pass its own. |
+| `presence` | Initial status and activity. See [Presence](/docs/presence). |
+| <Explain topic="start-intents">`intents`</Explain> | Gateway bitmask. Omitted is `0`. `intentsFor(...events)` from event names, or `intentBits(...names)` from `intents.*`. |
+| `events` | A handlers object, a folder of compiled modules, or omit to use `events` from `draeven.config` when that field is set. `watch` reloads a folder. An inline object does not load `use()`. |
+| <Explain topic="start-watch">`watch`</Explain> | Default `false`. `true` reloads the commands folder and an events folder. An in-memory array throws. |
+| `guard` | The object `guard({...})` returns. Keeps the process alive and logs failures. |
+| <Explain topic="start-alone">`alone`</Explain> | Default `"ask"`. Also `true` or `false`. See [One process](/docs/alone). |
+| <Explain topic="start-autoDefer">`autoDefer`</Explain> | Default **2000 ms**. `false` turns it off. A number is clamped to **500–2500** ms. |
+
+Defaults when you omit them: `intents` `0`, `watch` `false`, `alone` `"ask"`, `autoDefer` `2000`.
+
+## Commands and guild sync
+
+```js
+await Start({
+  token: process.env.DISCORD_TOKEN,
+  commands: "./dist/commands",
+  guildId: process.env.DISCORD_GUILD_ID,
+});
+```
+
+A string or `URL` is a folder, same as the `commands` path in config. An array (`commands: [ping]`) is the list in memory. That form is useful in a test. `watch: true` with that array throws. There is no folder.
+
+Guild sync shows new commands in that server within seconds. A global sync (no `guildId`) can take up to an hour. Pass the guild id while you edit. Dropping it later registers the global list. Commands already registered on the guild stay there. Discord does not delete them. A non-snowflake throws at startup.
+
+## Intents and events
+
+`intentsFor("memberJoin", "message")` unions the bits those events need, including privileged intents Discord requires. `intentBits("guilds", "guildMessages")` ORs named flags when you already know the mask. Event handlers still need the bits their names list ([Events & intents](/docs/events-intents)).
+
+`events` as an object is fixed for the process. That object does not load `use()`. `events: "./dist/events"` loads modules whose export names are the event names, plus `use()` handlers in those files. Omit `events` and Draeven uses the `events` path from `draeven.config.js` when the file sets one. `watch: true` reloads that folder when the files change.
+
+## Auto-defer
+
+Discord gives the handler about 3 seconds. The default <Explain topic="auto-defer">auto-defer</Explain> fires at 2 seconds so a slow `await` still acknowledges. `autoDefer: 800` defers sooner. Values under 500 become 500. Values over 2500 become 2500. `autoDefer: false` on `Start` disables it for every command. One command can still set `autoDefer: false` in its own metadata ([Replies](/docs/replies)).
+
+<Note>
+`timeZone` does not change `time()` stamps inside an embed. Those render in the reader's zone. The start zone is only the fallback for a transcript.
+</Note>
+
+## Pitfalls
+
+- `watch: true` with `commands: [ping]` throws. There is no folder to watch.
+- `guard` must be the value `guard()` returns. A plain `{ via, of }` throws.
+- `alone: "ask"` does not prompt when stdin is not a TTY. A live sibling then throws unless you pass `alone: true`.
+- A bad zone name (`"Amsterdam"`) throws at startup. Use `Europe/Amsterdam`.
+
+## Related
+
+- [Install](/docs/install) · [Project layout](/docs/project-layout) · [Events & intents](/docs/events-intents) · [Presence](/docs/presence) · [One process](/docs/alone) · [Hot-reload & guard](/docs/hot-reload-guard) · [Transcripts](/docs/transcript)

@@ -1,0 +1,108 @@
+---
+title: Command metadata
+description: Every CommandMeta field, including the PermissionName list.
+order: 26
+---
+
+The last argument of `command()` is an optional `CommandMeta`. On `userMenu()` and `messageMenu()` that object is the argument **before** `run`. Registration fields are stored on the Discord command. Gates run in the process before your handler ([Permissions & gates](/docs/permissions)).
+
+<DocTour id="command-meta" />
+
+Omit a field to leave Draeven's or Discord's default. An empty object is not metadata. A misspelled key is not metadata either: `isMeta` only accepts the keys in the table below.
+
+<Note>Aligned with @draeven/core **0.1.9**. Field names on this page match that release.</Note>
+
+## Fields
+
+| Field | Kind | What it does |
+|-------|------|----------------|
+| `permissions` | `PermissionName`, a list, a digit string, or `bigint` | Default member permissions stored on the command. A list ORs the bits. Discord then requires all of them. |
+| <Explain topic="command-nsfw">`nsfw`</Explain> | `boolean` | `true` limits the command to age-restricted channels. `false` sends `nsfw: false`. Omit the key to leave it unset. |
+| <Explain topic="command-places">`places`</Explain> | `"guild"`, `"bot dm"`, `"private"` | Discord contexts `0`, `1`, and `2`. Omit to keep Discord's default. |
+| <Explain topic="command-install">`install`</Explain> | `"guild"`, `"user"` | Integration types `0` and `1`. Omit to keep Discord's default. |
+| `cooldown` | number or `{ seconds, scope?, private? }` | In-memory wait before `run`. See [Cooldowns](/docs/cooldowns). |
+| `locales` | record of Discord locale to `{ name?, description? }` | Registration strings, not `say()`. See [Locales](/docs/locales). |
+| <Explain topic="command-need">`need`</Explain> | same type as `permissions` | Runtime gate. The member bitfield on the interaction must include every bit. |
+| `ownerOnly` | `boolean` | Runtime gate. `author.id` must be the guild owner id. |
+| `when` | `(ctx) => boolean` | Runtime gate. Return `false` to block. `ctx` has `author`, `locale`, and lookups, not `reply`. |
+| <Explain topic="command-defer">`defer`</Explain> | `true` or `{ private?: boolean }` | Defer before the handler. `true` is public. `{ private: true }` is ephemeral. |
+| `autoDefer` | `boolean` | `false` turns off the 2-second auto-defer for this command only. `true` does not override `Start({ autoDefer: false })`. |
+
+`hasPermissions` treats the Administrator bit as a pass for `need`. Discord still has to put that bit on the interaction. `permissionBitfield` throws `[Draeven] Unknown permission …` for a name that is not in the list below. A string of digits is a raw bitfield.
+
+## PermissionName
+
+These are the only names. `ManageEmojisAndStickers` and `ManageGuildExpressions` are the same bit.
+
+| Group | Names |
+|-------|--------|
+| Server | `CreateInstantInvite`, `KickMembers`, `BanMembers`, `Administrator`, `ManageChannels`, `ManageGuild`, `ViewAuditLog`, `ViewGuildInsights`, `ManageWebhooks`, `ManageEmojisAndStickers`, `ManageGuildExpressions`, `ViewCreatorMonetizationAnalytics` |
+| Chat | `ViewChannel`, `SendMessages`, `SendTTSMessages`, `ManageMessages`, `EmbedLinks`, `AttachFiles`, `ReadMessageHistory`, `MentionEveryone`, `AddReactions`, `UseExternalEmojis`, `UseExternalStickers`, `SendMessagesInThreads`, `SendVoiceMessages`, `SendPolls`, `UseExternalApps` |
+| Voice | `Connect`, `Speak`, `Stream`, `PrioritySpeaker`, `MuteMembers`, `DeafenMembers`, `MoveMembers`, `UseVAD`, `RequestToSpeak`, `UseSoundboard`, `UseExternalSounds`, `UseEmbeddedActivities` |
+| People | `ChangeNickname`, `ManageNicknames`, `ManageRoles`, `ModerateMembers`, `UseApplicationCommands` |
+| Threads and events | `ManageThreads`, `CreatePublicThreads`, `CreatePrivateThreads`, `ManageEvents`, `CreateEvents`, `CreateGuildExpressions` |
+
+## places, install, and nsfw
+
+```js
+import { command } from "@draeven/core";
+
+export const guildOnly = command(
+  "guild-only",
+  "Servers only",
+  async (ctx) => ctx.reply("guild"),
+  { places: ["guild"], install: ["guild"] }
+);
+
+export const anywhere = command(
+  "anywhere",
+  "Guilds, the bot DM, and other private contexts",
+  async (ctx) => ctx.reply("ok"),
+  { places: ["guild", "bot dm", "private"], install: ["guild", "user"] }
+);
+
+export const ageGated = command(
+  "age-gated",
+  "Age-restricted channels only",
+  async (ctx) => ctx.reply("ok"),
+  { nsfw: true, places: ["guild"] }
+);
+```
+
+`"bot dm"` is the bot's own DM. The space is part of the string. `"private"` is the other private context (a group DM, or a user-install DM that is not the bot DM). `"guild"` on `install` is a server install. `"user"` is a user install. An unknown place throws `A place is guild, bot dm, or private.` An unknown install target throws `An install target is guild or user.`
+
+## defer and autoDefer
+
+```js
+export const quiet = command(
+  "quiet",
+  "Ack first, privately",
+  async (ctx) => {
+    const guild = ctx.getGuild();
+    return ctx.reply(guild ? guild.name : "dm");
+  },
+  {
+    defer: { private: true },
+    autoDefer: false,
+    locales: {
+      nl: { name: "stil", description: "Eerst bevestigen, privé" },
+    },
+    cooldown: 5,
+    need: "SendMessages",
+    when: (ctx) => Boolean(ctx.getGuild()),
+  }
+);
+```
+
+A localized `name` is 1–32 characters: lowercase letters, numbers, hyphens. A localized `description` is 1–100 characters. Locale keys look like `nl` or `nl-NL`.
+
+<Warn fix="Set autoDefer: false and reply with form() first." href="/docs/why-failing">
+A form has to be the first acknowledgement. `defer`, and an auto-defer that already fired, both consume the token. Set `autoDefer: false` on a command that opens a `form()`, and do not set `defer`.
+</Warn>
+
+## Pitfalls
+
+- `permissions` is not `need`. An admin can still invoke a command Discord would have hidden. `need` is the check you run.
+- `need`, `ownerOnly`, `when`, and `cooldown` belong on the parent `command()`, not on `sub()`.
+- `places: []` sends an empty context list. Omit `places` when you want Discord's default.
+- `ownerOnly` fails in a DM: there is no guild owner id on that interaction.

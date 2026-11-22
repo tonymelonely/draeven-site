@@ -1,0 +1,75 @@
+---
+title: Config file
+description: draeven.config.js — commands and events folders Start() loads when you omit them.
+order: 9
+---
+
+`draeven.config.js` (or `.mjs`) is how `Start()` finds compiled commands when you omit `commands`, and the events folder when you omit `events`. You edit TypeScript under `src/`. `tsc` writes JavaScript under `dist/`. This file names those output folders so the process never imports the sources.
+
+`readConfig` reads `commands` and `events`. A scaffold writes both. Without a file, commands fall back to `./commands` under the directory you started from. `events` has no fallback. Leave it unset and `Start` loads no events folder.
+
+## The file
+
+```js
+export default {
+  commands: "./dist/commands",
+  events: "./dist/events",
+};
+```
+
+`commands` and `events` are folder paths. A relative path is resolved **next to the config file**, even when `process.cwd()` is somewhere else. An absolute path is used as written. `resolveCommandsFolder(folder, baseDir)` applies that rule without reading a file. An empty path throws `[Draeven] A folder path cannot be empty.` A blank `events` string is skipped, so no events folder is loaded.
+
+`readConfig(cwd)` starts at `cwd` (default `process.cwd()`) and walks parent directories until it finds `draeven.config.js` or `draeven.config.mjs`. It imports that module and reads the default export. When no file exists, the commands folder is `./commands` under the directory you started from — not under a parent that happens to contain a config. There is still no events folder.
+
+`Start()` calls `readConfig()` when you omit `commands`. It does the same when you omit `events`, and uses that folder when the file sets `events`. A string or `URL` on `Start` for either field is a folder of its own and skips that field in the file.
+
+## Worked example
+
+Leave `commands` and `events` off `Start` and let the file choose the folders. `pnpm build` (or `tsc`) must have already filled `dist/commands` and `dist/events`.
+
+```js
+import { Start } from "@draeven/core";
+
+await Start({
+  token: process.env.DISCORD_TOKEN,
+  guildId: process.env.DISCORD_GUILD_ID,
+});
+```
+
+`loadCommands` then imports every `.js` file in the commands folder. It skips `.ts`, `.test.js`, names that end with `old.js` (so `fold.js` too), and names that start with a dot. Export `command()`, `userMenu()`, or `messageMenu()` from those modules. Other exports are ignored. Duplicate slash names throw. So do two user menus with the same name, and two message menus with the same name.
+
+When the file sets `events`, `loadEvents` imports that folder the same way. It keeps a function whose name is a gateway event, and every value built with `use()`. Other exports are ignored ([Events & intents](/docs/events-intents)).
+
+To ignore the config for one process, pass the folders yourself. Those paths are resolved from the current working directory:
+
+```js
+await Start({
+  token: process.env.DISCORD_TOKEN,
+  commands: "./dist/commands",
+  events: "./dist/events",
+});
+```
+
+## Limits
+
+| Rule | Detail |
+|------|--------|
+| File names | `draeven.config.js` or `draeven.config.mjs` only |
+| Fields read | `commands` and `events`. Other keys are ignored |
+| Relative path | Resolved beside the config file |
+| Absolute path | Used as written |
+| Missing file | `./commands` under the directory you started from. No events folder |
+| Missing `events` | No events folder. Commands still load |
+| Empty path | Throws |
+| What loads | `.js` only. `.ts` is skipped |
+| Watch | `watch: true` reloads the commands folder, and the events folder when `events` is set |
+
+## Pitfalls
+
+- `draeven.config.ts` and `.cjs` are ignored. The names are `draeven.config.js` and `draeven.config.mjs`.
+- A missing directory throws `Cannot read commands folder`. Create `dist/commands` in the build, or the process stops at startup.
+- A set `events` path that is missing throws `Cannot read events folder`. Create `dist/events`, or leave `events` out of the config.
+- An empty folder, or a folder that still only has TypeScript, loads zero commands. The next sync then clears the commands Discord already had.
+- Pointing `commands` at `./src/commands` looks right in the editor and loads nothing, because those files are still `.ts`.
+- Pointing `events` at `./src/events` does the same. The config path is `./dist/events`.
+- `watch: true` with an in-memory array throws `[Draeven] watch: true needs commands from a folder path or draeven.config.` Pass this folder, or a `commands` path ([Hot-reload & guard](/docs/hot-reload-guard)).

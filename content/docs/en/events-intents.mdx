@@ -1,0 +1,116 @@
+---
+title: Events & intents
+description: CamelCase gateway events, intentsFor(), and use().
+order: 60
+---
+
+Joins, messages, reactions, and durable `use()` handlers live outside slash commands. Names are camelCase (`memberJoin`).
+
+<WhenToUse topic="events" />
+
+Each event needs the intents in `eventIntents`. `intentsFor("memberJoin", "message")` unions those bits. Prefer `intentsFor` over a hand-written mask.
+
+## Inline handlers
+
+```js
+import { Start, intentsFor } from "@draeven/core";
+
+const bot = await Start({
+  token: process.env.DISCORD_TOKEN,
+  intents: intentsFor("memberJoin", "message", "messageDelete"),
+  events: {
+    ready: () => console.log("online"),
+    memberJoin: (member) => console.log("join", member.name),
+    message: (msg) => console.log(msg.content),
+    messageDelete: (gone) => console.log("deleted", gone.id),
+  },
+});
+```
+
+`memberJoin` receives a flat member: `id`, `name`, `bot`, `guildId`, plus optional `nick`, `joinedAt`, `icon`, and `roleIds`. There is no nested `user` object. `message.author` is the same kind of profile (`id`, `name`, `bot`, optional `icon`), not `username`.
+
+`bot.onEvent(name, handler)` subscribes later and returns an unsubscribe function. `onMemberJoin`, `onMemberLeave`, and `onMessage` are the same idea for those three names.
+
+## intentsFor and intentBits
+
+| You write | You get |
+|-----------|---------|
+| `intentsFor("ready")` | `0` — `ready` needs nothing |
+| `intentsFor("memberJoin")` | `guildMembers` (privileged) |
+| `intentsFor("message")` | `guildMessages`, `directMessages`, `messageContent` |
+| `intentsFor("reactionAdd")` | `guildMessageReactions`, `directMessageReactions` |
+| `intentsFor("presenceUpdate")` | `guildPresences` (privileged) |
+| `intentsFor("pollVoteAdd")` | `guildMessagePolls`, `directMessagePolls` |
+| `intentBits("guilds", "guildMessages")` | those bits only, by intent name |
+
+Unknown event names throw. `intentBits` throws on an unknown intent name.
+
+Privileged intents still need the portal toggle ([Creating an app](/docs/creating-app)): **Server Members**, **Message Content**, **Presence**.
+
+## Folder of handlers
+
+```js
+await Start({
+  token: process.env.DISCORD_TOKEN,
+  watch: true,
+  intents: intentsFor("memberJoin", "message"),
+  events: "./dist/events",
+});
+```
+
+Or set `events: "./dist/events"` in `draeven.config.js` and omit `events` on `Start`. Draeven then loads that folder the same way it loads commands from config.
+
+`loadEvents` reads `.js` files and keeps:
+
+1. Exports whose **name is a gateway event** (`memberJoin`, `message`, …)
+2. Values built with **`use()`** — durable button, menu, and form handlers. The export name can be anything.
+
+```js
+export function memberJoin(member) {
+  console.log(member.name);
+}
+```
+
+The command that posts `hangman_A` leaves `press` off. This handler owns the id:
+
+```js
+import { button, row, use } from "@draeven/core";
+
+export const letters = use({
+  ids: "hangman_*",
+  run(ctx) {
+    const letter = ctx.id.slice("hangman_".length);
+    return ctx.reply({
+      text: `You picked **${letter}**`,
+      rows: [row(button({ id: "hangman_A", label: "A" }))],
+    });
+  },
+});
+```
+
+`ids` can be an exact string (`"hangman_A"`), a prefix with `*` only at the end (`"hangman_*"`), a list (`["yes", "no"]`), or `(id) => boolean`. `kind` defaults to `"press"`. Pass `"submit"` for a form. Who wins between `collect`, inline `press`, and `use()` is on [Press & submit](/docs/press-handlers).
+
+A second `memberJoin` export in the folder throws. `watch: true` reloads this folder the same way it reloads commands (gateway handlers and `use()`). An inline `events` object is not a folder, so watch does not swap those functions, and it does not load `use()`.
+
+## Names you can register
+
+Guild structure: `guildJoin`, `guildLeave`, `guildUpdate`, `channelCreate`, `channelUpdate`, `channelDelete`, `threadCreate`, `threadUpdate`, `threadDelete`, `roleCreate`, `roleUpdate`, `roleDelete`.
+
+People and chat: `memberJoin`, `memberLeave`, `memberUpdate`, `memberBan`, `memberUnban`, `message`, `messageEdit`, `messageDelete`, `messageBulkDelete`, `reactionAdd`, `reactionRemove`, `reactionClear`, `reactionClearEmoji`, `typing`.
+
+Other: `voiceUpdate`, `inviteCreate`, `inviteDelete`, `presenceUpdate`, `scheduleCreate`, `scheduleUpdate`, `scheduleDelete`, `pollVoteAdd`, `pollVoteRemove`, `ready`, `resumed`.
+
+<Note>
+`message` without the Message Content intent arrives without `content`. The handler still runs.
+</Note>
+
+## Pitfalls
+
+- `intentsFor()` with no names throws. A slash-only bot can pass `intentsFor("ready")` or omit intents.
+- Folder handlers must be functions. A constant named `message` throws.
+- Enabling the portal intent and forgetting `intentsFor` still yields no events.
+- `use()` in the commands folder is ignored. Put it in the events folder, next to `memberJoin`.
+
+## Related
+
+- [Press & submit](/docs/press-handlers) · [Presence](/docs/presence) · [Sending messages](/docs/sending-messages) · [Hot-reload & guard](/docs/hot-reload-guard)

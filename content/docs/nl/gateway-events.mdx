@@ -1,0 +1,75 @@
+---
+title: Gateway event-payloads
+description: Elke GatewayEventName en het object dat je handler krijgt.
+order: 61
+---
+
+`Start` en `bot.onEvent` geven je een Draeven-object, niet de ruwe dispatch van Discord. Namen zijn camelCase. De `t`-waarde hieronder is het gateway-event dat `gatewayEventReaders` koppelt. Geef dezelfde namen aan `intentsFor` ([Events en intents](/docs/events-intents)). De types komen uit `@draeven/core` en uit [`@draeven/discord`](/docs/discord-client).
+
+Een handler die gooit, meldt de guard als `of` `"events"` bevat. Een payload die Draeven niet kan lezen valt weg, en de handler draait niet.
+
+<Note>Afgestemd op @draeven/core **0.1.9**. Veldnamen op deze pagina horen bij die release.</Note>
+
+## Payloads
+
+| Event | Payload | Discord `t` |
+|-------|---------|----------------|
+| `ready` | `GatewayReady`: `user` (`id`, `name`, `bot`, optionele `icon`), `guildIds` | `READY` |
+| `resumed` | leeg object | `RESUMED` |
+| `guildJoin`, `guildLeave`, `guildUpdate` | `GatewayGuild`: `id`, optionele `name`, optionele `unavailable` | `GUILD_CREATE`, `GUILD_DELETE`, `GUILD_UPDATE` |
+| `channelCreate`, `channelUpdate`, `channelDelete` | `GatewayChannel`: `id`, optionele `guildId`, `name`, `type`, `parentId` | `CHANNEL_CREATE`, `CHANNEL_UPDATE`, `CHANNEL_DELETE` |
+| `threadCreate`, `threadUpdate`, `threadDelete` | dezelfde `GatewayChannel`-vorm | `THREAD_CREATE`, `THREAD_UPDATE`, `THREAD_DELETE` |
+| `roleCreate`, `roleUpdate` | `GatewayRole`: `id`, `guildId`, `name`, optionele `color`, optionele `position` | `GUILD_ROLE_CREATE`, `GUILD_ROLE_UPDATE` |
+| `roleDelete` | `GatewayRole` met `id`, `guildId` en `name: ""` | `GUILD_ROLE_DELETE` |
+| `memberJoin`, `memberUpdate` | `GatewayMember`: `id`, `name`, `bot`, `guildId`, optionele `nick`, `joinedAt`, `icon`, `roleIds` | `GUILD_MEMBER_ADD`, `GUILD_MEMBER_UPDATE` |
+| `memberLeave` | `GatewayMember` met `id`, `name`, `bot`, `guildId`, optionele `icon`. Geen nick, jointijd of rollen. | `GUILD_MEMBER_REMOVE` |
+| `memberBan`, `memberUnban` | `GatewayBan`: `guildId`, `user` (`id`, `name`, `bot`, optionele `icon`) | `GUILD_BAN_ADD`, `GUILD_BAN_REMOVE` |
+| `message`, `messageEdit` | `GatewayMessage`: `id`, `channelId`, optionele `guildId`, `content`, `author` (`id`, `name`, `bot`, optionele `icon`) | `MESSAGE_CREATE`, `MESSAGE_UPDATE` |
+| `messageDelete` | `GatewayMessageDelete`: `id`, `channelId`, optionele `guildId` | `MESSAGE_DELETE` |
+| `messageBulkDelete` | `GatewayMessageBulkDelete`: `ids`, `channelId`, optionele `guildId` | `MESSAGE_DELETE_BULK` |
+| `reactionAdd`, `reactionRemove` | `GatewayReaction`: `messageId`, `channelId`, optionele `guildId`, `userId`, `emoji` (`id?`, `name?`) | `MESSAGE_REACTION_ADD`, `MESSAGE_REACTION_REMOVE` |
+| `reactionClear` | `GatewayReactionClear`: `messageId`, `channelId`, optionele `guildId` | `MESSAGE_REACTION_REMOVE_ALL` |
+| `reactionClearEmoji` | die clear-vorm plus `emoji` | `MESSAGE_REACTION_REMOVE_EMOJI` |
+| `voiceUpdate` | `GatewayVoice`: `guildId`, `userId`, optionele `channelId`, `sessionId`, `deaf`, `mute`, `selfDeaf`, `selfMute` | `VOICE_STATE_UPDATE` |
+| `inviteCreate`, `inviteDelete` | `GatewayInvite`: `code`, optionele `guildId`, optionele `channelId` | `INVITE_CREATE`, `INVITE_DELETE` |
+| `typing` | `GatewayTyping`: `channelId`, `userId`, optionele `guildId` | `TYPING_START` |
+| `presenceUpdate` | `GatewayPresence`: `userId`, optionele `guildId`, optionele `status` | `PRESENCE_UPDATE` |
+| `scheduleCreate`, `scheduleUpdate`, `scheduleDelete` | `GatewaySchedule`: `id`, `guildId`, optionele `name`, optionele `status` | `GUILD_SCHEDULED_EVENT_CREATE`, `GUILD_SCHEDULED_EVENT_UPDATE`, `GUILD_SCHEDULED_EVENT_DELETE` |
+| `pollVoteAdd`, `pollVoteRemove` | `GatewayPollVote`: `userId`, `channelId`, `messageId`, optionele `guildId`, `answerId` | `MESSAGE_POLL_VOTE_ADD`, `MESSAGE_POLL_VOTE_REMOVE` |
+
+Er zit geen geneste `user` op een lid. `author.name` is de profielnaam, niet `username`. `joinedAt` is een `Date` als Discord `joined_at` stuurde.
+
+## Voorbeeld
+
+```js
+import { Start, intentsFor } from "@draeven/core";
+
+await Start({
+  token: process.env.DISCORD_TOKEN,
+  intents: intentsFor("message", "reactionAdd", "voiceUpdate"),
+  events: {
+    message: (msg) => {
+      console.log(msg.author.name, msg.channelId, msg.content);
+    },
+    reactionAdd: (reaction) => {
+      console.log(reaction.emoji.name, reaction.userId);
+    },
+    voiceUpdate: (voice) => {
+      console.log(voice.userId, voice.channelId ?? "weg");
+    },
+  },
+});
+```
+
+`gatewayEventNames` is de volledige lijst, in dezelfde volgorde als de reader-map. `intentsFor()` zonder namen gooit. Een onbekende naam gooit `[Draeven Discord] Unknown event …`.
+
+<Note>
+`ready` en `resumed` hebben geen intent-bits nodig. `memberJoin`, `message` (inhoud) en `presenceUpdate` hebben privileged intents nodig die in het portal aan staan. `intentsFor` zet die bits; het portal moet ze nog toestaan.
+</Note>
+
+## Valkuilen
+
+- `roleDelete` bevat de rolnaam niet. De delete-payload van Discord heeft alleen de rol-id, dus `name` is een lege string.
+- `memberLeave` is dunner dan `memberJoin`. Lees `nick` of `roleIds` niet van een leave.
+- `message.content` is leeg als de Message Content-intent uit staat. De handler draait nog wel.
+- `voiceUpdate` zonder `channelId` is een gebruiker die voice verlaat. De andere vlaggen staan er alleen als Discord ze stuurde.

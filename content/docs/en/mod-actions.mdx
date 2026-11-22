@@ -1,0 +1,73 @@
+---
+title: Moderation actions
+description: timeout, kick, ban, purge, and message helpers on ctx.
+order: 48
+---
+
+Moderation helpers live on the command `ctx`. They call Discord REST through the gateway connection `Start()` opened. Use them inside a guild command. They throw in a DM or when that connection cannot perform the action.
+
+Always pair them with `need` so the caller is checked before the REST call ([Permissions](/docs/permissions)).
+
+## Signatures
+
+| Method | Call |
+|--------|------|
+| `timeout` | `(user, seconds, reason?)` — `0` seconds clears |
+| `kick` | `(user, reason?)` |
+| `ban` | `(user, { seconds?, reason? }?)` — `seconds` is how long to delete recent messages |
+| `moveVoice` | `(user, channel \| null)` — `null` disconnects |
+| `purge` | `(channel, count)` — count **2–100**, returns how many ids were sent |
+| `pin` / `unpin` | `(channel, messageId)` |
+| `react` | `(channel, messageId, emoji)` |
+| `editMessage` | `(channel, messageId, text)` — 1–2000 characters, bot-owned messages |
+| `deleteMessage` | `(channel, messageId, reason?)` |
+
+`user` and `channel` accept a real object (`ctx.who`, `ctx.getChannel()`) or an id string.
+
+## Timeout
+
+```js
+import { command, user, number } from "@draeven/core";
+
+export const mute = command(
+  "mute",
+  "Timeout a member",
+  {
+    who: user("Who?").required(),
+    mins: number("Minutes?", { min: 1, max: 40320 }),
+  },
+  async (ctx) => {
+    const minutes = ctx.mins ?? 10;
+    await ctx.timeout(ctx.who, minutes * 60, "Timed out via command");
+    return ctx.reply(`Timed out ${ctx.who.name} for ${minutes}m.`);
+  },
+  { need: "ModerateMembers" }
+);
+```
+
+Discord's timeout length is in seconds. The maximum Discord accepts is 28 days (`40320` minutes). Clearing is `ctx.timeout(ctx.who, 0)`.
+
+## Purge and a single delete
+
+```js
+const channel = ctx.getChannel();
+if (!channel) return ctx.reply("No channel here.", { private: true });
+const removed = await ctx.purge(channel, 50);
+await ctx.reply(`Removed ${removed}.`, { private: true });
+```
+
+`purge` lists recent ids, then bulk-deletes. Fewer than two deletable messages returns `0` and does not call the bulk endpoint. One specific message is `ctx.deleteMessage(channel, messageId, "reason")`.
+
+<Warn>
+`editMessage` only replaces text on a message the bot created. It is not `ctx.edit`, which updates the interaction reply.
+</Warn>
+
+## Pitfalls
+
+- Helpers are absent from the menu context. Right-click actions that ban should open a slash command, or call REST yourself outside this helper set.
+- `purge` needs Manage Messages on the bot and on the caller if you gated with `need: "ManageMessages"`.
+- `ban`'s `seconds` is a delete window, not a temp-ban. Draeven does not schedule an unban.
+
+## Related
+
+- [Subcommands](/docs/subcommands) · [Permissions](/docs/permissions) · [Sending messages](/docs/sending-messages)

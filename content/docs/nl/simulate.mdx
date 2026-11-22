@@ -1,0 +1,85 @@
+---
+title: Simuleren en tests
+description: Draai een commandohandler zonder Discord.
+order: 73
+---
+
+`simulate(command, input)` roept de handler aan via `runCommand` met de opties en lookups die je meegeeft. Er is geen token, geen REST en geen gateway. Gebruik het voor unittests van antwoordtekst, embeds en `say()`.
+
+<TrySimulate />
+
+Het past **geen** `need`, `ownerOnly`, `when` of `cooldown` toe. Die draaien in de live dispatcher vóór `run`.
+
+## Kleinste test
+
+```js
+import assert from "node:assert/strict";
+import { command, simulate } from "@draeven/core";
+
+const ping = command("ping", "Checkt de bot", async (ctx) => ctx.reply("pong"));
+
+const reply = await simulate(ping, { author: { id: "1", name: "Tester" } });
+assert.equal(reply.text, "pong");
+```
+
+`author` is verplicht. Heeft `author` een `name` en laat je `users` weg, dan is die auteur de gebruikerslijst. `users` vervangt die lijst. De auteur komt er niet automatisch bij.
+
+## Invoer
+
+| Veld | Rol |
+|------|-----|
+| `author` | `{ id }` of een volledige `User` |
+| `opt` | Optiewaarden met dezelfde sleutels als het commando |
+| `locale` | Wordt `ctx.locale` voor `say()` |
+| `users` | Vervangt de auteurslijst. De genoemde auteur telt alleen als `users` is weggelaten. |
+| `guild` | Zorgt dat `getGuild()` die teruggeeft |
+| `channel` | Zorgt dat `getChannel()` die teruggeeft |
+| `members` | Map van user-id naar `Member`. `getMember` roept nog steeds `getUser` aan, dus die id moet in `users` staan of de genoemde auteur zijn. |
+
+Dat is de volledige `SimulateInput`. Er is geen `roles`-, `files`- of `bot`-zak — `getRole` / `getFile` / `getBot` horen niet in unittests tenzij je die lookups vermijdt.
+
+```js
+import { command, user, simulate } from "@draeven/core";
+
+const greet = command(
+  "greet",
+  "Hoi",
+  { who: user("Wie?") },
+  async (ctx) => ctx.reply(`Hoi ${(ctx.who ?? ctx.getUser(ctx.author)).name}`)
+);
+
+const reply = await simulate(greet, {
+  author: { id: "1", name: "A" },
+  opt: { who: { id: "2", name: "B", bot: false, createdAt: new Date() } },
+  locale: "nl",
+  guild: { id: "g1", name: "Test" },
+});
+
+assert.equal(reply.text, "Hoi B");
+```
+
+De teruggegeven `Reply` kan ook `embed`, `poll`, `rows`, `layout` of `private` dragen.
+
+## Wat gooit
+
+| Aanroep in de handler | Resultaat onder simulate |
+|-----------------------|--------------------------|
+| `reply()` | Geeft de `Reply` terug |
+| `followup()` | Zet hem in de wachtrij op het antwoord |
+| `wait`, `edit`, `remove`, `collect` | Gooit — geen interactietoken |
+| `send`, `timeout`, `kick`, `ban` | Gooit — geen REST-verbinding |
+| `transcript()` | Gooit — geen kanaaltranscript |
+
+<Tip>
+Test de keuze in de handler (welke string, welke embed). `simulate` drukt de gate-tekst voor de servereigenaar niet af. Die tekst komt van `frame("owner", locale)` op het live pad.
+</Tip>
+
+## Valkuilen
+
+- `simulate` roept `entry.run` aan. Een menu met `run` is ook een doel. De context blijft een commando-`ctx`. Discord vult `ctx.target` niet.
+- Een commando met alleen subs heeft geen top-level `run`, dus `simulate` gooit. Deel de bladlogica via een functie die de test kan aanroepen.
+- `opt` wordt runtime niet gecontroleerd. Een ontbrekende `who` is `undefined`, net als een optionele optie die de gebruiker oversloeg.
+
+## Verder
+
+- [Commando's](/docs/commands) · [Taalvarianten](/docs/locales) · [Wachttijden](/docs/cooldowns)

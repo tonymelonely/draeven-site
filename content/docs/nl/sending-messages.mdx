@@ -1,0 +1,68 @@
+---
+title: Berichten sturen
+description: Plaats in een kanaal met bot.send of ctx.send.
+order: 63
+---
+
+`ctx.reply` beantwoordt de slash-interactie. Het kan efemeer zijn, en het sterft met het interactietoken. Om in een kanaal te plaatsen vanuit een timer, een join-event, of een commando dat ook in een logkanaal moet praten, gebruik je `bot.send` of `ctx.send`.
+
+Beide nemen een kanaal-id (of `{ id }`) en dezelfde lichamen als een antwoord: een string, `embed()`, `poll()`, `layout()`, een rij of een canvas. Geen van beide kan een `form()` plaatsen, en geen van beide kan privé zijn. Een `layout()` mag ook hier niet samen met tekst, een embed of een peiling. `memberJoin` geeft `member.id` en `member.name`, niet `member.user`.
+
+## Vanuit Start
+
+```js
+import { Start, embed, intentsFor } from "@draeven/core";
+
+const bot = await Start({
+  token: process.env.DISCORD_TOKEN,
+  intents: intentsFor("memberJoin"),
+  events: {
+    memberJoin: async (member) => {
+      const channelId = process.env.WELCOME_CHANNEL_ID;
+      if (!channelId || !member.id) return;
+      await bot.send(channelId, `Welkom <@${member.id}>.`);
+    },
+  },
+});
+
+await bot.send(
+  process.env.LOG_CHANNEL_ID,
+  embed({ header: { title: "Melding" }, description: "Kijk in #ops" })
+);
+```
+
+Bewaar de `bot` die `Start` teruggeeft. Als de handler in hetzelfde object ontstaat dat nog op toewijzing wacht, declareer dan eerst `let bot` zodat de closure hem ziet.
+
+## Vanuit een commando
+
+```js
+import { command, text } from "@draeven/core";
+
+export const say = command(
+  "say",
+  "Plaats in dit kanaal",
+  { line: text("Tekst?").required() },
+  async (ctx) => {
+    const channel = ctx.getChannel();
+    if (!channel) return ctx.reply("Geen kanaal hier.", { private: true });
+    await ctx.send(channel, ctx.line);
+    return ctx.reply("Geplaatst.", { private: true });
+  }
+);
+```
+
+`getChannel()` zonder argument is `undefined` alleen als de interactie geen `channelId` heeft. Een DM heeft nog steeds een kanaal. `getGuild()` en `getMember()` ontbreken in een DM. Controleer `getChannel()` vóór `send` als het kan ontbreken. `ctx.send` gooit onder `simulate()`, omdat er geen REST-verbinding is.
+
+<Warn fix="Geef View Channel + Send Messages; private hoort niet op send()." href="/docs/why-failing">
+Kanaalberichten vragen View Channel en Send Messages van de bot. `send` accepteert `{ private: true }` niet — dat gooit.
+</Warn>
+
+## Valkuilen
+
+- Drukke logs raken de REST-limieten van Discord. `guard({ via: "channel" })` is het ondersteunde pad voor foutregels ([Hot-reload en guard](/docs/hot-reload-guard)).
+- `editMessage` wijzigt een bestaand botbericht. `send` maakt altijd een nieuw bericht.
+- `undefined` als kanaal doorgeven gooit. Sla de aanroep over als `LOG_CHANNEL_ID` ontbreekt.
+
+## Verder
+
+- [Antwoorden](/docs/replies) · [Embeds en layout](/docs/embeds-layout) · [Events en intents](/docs/events-intents)

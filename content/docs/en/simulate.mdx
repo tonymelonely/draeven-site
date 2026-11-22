@@ -1,0 +1,85 @@
+---
+title: Simulate & tests
+description: Run a command handler without Discord.
+order: 73
+---
+
+`simulate(command, input)` calls the handler through `runCommand` with the options and lookups you pass. There is no token, no REST, and no gateway. Use it for unit tests of reply text, embeds, and `say()`.
+
+It does **not** apply `need`, `ownerOnly`, `when`, or `cooldown`. Those run in the live dispatcher before `run`.
+
+<TrySimulate />
+
+## Smallest test
+
+```js
+import assert from "node:assert/strict";
+import { command, simulate } from "@draeven/core";
+
+const ping = command("ping", "Checks the bot", async (ctx) => ctx.reply("pong"));
+
+const reply = await simulate(ping, { author: { id: "1", name: "Tester" } });
+assert.equal(reply.text, "pong");
+```
+
+`author` is required. If `author` has a `name` and you omit `users`, that author is the user list. `users` replaces that list. It does not add the author on top.
+
+## Input
+
+| Field | Role |
+|-------|------|
+| `author` | `{ id }` or a full `User` |
+| `opt` | Option values keyed like the command (`who`, `line`, …) |
+| `locale` | Becomes `ctx.locale` for `say()` |
+| `users` | Replaces the author list. The named author is used only when `users` is omitted. |
+| `guild` | Makes `getGuild()` return it |
+| `channel` | Makes `getChannel()` return it |
+| `members` | Map of user id to `Member`. `getMember` still calls `getUser`, so that id must be in `users` or be the named author. |
+
+That is the full `SimulateInput`. There is no `roles`, `files`, or `bot` bag — `getRole` / `getFile` / `getBot` are not for unit tests unless you avoid those lookups.
+
+```js
+import { command, user, simulate } from "@draeven/core";
+
+const greet = command(
+  "greet",
+  "Hi",
+  { who: user("Who?") },
+  async (ctx) => ctx.reply(`Hi ${(ctx.who ?? ctx.getUser(ctx.author)).name}`)
+);
+
+const reply = await simulate(greet, {
+  author: { id: "1", name: "A" },
+  opt: { who: { id: "2", name: "B", bot: false, createdAt: new Date() } },
+  locale: "nl",
+  guild: { id: "g1", name: "Test" },
+});
+
+assert.equal(reply.text, "Hi B");
+```
+
+The returned `Reply` may also carry `embed`, `poll`, `rows`, `layout`, or `private`.
+
+## What throws
+
+| Call inside the handler | Result under simulate |
+|-------------------------|------------------------|
+| `reply()` | Returns the `Reply` |
+| `followup()` | Queues on the reply |
+| `wait`, `edit`, `remove`, `collect` | Throws — no interaction token |
+| `send`, `timeout`, `kick`, `ban` | Throws — no REST connection |
+| `transcript()` | Throws — no channel transcript |
+
+<Tip>
+Test the decision in the handler (which string, which embed). `simulate` will not print the server-owner gate string. That text comes from `frame("owner", locale)` on the live path.
+</Tip>
+
+## Pitfalls
+
+- `simulate` calls `entry.run`. A menu with `run` is a target too. The context is still a command `ctx`. Discord does not fill `ctx.target`.
+- A command built with only subs has no top-level `run`, so `simulate` throws. Share the leaf body with a function the test can call.
+- `opt` is not checked at runtime. A missing `who` is `undefined`, same as an optional option the user skipped.
+
+## Related
+
+- [Commands](/docs/commands) · [Locales](/docs/locales) · [Cooldowns](/docs/cooldowns)

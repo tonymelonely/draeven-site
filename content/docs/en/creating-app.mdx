@@ -1,0 +1,75 @@
+---
+title: Creating an app
+description: Portal token, invite URL, guild id, and intents.
+order: 4
+---
+
+Create a Discord application before `Start()` can log in. You need a bot token, an invite that includes slash commands, and — while you are iterating — one guild id so command updates show up immediately.
+
+## Create the application
+
+1. Open the [Discord Developer Portal](https://discord.com/developers/applications).
+2. **New Application**, pick a name, **Create**.
+3. **Bot** → **Reset Token**. Store it as `DISCORD_TOKEN` in `.env`.
+
+Never commit the token. The scaffold gitignores `.env`.
+
+## Invite the bot
+
+**OAuth2 → URL Generator**:
+
+- Scopes: `bot` and `applications.commands`. Both are required for slash commands.
+- Bot permissions: only what the commands use. A typical dev bot needs Send Messages, Read Message History, Embed Links, and Use Application Commands. Moderation also needs Kick Members, Ban Members, Moderate Members, or Manage Messages.
+
+Open the URL, pick a server, and authorize.
+
+## Guild id for fast sync
+
+Global commands can take up to about an hour to propagate. During development, register to one guild:
+
+1. Turn on **Developer Mode** (User Settings → Advanced).
+2. Right-click the server → **Copy Server ID**.
+3. Set `DISCORD_GUILD_ID` and pass it as `guildId` to `Start()`.
+
+```bash
+DISCORD_TOKEN=...
+DISCORD_GUILD_ID=123456789012345678
+```
+
+```js
+import { Start, intentsFor } from "@draeven/core";
+
+await Start({
+  token: process.env.DISCORD_TOKEN,
+  guildId: process.env.DISCORD_GUILD_ID,
+  intents: intentsFor("ready"),
+});
+```
+
+Omit `guildId` only when you are ready for a global rollout.
+
+## Privileged intents
+
+Enable a privileged intent in the **Bot** tab only when a handler needs it. Portal and code must match. Portal off means Discord will not deliver the events. Omit `intents` and the bitmask is `0`. Discord does not dispatch those gateway events. You do not get empty payloads.
+
+| Portal toggle | `intentBits` name | Typical events |
+|---------------|---------------------|----------------|
+| Server Members Intent | `guildMembers` | `memberJoin`, `memberLeave`, `memberUpdate` |
+| Message Content Intent | `messageContent` | `message`, `messageEdit` (with `content`) |
+| Presence Intent | `guildPresences` | `presenceUpdate` |
+
+`intentsFor("memberJoin", "message")` turns on `guildMembers`, `guildMessages`, `directMessages`, and `messageContent` for you. Prefer that over hand-written bitfields ([Events & intents](/docs/events-intents)).
+
+<Tip>
+Keep the first bot private to a test guild. You can decide public install contexts (`install` / `places` on a command) after the happy path works.
+</Tip>
+
+## Pitfalls
+
+- A token reset invalidates the old one immediately. Update `.env` and restart.
+- Invite scopes without `applications.commands` produce a bot that cannot register slash commands.
+- `ready` needs no intent bits. `intentsFor("ready")` is `0`, which is valid for a slash-only bot.
+
+## Related
+
+- [Quickstart](/docs/quickstart) · [Permissions](/docs/permissions) · [Known limits](/docs/known-limits)

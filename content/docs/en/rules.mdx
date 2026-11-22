@@ -1,0 +1,102 @@
+---
+title: Rules of thumb
+description: Hard constraints that show up as [Draeven] errors if you break them.
+order: 10
+---
+
+These are the constraints Draeven enforces in code. Break one and the throw starts with `[Draeven]`. Each section links the guide that shows the shape that works. The same lines are indexed on [Errors & debugging](/docs/debugging).
+
+## Acknowledge within ~3 seconds
+
+Discord drops the interaction after about 3 seconds. <Explain topic="auto-defer">Auto-defer</Explain> fires at 2 seconds so a slow `await` still acknowledges. Leave it on unless this command must open a form.
+
+`Start({ autoDefer: false })` turns it off for every command. A number is clamped to 500–2500 ms. `autoDefer: false` on one command turns it off for that command only. `defer: true` in metadata acknowledges immediately, before the handler. `defer: { private: true }` does that ephemerally.
+
+When you know the work is slow, call `wait()` yourself, then `edit()`:
+
+```js
+import { command } from "@draeven/core";
+
+export const slow = command("slow", "Works a while", async (ctx) => {
+  await ctx.wait();
+  await ctx.edit("Working…");
+  await ctx.edit("Done.");
+});
+```
+
+`wait()` after `reply()` throws. `edit()` before `wait()` or `reply()` throws. Full surface: [Replies](/docs/replies).
+
+## Form must be the first reply
+
+A modal has to be the first acknowledgement. <Explain topic="form-first">A form() cannot follow a defer</Explain>. Do not call `wait()`, set metadata `defer`, or call `transcript()` before `form()`. An auto-defer that already fired counts too: it has consumed the token. Discord will not open a modal after that, and flush throws `A form cannot follow wait()`.
+
+```js
+import { command, fieldStyles, form } from "@draeven/core";
+
+export const note = command("note", "Write a note", async (ctx) => {
+  ctx.reply(
+    form({
+      id: "note-form",
+      title: "Note",
+      fields: [{ id: "body", label: "Note", style: fieldStyles.long, max: 500 }],
+    })
+  );
+
+  const sent = await ctx.collect({ ids: "note-form", kind: "submit", seconds: 120 });
+  if (!sent) return ctx.reply("Timed out.");
+  return ctx.reply(sent.fields.body);
+});
+```
+
+A submit answers on the modal. That is a new interaction token. A timeout is `undefined`, and that reply edits the original interaction. Do not fold both paths into `sent?.fields`.
+
+A form cannot be `{ private: true }`, and `ctx.send` cannot carry one. [Buttons, menus & forms](/docs/pieces).
+
+## layout() cannot mix
+
+<Explain topic="layout-mix">A layout() is the whole reply</Explain>. It cannot share that message with text, an `embed()`, a `poll()`, or a `canvas()` picture. `reply("text", layout(...))` throws `A reply takes text, an embed, or text and an embed.` The mix error `A layout cannot mix with text, embeds, or polls.` is for an object such as `{ text, layout }`.
+
+You can still mark the layout private with `{ private: true }`, and you can append extra `row()` values on the same reply object. Those action rows are sent after the layout parts. A poll is its own whole reply, and so is a form. [Embeds & layout](/docs/embeds-layout).
+
+## One reply token
+
+The interaction has one reply token. A second `reply()` throws `A command can only reply once.` only when a reply is already stored and you have neither `wait()`ed nor flushed a `collect`. After `wait()`, `edit()` or another `reply()` fills the defer. `followup()` adds another message.
+
+`collect()` flushes the pending reply before it waits. After that flush, another `reply()` replaces the stored reply. It does not throw. A form submit is answered on the modal. A button or menu press, and a timeout, edit the original interaction. A text-only replacement does not clear the button row.
+
+A second `reply()` before `wait()` and before that flush still throws. [Replies](/docs/replies) · [Collectors](/docs/collectors).
+
+## ctx.collect vs press
+
+<Explain topic="collect-vs-press">ctx.collect continues this command. press answers later, on its own.</Explain> The collector wins only when the custom id, the kind, and the user all match.
+
+If it does not, Draeven tries the next match in this order: the inline `press` or `submit` remembered on that id, then a `use()` from the events folder, then the text `Received.`. The remembered function wins over `use()` while this process is running. `use()` is what still runs after a restart.
+
+Use `collect` when the same command should continue. Use inline `press` or `submit` for a one-off in this process. Use `use()` when the handler should survive a restart. `link()` and `sku()` have no `press` and never arrive in `collect`. [Collectors](/docs/collectors) · [Press & submit](/docs/press-handlers).
+
+## header: { title }
+
+An embed has no root `title` and no `inline` flag. The title lives on <Explain topic="embed-header">header</Explain>: `header: { title }`. A header needs a title or an image. A `link` on the header needs a title.
+
+Fields share a row until you say otherwise. `breakline` starts the next row. `wide: true` takes that row alone. `inline: true` is a discord.js habit and is not a Draeven field.
+
+```js
+import { breakline, embed } from "@draeven/core";
+
+embed({
+  header: { title: "Bot status" },
+  fields: [
+    { name: "Ping", value: "42ms" },
+    breakline,
+    { name: "Notes", value: "This row is wide.", wide: true },
+  ],
+});
+```
+
+[Embeds & layout](/docs/embeds-layout).
+
+## Compiled JavaScript
+
+`loadCommands` imports `.js` from the commands folder. It skips `.ts`, `.test.js`, names that end with `old.js` (so `fold.js` too), and names that start with a dot. Point `draeven.config.js` at `./dist/commands` after `tsc`, not at `./src/commands`.
+
+A missing folder throws `Cannot read commands folder`. A folder that only has TypeScript loads zero commands, and the next sync clears the commands Discord already had. [Config file](/docs/config) · [Deploy](/docs/deploy).

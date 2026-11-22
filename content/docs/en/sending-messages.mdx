@@ -1,0 +1,68 @@
+---
+title: Sending messages
+description: Post in a channel with bot.send or ctx.send.
+order: 63
+---
+
+`ctx.reply` answers the slash interaction. It can be ephemeral, and it dies with the interaction token. To post in a channel from a timer, a join event, or a command that should also speak in a log channel, use `bot.send` or `ctx.send`.
+
+Both accept a channel id (or `{ id }`) and the same bodies as a reply: a string, `embed()`, `poll()`, `layout()`, a row, or a canvas. Neither can post a `form()`, and neither can be private. A `layout()` still cannot be combined with text, an embed, or a poll on that call. `memberJoin` gives you `member.id` and `member.name`, not `member.user`.
+
+## From Start
+
+```js
+import { Start, embed, intentsFor } from "@draeven/core";
+
+const bot = await Start({
+  token: process.env.DISCORD_TOKEN,
+  intents: intentsFor("memberJoin"),
+  events: {
+    memberJoin: async (member) => {
+      const channelId = process.env.WELCOME_CHANNEL_ID;
+      if (!channelId || !member.id) return;
+      await bot.send(channelId, `Welcome <@${member.id}>.`);
+    },
+  },
+});
+
+await bot.send(
+  process.env.LOG_CHANNEL_ID,
+  embed({ header: { title: "Alert" }, description: "Check #ops" })
+);
+```
+
+Hold the `bot` returned by `Start`. If the handler is created in the same object that is still awaiting assignment, declare `let bot` first so the closure sees it.
+
+## From a command
+
+```js
+import { command, text } from "@draeven/core";
+
+export const say = command(
+  "say",
+  "Post in this channel",
+  { line: text("Text?").required() },
+  async (ctx) => {
+    const channel = ctx.getChannel();
+    if (!channel) return ctx.reply("No channel here.", { private: true });
+    await ctx.send(channel, ctx.line);
+    return ctx.reply("Posted.", { private: true });
+  }
+);
+```
+
+`getChannel()` with no argument is `undefined` only when the interaction has no `channelId`. A DM still has a channel. `getGuild()` and `getMember()` are missing in a DM. Guard `getChannel()` before `send` when it can be missing. `ctx.send` throws under `simulate()`, because there is no REST connection.
+
+<Warn fix="Grant View Channel + Send Messages; never pass private on send()." href="/docs/why-failing">
+Channel messages need View Channel and Send Messages on the bot. `send` does not accept `{ private: true }` — that throws.
+</Warn>
+
+## Pitfalls
+
+- High-volume logs hit Discord's REST limits. `guard({ via: "channel" })` is the supported path for error lines ([Hot-reload & guard](/docs/hot-reload-guard)).
+- `editMessage` changes an existing bot message. `send` always creates a new one.
+- Passing `undefined` as the channel throws. Skip the call when `LOG_CHANNEL_ID` is missing.
+
+## Related
+
+- [Replies](/docs/replies) · [Embeds & layout](/docs/embeds-layout) · [Events & intents](/docs/events-intents)

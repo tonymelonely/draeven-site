@@ -1,0 +1,71 @@
+---
+title: Install
+description: Node 20, the scaffold, and a manual install.
+order: 2
+---
+
+Install Draeven when you are starting a bot or adding the framework to an existing Node project. You need **Node.js 20+** (ESM and `node:fs` watch). A bot token comes later ([Creating an app](/docs/creating-app)).
+
+## Scaffold
+
+`create-draeven` writes `draeven.config.js`, `src/main.ts`, a `ping` command, and the scripts below.
+
+```bash
+npm create draeven@latest -- init my-bot
+cd my-bot
+pnpm install
+pnpm build
+pnpm start
+```
+
+| Script | What it runs |
+|--------|----------------|
+| `pnpm build` | `tsc -p tsconfig.json` |
+| `pnpm start` | build, then `node dist/main.js` |
+| `pnpm watch` | `tsc -w` only |
+| `pnpm dev` | one build, then `tsc -w` plus the bot |
+
+### Owner desk
+
+```bash
+npm create draeven@latest -- init my-bot --with-dashboard
+```
+
+That adds `@draeven/bridge`, `pnpm desk`, and desk env vars. See [Bridge & desk](/docs/bridge-desk).
+
+### Commands folder
+
+```bash
+npm create draeven@latest -- init my-bot --commands ./src/slash
+```
+
+The config still points at the compiled `dist/` mirror of that path. Flags, the file list, and the `init` argument are on [create-draeven CLI](/docs/create-cli).
+
+## Add core yourself
+
+```bash
+pnpm add @draeven/core
+```
+
+You do not install `@draeven/discord` separately. Add `@draeven/bridge` only for the desk.
+
+## Check the version
+
+```bash
+node -e "import('@draeven/core').then(m => console.log('Draeven core', m.version))"
+```
+
+Core **0.1.9** is the version these guides describe. Pin it in production. The API is still beta.
+
+<Warn fix="Point commands (and events) at dist/ after tsc." href="/docs/why-failing">
+`Start()` loads `.js` from the commands folder. Pointing `draeven.config.js` at `./src/commands` before `tsc` fails.
+</Warn>
+
+## Pitfalls
+
+- On Windows, `alone: "ask"` needs a real TTY. In CI set `alone: false` or `alone: true` ([One process](/docs/alone)).
+- Scaffolds are ESM. Do not compile to CommonJS.
+
+## Related
+
+- [Project layout](/docs/project-layout) · [Quickstart](/docs/quickstart)

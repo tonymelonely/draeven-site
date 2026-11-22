@@ -1,0 +1,54 @@
+---
+title: Bekende limieten
+description: Wat deze beta niet voor je oplost.
+order: 90
+---
+
+Draeven 0.1.9 is een beta. Deze grenzen zijn bewust. Eraan stoten is geen ontbrekende import. Het runtime-pad is [Hoe het in elkaar zit](/docs/architecture). De namenkaart vanuit discord.js is [Vanuit discord.js](/docs/from-discordjs). Symptomen opzoeken doe je bij [Problemen oplossen](/docs/troubleshooting).
+
+## Framework
+
+| Limiet | Wat je doet |
+|--------|-------------|
+| Geen discord.js | Importeer geen `EmbedBuilder`, `SlashCommandBuilder` of een discord.js-`Client`. |
+| Node 20+, ESM | CommonJS-output is geen ondersteund doel. |
+| Beta-namen | Pin `@draeven/core`. Een minor kan een metadataveld hernoemen. |
+| Wachttijden in het geheugen | `CooldownBook` wist bij een herstart. Bewaar zelf als je duurzaamheid nodig hebt. |
+| Eén token, één proces | Gebruik `alone` ([Één proces](/docs/alone)). Er is geen ingebouwde shard-manager. |
+| `simulate` is alleen de handler | Gates, wachttijden, `wait` en `collect` hebben het live pad nodig. |
+| Gates op subcommando's | `need` en `cooldown` staan op het parent-commando, niet op `sub()`. |
+| `embed()`, geen `card()` | De publieke API is `embed()` en `reply(embed)`. De interne `Message`-zak bewaart de embed nog op `card`. Gebruik `reply(embed(...))` of `reply({ text, rows })`. Verzin geen `card()`. |
+
+<Note>
+`Message.card` is de oude veldnaam in de antwoordzak. De gidsen leren `embed()` en `reply({ text, rows })`. Er is geen `card()`-helper.
+</Note>
+
+## Discord
+
+| Limiet | Detail |
+|--------|--------|
+| Globale commandosync | Vaak tot een uur. Gebruik `guildId` tijdens het bewerken ([App aanmaken](/docs/creating-app)). |
+| Interactie bevestigen | Ongeveer 3 seconden. Auto-defer draait na 2 seconden, tenzij `autoDefer: false`. |
+| Automatisch aanvullen | 25 keuzes, waarden hoogstens 100 tekens, en de handler moet snel blijven. |
+| Peilingen | Vraag hoogstens 300, elk antwoord hoogstens 55, 2–10 antwoorden, `hours` 1–768. |
+| `purge` | Geheel aantal van 2 tot 100. |
+| `editMessage` | 1–2000 tekens, berichten die de bot maakte. |
+| Optiebudget | 25 opties op een commando, inclusief de subcommando-boom. |
+| Embedtekst | Header hoogstens 256, description hoogstens 4096, field-naam hoogstens 256, field-waarde hoogstens 1024, 25 fields, 6000 tekens over de embed. |
+| `layout()` | 1–40 onderdelen. Deelt geen antwoord met tekst, een embed, een afbeelding of een peiling. |
+
+## Product
+
+De owner-desk bestuurt de deployment die jij draait. Hij host geen multi-tenant dashboard voor andere communities ([Bridge en desk](/docs/bridge-desk)).
+
+<Note>
+Als een aanroep gooit, begint het bericht met `[Draeven]` en noemt het de regel (poll-uren, optienaam, ontbrekend token). Lees die zin vóór je een wrapper toevoegt.
+</Note>
+
+## Als het nog faalt
+
+Noteer de commandonaam, de `[Draeven]`-tekst, de Node-versie, en `version` uit `@draeven/core`. Open daarna [Terugkoppeling](/docs/feedback).
+
+## Verder
+
+- [Welkom](/docs/welcome) · [Antwoorden](/docs/replies) · [Terugkoppeling](/docs/feedback)

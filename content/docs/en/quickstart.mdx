@@ -1,0 +1,87 @@
+---
+title: Quickstart
+description: A bot that answers /ping.
+order: 5
+---
+
+This page gets a scaffolded bot online and adds one command with an option. Do this after you have a token and, for fast updates, a guild id ([Creating an app](/docs/creating-app)).
+
+## Run the scaffold
+
+```bash
+npm create draeven@latest -- init my-bot
+cd my-bot
+cp .env.example .env
+# DISCORD_TOKEN=...
+# DISCORD_GUILD_ID=...
+pnpm install
+pnpm start
+```
+
+In Discord, run **/ping**. The sample command replies `pong`.
+
+`pnpm start` runs `tsc`, then `node dist/main.js`. `src/main.ts` calls `Start()`. `draeven.config.js` points at `./dist/commands`.
+
+## Minimal Start
+
+```js
+import { Start, intentsFor } from "@draeven/core";
+
+const bot = await Start({
+  token: process.env.DISCORD_TOKEN,
+  watch: true,
+  guildId: process.env.DISCORD_GUILD_ID,
+  intents: intentsFor("ready"),
+  presence: {
+    status: "online",
+    activity: { kind: "watching", text: "slash commands" },
+  },
+});
+
+console.log(`Ready — ${bot.commands.length} command(s) loaded.`);
+```
+
+`watch: true` reloads the commands folder when `dist/` changes. `watch: true` with an in-memory `commands: [...]` throws `[Draeven] watch: true needs commands from a folder path or draeven.config.`
+
+## Development loop
+
+```bash
+pnpm dev
+```
+
+That builds once, then runs `tsc -w` beside the bot. Edit `src/commands`, save, and the new `.js` is picked up while the gateway stays up ([Hot-reload & guard](/docs/hot-reload-guard)).
+
+## A command with an option
+
+```js
+import { command, text } from "@draeven/core";
+
+export const echo = command(
+  "echo",
+  "Repeat your text",
+  { line: text("Say what?").required() },
+  async (ctx) => ctx.reply(ctx.line)
+);
+```
+
+Put the file in `src/commands`, let the watcher compile it, and run `/echo` in the guild you registered.
+
+<Tip>
+`text()` is optional until you call `.required()`. The question string is the description Discord shows (1–100 characters). The object key `line` is the name you read as `ctx.line`.
+</Tip>
+
+## Before you share the bot
+
+- Token only in `.env`.
+- `guildId` set while you are still editing commands.
+- Intents matched to any [events](/docs/events-intents) you add.
+- `need` or `cooldown` on anything destructive ([Permissions](/docs/permissions), [Cooldowns](/docs/cooldowns)).
+
+## Pitfalls
+
+- `/ping` missing after a restart usually means the guild id changed, or you registered globally and Discord has not propagated yet.
+- A command name must match `^[a-z0-9-]{1,32}$`. `Echo` and spaces are rejected at registration.
+
+## Related
+
+- [Commands](/docs/commands) · [Options](/docs/options) · [Project layout](/docs/project-layout)

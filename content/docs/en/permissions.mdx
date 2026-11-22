@@ -1,0 +1,72 @@
+---
+title: Permissions & gates
+description: Registration permissions, need, ownerOnly, and when.
+order: 25
+---
+
+**Registration** hides the command in Discord’s picker. **Gates** (`ownerOnly` → `need` → `when`) block `run` inside your process.
+
+<WhenToUse topic="permissions" />
+
+## need
+
+`need` is one `PermissionName`, a list (all required), or a raw bitfield (`string` or `bigint`). Names match Discord's PascalCase flags, including `BanMembers`, `KickMembers`, `ModerateMembers`, `ManageMessages`, `ManageGuild`, and `SendPolls`.
+
+```js
+import { command, user } from "@draeven/core";
+
+export const ban = command(
+  "ban",
+  "Ban a member",
+  { who: user("Who?").required() },
+  async (ctx) => {
+    await ctx.ban(ctx.who, { reason: "Moderation" });
+    return ctx.reply(`Banned ${ctx.who.name}.`);
+  },
+  { need: "BanMembers" }
+);
+```
+
+The bitfield is the member's permissions in the channel, as Discord put them on the interaction. Draeven does not recompute role hierarchy.
+
+## ownerOnly
+
+`ownerOnly: true` allows only the **server owner** (`author.id` must equal the guild owner id). The framework string is "Only the server owner can use this." It is not the Discord application owner. In a DM there is no owner id, so the gate fails.
+
+## when
+
+`when(ctx)` returns `false` to block. `ctx` here is a gate context: `author`, `locale`, and the lookups. It is not the full command `ctx` (no `reply` yet — the handler has not started). `getChannel()` is always `undefined` here. The dispatcher does not pass a channel. `getGuild()` works when the interaction has a guild.
+
+```js
+{
+  need: "ManageMessages",
+  when: (ctx) => ctx.getGuild()?.id === "123456789012345678",
+}
+```
+
+Use `when` for "this guild only" or "not in a DM" (`Boolean(ctx.getGuild())`). Use `need` for permission bits.
+
+## Registration fields
+
+| Field | Effect |
+|-------|--------|
+| `permissions` | Default member permissions stored on the command. Same name type as `need`. |
+| `places` | `"guild"`, `"bot dm"`, `"private"`. |
+| `install` | `"guild"` or `"user"` install context. |
+| `nsfw` | Command only in age-restricted channels. |
+
+`permissions` does not replace `need`. Discord can still deliver the interaction if an admin overrides the default. `need` is the check you control.
+
+<Tip>
+Subcommands cannot carry their own `need`. Put the gate on the parent `command()`. If two leaves need different bits, make two commands ([Subcommands](/docs/subcommands)).
+</Tip>
+
+## Pitfalls
+
+- `Administrator` passes `hasPermissions` and `need`. Draeven treats the Administrator bit (`1 << 3`) as every permission.
+- The auto-defer timer starts after the gates. A slow `when()` is not deferred. Keep the gate fast, or the interaction can expire before the handler starts ([Replies](/docs/replies)).
+- `hasPermissions(have, need)` is exported if you compare bitfields yourself. The command path already calls it for `need`.
+
+## Related
+
+- [Commands](/docs/commands) · [Cooldowns](/docs/cooldowns) · [Moderation actions](/docs/mod-actions)

@@ -1,0 +1,98 @@
+---
+title: create-draeven CLI
+description: draeven init, de bestanden die het schrijft, en de dashboard-scripts.
+order: 3
+---
+
+`create-draeven` zet een bot neer: config, TypeScript, commando's, een events-map en de scripts die compileren en starten. Je hebt **Node.js 20+** nodig. De bins zijn `create-draeven` en `draeven`. Beide draaien dezelfde CLI.
+
+Het enige commando is `init`. Een mapnaam is optioneel. De vlaggen zijn `--commands`, `--events` en `--with-dashboard`.
+
+<Note>Afgestemd op @draeven/core **0.1.9**. Veldnamen op deze pagina horen bij die release.</Note>
+
+## Aanroepen
+
+`npm create draeven@latest` zonder extra argumenten draait `init` in de huidige map.
+
+```bash
+npm create draeven@latest -- init my-bot
+cd my-bot
+pnpm install
+pnpm start
+```
+
+`npm create` geeft argumenten door aan de bin. Het eerste argument moet `init` zijn. Zet `--` vóór `init` als je ook vlaggen meegeeft, anders eet npm ze op.
+
+```bash
+npm create draeven@latest -- init my-bot --commands ./src/slash --events ./src/events --with-dashboard
+```
+
+Dezelfde regel als het pakket geïnstalleerd is:
+
+```bash
+draeven init my-bot --commands ./src/slash --events ./src/events --with-dashboard
+```
+
+Alles behalve `init` print de usage-regel en stopt. `draeven init` zonder map schrijft in de huidige map.
+
+## Bestanden
+
+Het maakt de map, `src/`, de commandomap en de events-map. Een bestand dat er al staat wordt **niet** overschreven.
+
+| Bestand | Rol |
+|---------|-----|
+| `draeven.config.js` | `commands` en `events` wijzen naar gecompileerde output. Zie [Configbestand](/docs/config). |
+| `package.json` | ESM, `@draeven/core` `^0.1.9`, de scripts hieronder. |
+| `tsconfig.json` | `NodeNext`, `strict`, `outDir: "dist"`, `rootDir: "src"`. |
+| `.gitignore` | `node_modules/`, `dist/`, `.env`, `.draeven.pid`, `.draeven/`. |
+| `.env.example` | `DISCORD_TOKEN`. Dashboard-modus voegt OAuth- en bridge-variabelen toe. |
+| `README.md` | Kopieer `.env`, installeer, start. |
+| `src/main.ts` | `Start({ watch: true, intents: intentsFor("ready") })`. `events` staat er niet, dus de configmap laadt. |
+| `src/commands/ping.ts` | Een `command("ping")` dat `pong` antwoordt. De map volgt `--commands`. |
+| `src/commands/later.ts` | Een knop met inline `press`. Prima voor een kort antwoord. |
+| `src/commands/letters.ts` | Plaatst letterknoppen. Geen `press`. |
+| `src/events/ready.ts` | `export function ready`. De map volgt `--events`. |
+| `src/events/letters.ts` | `use({ ids: "hangman_*", run })` bezit die letterknoppen. |
+| `scripts/dev.mjs` | Eén `pnpm build`, daarna `tsc -w` en `node dist/main.js`. |
+| `src/desk-main.ts` | Alleen met `--with-dashboard`. UI-proces voor `pnpm desk`. |
+
+Dev-dependencies in `package.json` zijn `typescript` `^5.9` en `@types/node` `^22`.
+
+## Scripts
+
+| Script | Wat het draait |
+|--------|----------------|
+| `pnpm build` | `tsc -p tsconfig.json` |
+| `pnpm start` | build, daarna `node dist/main.js` |
+| `pnpm watch` | alleen `tsc -w` |
+| `pnpm dev` | `node scripts/dev.mjs` |
+| `pnpm desk` | build, daarna `node dist/desk-main.js` (alleen dashboard-scaffold) |
+| `pnpm dev:desk` | hetzelfde als `desk` |
+
+`--with-dashboard` voegt ook `@draeven/bridge` `^0.1.0` toe. De gegenereerde `main.ts` leest `DASHBOARD`: `embedded` (standaard) start bot en UI, `bridge` start alleen de API, `off` is alleen de bot, en `desk` gooit en zegt dat je `pnpm desk` moet draaien. Variabelen en modi staan bij [Bridge en desk](/docs/bridge-desk).
+
+## Waar commando's landen
+
+`--commands` is standaard `./src/commands`. De config bewaart dat bronpad niet. Hij bewaart de gecompileerde spiegel:
+
+| Je geeft mee | `draeven.config.js` krijgt |
+|--------------|------------------------------|
+| `./src/commands` (standaard) | `./dist/commands` |
+| `./src/slash` | `./dist/slash` |
+| `src/slash` | `./dist/slash` |
+| een pad dat al `dist` bevat | dat pad, ongewijzigd |
+| iets anders, zoals `./lib/commands` | `./dist/commands` |
+
+`--events` is standaard `./src/events` en volgt dezelfde regels voor het gecompileerde pad (`./src/events` wordt `./dist/events`).
+
+`src/main.ts` zet `watch` aan en laat `events` weg, zodat `pnpm dev` gecompileerde commando's en de events-map uit de config herlaadt zonder de gateway te sluiten ([Installatie](/docs/install)). `later.ts` houdt een inline `press`. `letters.ts` plaatst knoppen, en `events/letters.ts` beantwoordt ze met `use()`.
+
+<Note>
+Init vult gaten. Het voegt `@draeven/bridge` niet toe aan een `package.json` die al bestaat, en het herschrijft `src/main.ts` niet. Maak een nieuwe map als je de dashboard-bestanden wilt.
+</Note>
+
+## Valkuilen
+
+- `npm create draeven@latest my-bot` is geen `init`. De CLI stopt met de usage-regel. Geef eerst `init` mee.
+- Een commandopad buiten `src/` en `dist/` configureert toch `./dist/commands`. Geef `./src/...` mee als de bronmap afwijkt. `--events` gebruikt dezelfde terugval.
+- De scaffold is ESM. Node 20 is de ondergrens in `engines`. Compileer hem niet naar CommonJS.

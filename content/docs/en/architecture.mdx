@@ -1,0 +1,61 @@
+---
+title: How it fits
+description: The path from Start() to a reply, a press, or a gateway event.
+order: 11
+---
+
+One `Start()` owns the process. Slash commands take the left branch. Gateway events take the right branch. A command handler sees `ctx`. An event handler sees the payload for that event.
+
+<FlowDiagram id="architecture" />
+
+| Stage | What it hands off |
+|-------|-------------------|
+| `Start()` | Loaded commands, the gateway, and the running handle |
+| `loadCommands` / `loadEvents` | Compiled `.js` turned into commands and event handlers |
+| Discord registers slash | The application command list for that guild, or global |
+| Interaction arrives | One `ctx` for this slash command or menu |
+| Gates / cooldown | A pass into the handler, or a framework reply that stops there |
+| Handler | Your `run` function |
+| `reply` / `edit` / `wait` / `collect` | The acknowledgement, and a waiter on this same command |
+| `press` / `submit` | A later click or modal, when nothing is collecting that id |
+| Gateway events | `intentsFor` bits, then `onEvent` or the events folder |
+
+## Start()
+
+`Start()` opens the gateway, reads commands, and starts answering interactions. `token` is required. `guildId`, `watch`, `autoDefer`, `alone`, and `intents` are the options that change this path ([Start options](/docs/start-options)).
+
+## loadCommands / loadEvents
+
+`loadCommands()` imports compiled `.js` from the commands folder (or uses the array you passed). `loadEvents()` imports a folder whose export names are event names, and every `use()` in those files. `watch: true` with an in-memory array throws. There is no folder ([Commands](/docs/commands), [Events & intents](/docs/events-intents)).
+
+## Discord registers slash
+
+Draeven sends that command list to Discord. With a `guildId`, the guild shows new commands within seconds. With no guild id, Discord registers them globally, and that sync can take up to an hour ([Start options](/docs/start-options)).
+
+## Interaction arrives
+
+A person runs the slash command or a context menu. Discord delivers one interaction, and the handler receives one `ctx` with options, lookups, and reply methods ([Commands](/docs/commands)).
+
+## Cooldown and gates
+
+The cooldown book runs first. `take()` stores the window before the gates, so a failed gate still consumed the cooldown. If the key is still cooling, the user gets `frame("cooldown", …)` and `run` is skipped. Otherwise the gates run in order: `ownerOnly`, then `need`, then `when`. A failed gate answers with `frame("need" | "owner" | "when", …)` and skips `run` ([Permissions & gates](/docs/permissions), [Cooldowns](/docs/cooldowns)).
+
+## Handler
+
+The function on `command()`, `userMenu()`, or `messageMenu()` runs here. It reads `ctx` and answers on that same interaction ([Commands](/docs/commands)).
+
+## reply, edit, wait, collect
+
+A second `reply()` throws only when a reply is already stored and you have neither waited nor flushed a collect. `wait` defers. After that, `edit()` or another `reply()` fills the message. `collect` stays inside this command until a button, menu, or form arrives, or the wait times out ([Replies](/docs/replies), [Collectors](/docs/collectors)).
+
+## press / submit
+
+A matching `collect` runs first. Otherwise Draeven uses the inline `press` or `submit` remembered on that id, then a `use()` from the events folder, then the text `Received.`. The handler replies on its own context ([Press & submit](/docs/press-handlers)).
+
+## Gateway events
+
+Joins, messages, and reactions are gateway dispatches, separate from the slash path. `intentsFor` turns the event names into the bitmask Discord requires. `bot.onEvent`, or a function exported from the events folder, receives the payload ([Events & intents](/docs/events-intents), [Bot handle](/docs/bot-handle)).
+
+<Tip>
+When a stage fails, start at [Troubleshooting](/docs/troubleshooting). Working shapes for the handler branch are on [Recipes](/docs/recipes).
+</Tip>

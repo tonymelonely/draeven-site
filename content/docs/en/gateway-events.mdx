@@ -1,0 +1,75 @@
+---
+title: Gateway event payloads
+description: Every GatewayEventName and the object your handler receives.
+order: 61
+---
+
+`Start` and `bot.onEvent` hand you a Draeven object, not Discord's raw dispatch. Names are camelCase. The `t` value below is the gateway event `gatewayEventReaders` matches. Pass the same names to `intentsFor` ([Events & intents](/docs/events-intents)). The types are exported from `@draeven/core` and from [`@draeven/discord`](/docs/discord-client).
+
+A handler that throws is reported by the guard when `of` includes `"events"`. A payload Draeven cannot read is dropped, and the handler does not run.
+
+<Note>Aligned with @draeven/core **0.1.9**. Field names on this page match that release.</Note>
+
+## Payloads
+
+| Event | Payload | Discord `t` |
+|-------|---------|----------------|
+| `ready` | `GatewayReady`: `user` (`id`, `name`, `bot`, optional `icon`), `guildIds` | `READY` |
+| `resumed` | empty object | `RESUMED` |
+| `guildJoin`, `guildLeave`, `guildUpdate` | `GatewayGuild`: `id`, optional `name`, optional `unavailable` | `GUILD_CREATE`, `GUILD_DELETE`, `GUILD_UPDATE` |
+| `channelCreate`, `channelUpdate`, `channelDelete` | `GatewayChannel`: `id`, optional `guildId`, `name`, `type`, `parentId` | `CHANNEL_CREATE`, `CHANNEL_UPDATE`, `CHANNEL_DELETE` |
+| `threadCreate`, `threadUpdate`, `threadDelete` | same `GatewayChannel` shape | `THREAD_CREATE`, `THREAD_UPDATE`, `THREAD_DELETE` |
+| `roleCreate`, `roleUpdate` | `GatewayRole`: `id`, `guildId`, `name`, optional `color`, optional `position` | `GUILD_ROLE_CREATE`, `GUILD_ROLE_UPDATE` |
+| `roleDelete` | `GatewayRole` with `id`, `guildId`, and `name: ""` | `GUILD_ROLE_DELETE` |
+| `memberJoin`, `memberUpdate` | `GatewayMember`: `id`, `name`, `bot`, `guildId`, optional `nick`, `joinedAt`, `icon`, `roleIds` | `GUILD_MEMBER_ADD`, `GUILD_MEMBER_UPDATE` |
+| `memberLeave` | `GatewayMember` with `id`, `name`, `bot`, `guildId`, optional `icon`. No nick, join time, or roles. | `GUILD_MEMBER_REMOVE` |
+| `memberBan`, `memberUnban` | `GatewayBan`: `guildId`, `user` (`id`, `name`, `bot`, optional `icon`) | `GUILD_BAN_ADD`, `GUILD_BAN_REMOVE` |
+| `message`, `messageEdit` | `GatewayMessage`: `id`, `channelId`, optional `guildId`, `content`, `author` (`id`, `name`, `bot`, optional `icon`) | `MESSAGE_CREATE`, `MESSAGE_UPDATE` |
+| `messageDelete` | `GatewayMessageDelete`: `id`, `channelId`, optional `guildId` | `MESSAGE_DELETE` |
+| `messageBulkDelete` | `GatewayMessageBulkDelete`: `ids`, `channelId`, optional `guildId` | `MESSAGE_DELETE_BULK` |
+| `reactionAdd`, `reactionRemove` | `GatewayReaction`: `messageId`, `channelId`, optional `guildId`, `userId`, `emoji` (`id?`, `name?`) | `MESSAGE_REACTION_ADD`, `MESSAGE_REACTION_REMOVE` |
+| `reactionClear` | `GatewayReactionClear`: `messageId`, `channelId`, optional `guildId` | `MESSAGE_REACTION_REMOVE_ALL` |
+| `reactionClearEmoji` | that clear shape plus `emoji` | `MESSAGE_REACTION_REMOVE_EMOJI` |
+| `voiceUpdate` | `GatewayVoice`: `guildId`, `userId`, optional `channelId`, `sessionId`, `deaf`, `mute`, `selfDeaf`, `selfMute` | `VOICE_STATE_UPDATE` |
+| `inviteCreate`, `inviteDelete` | `GatewayInvite`: `code`, optional `guildId`, optional `channelId` | `INVITE_CREATE`, `INVITE_DELETE` |
+| `typing` | `GatewayTyping`: `channelId`, `userId`, optional `guildId` | `TYPING_START` |
+| `presenceUpdate` | `GatewayPresence`: `userId`, optional `guildId`, optional `status` | `PRESENCE_UPDATE` |
+| `scheduleCreate`, `scheduleUpdate`, `scheduleDelete` | `GatewaySchedule`: `id`, `guildId`, optional `name`, optional `status` | `GUILD_SCHEDULED_EVENT_CREATE`, `GUILD_SCHEDULED_EVENT_UPDATE`, `GUILD_SCHEDULED_EVENT_DELETE` |
+| `pollVoteAdd`, `pollVoteRemove` | `GatewayPollVote`: `userId`, `channelId`, `messageId`, optional `guildId`, `answerId` | `MESSAGE_POLL_VOTE_ADD`, `MESSAGE_POLL_VOTE_REMOVE` |
+
+There is no nested `user` on a member. `author.name` is the profile name, not `username`. `joinedAt` is a `Date` when Discord sent `joined_at`.
+
+## Example
+
+```js
+import { Start, intentsFor } from "@draeven/core";
+
+await Start({
+  token: process.env.DISCORD_TOKEN,
+  intents: intentsFor("message", "reactionAdd", "voiceUpdate"),
+  events: {
+    message: (msg) => {
+      console.log(msg.author.name, msg.channelId, msg.content);
+    },
+    reactionAdd: (reaction) => {
+      console.log(reaction.emoji.name, reaction.userId);
+    },
+    voiceUpdate: (voice) => {
+      console.log(voice.userId, voice.channelId ?? "left");
+    },
+  },
+});
+```
+
+`gatewayEventNames` is the full list, in the same order as the reader map. `intentsFor()` with no names throws. An unknown name throws `[Draeven Discord] Unknown event …`.
+
+<Note>
+`ready` and `resumed` need no intent bits. `memberJoin`, `message` (content), and `presenceUpdate` need privileged intents toggled in the portal. `intentsFor` includes those bits; the portal still has to allow them.
+</Note>
+
+## Pitfalls
+
+- `roleDelete` does not include the role name. Discord's delete payload only has the role id, so `name` is an empty string.
+- `memberLeave` is thinner than `memberJoin`. Do not read `nick` or `roleIds` off a leave.
+- `message.content` is empty when the Message Content intent is off. The handler still runs.
+- `voiceUpdate` with no `channelId` is a user leaving voice. The other flags are only set when Discord sent them.

@@ -1,0 +1,121 @@
+---
+title: Verzamelaars
+description: Wachten op een knop, menu of formulier via ctx.
+order: 43
+---
+
+`ctx.collect` wacht op een klik of formulier op wat je net toonde. Methode op `ctx`, geen import.
+
+<InteractChoice />
+<WhenToUse topic="collectors" />
+<DocTour id="collect" />
+
+Geen waiter → `PressContext` / `use()` ([Press & submit](/docs/press-handlers)). Timeout → `undefined`. Wijzig met `ctx.edit` (geen `.update`).
+
+<DocMedia id="collectors" />
+
+## Knoppen
+
+```js
+import { command, button, row } from "@draeven/core";
+
+export const confirm = command("confirm", "Ja of nee", async (ctx) => {
+  await ctx.wait();
+  await ctx.edit({
+    text: "Kies.",
+    rows: [
+      row(
+        button({ id: "yes", label: "Ja", color: "green" }),
+        button({ id: "no", label: "Nee", color: "red" })
+      ),
+    ],
+  });
+
+  const pick = await ctx.collect({ ids: ["yes", "no"], seconds: 30 });
+  if (!pick) return ctx.edit("Timeout.");
+  return ctx.edit(`Gekozen: ${pick.id}`);
+});
+```
+
+Knopkleuren zijn `blurple` (standaard), `grey`, `green` en `red`. `row()` houdt hoogstens vijf `button()`, `link()` of `sku()`-stukken. Een selectie-`menu()`, en de kiezers `people()`, `roles()`, `channels()` en `mentions()`, nemen elk de rij alleen.
+
+## Keuzemenu
+
+```js
+import { command, menu, row } from "@draeven/core";
+
+export const pick = command("pick", "Kies een tool", async (ctx) => {
+  await ctx.reply({
+    text: "Tool?",
+    rows: [
+      row(
+        menu({
+          id: "tool",
+          placeholder: "Kies",
+          choices: [
+            { label: "ESLint", value: "eslint" },
+            { label: "Vitest", value: "vitest" },
+          ],
+        })
+      ),
+    ],
+  });
+
+  const chosen = await ctx.collect({ ids: "tool", seconds: 30 });
+  return ctx.reply(chosen?.values[0] ?? "Timeout.");
+});
+```
+
+`Collected.values` is leeg bij een gewone knop. Bij een menu bevat het de gekozen waarden.
+
+## Formulieren
+
+Een formulier is het **hele** eerste antwoord. Roep niet eerst `wait()` aan — een defer verbruikt de interactie en de modal kan niet openen.
+
+```js
+import { command, form, fieldStyles } from "@draeven/core";
+
+export const ask = command("ask", "Vraag om een notitie", async (ctx) => {
+  ctx.reply(
+    form({
+      id: "ask-form",
+      title: "Details",
+      fields: [
+        { id: "note", label: "Notitie", style: fieldStyles.long, required: true },
+      ],
+    })
+  );
+
+  const submitted = await ctx.collect({ ids: "ask-form", kind: "submit", seconds: 120 });
+  if (!submitted) return ctx.reply("Timeout.");
+  return ctx.reply(submitted.fields.note);
+});
+```
+
+Een submit beantwoordt de modal. Een timeout bewerkt de oorspronkelijke interactie. Lees `submitted?.fields` niet als de wachttijd `undefined` teruggaf.
+
+`fieldStyles.short` is één regel (de standaard). `fieldStyles.long` is een alinea. Een formuliertitel is 1–45 tekens, met 1–5 velden. Veld-ids moeten uniek zijn en mogen de formulier-id niet herhalen.
+
+## Opties
+
+| Veld | Betekenis |
+|------|-----------|
+| `ids` | Custom id of lijst. Verplicht. Minstens één. |
+| `seconds` | Timeout in seconden. Standaard **60**. `0`, een negatief getal of een niet-eindige waarde gooit. |
+| `who` | Wie mag antwoorden. Standaard de auteur van het commando. `false` laat iedereen toe. Een user-id of `{ id }` beperkt tot die gebruiker. |
+| `kind` | `"press"`, `"submit"` of `"any"` (standaard). |
+
+<Warn fix="Roep reply() of wait() aan vóór collect()." href="/docs/why-failing">
+`collect` gooit als je nog niet hebt geantwoord of gewacht, en als de verbinding niet kan verzamelen (ook `simulate()`).
+</Warn>
+
+## Valkuilen
+
+- Rond één `collect` af of laat hem timen voordat je een volgende start in dezelfde flow. Overlappende wachters zijn lastig te matchen.
+- Custom ids op één bericht moeten uniek zijn. Draeven gooit bij het bouwen van de rij als een knop-id terugkomt.
+- De verzamelaar wint alleen als id, soort en wie alle drie kloppen. Een andere gebruiker of een andere soort draait `press` nog steeds.
+- Na een timeout blijven de knoppen staan. Een bewerking die alleen tekst is, houdt de rij. `rows: []` valt weg. `remove()` verwijdert het antwoord.
+
+## Verder
+
+- [Knoppen, menu's & formulieren](/docs/pieces) · [Antwoorden](/docs/replies) · [Embeds en layout](/docs/embeds-layout) · [Recepten](/docs/recipes)

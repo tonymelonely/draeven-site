@@ -1,0 +1,73 @@
+---
+title: Polls
+description: Native Discord polls from poll().
+order: 47
+---
+
+A poll is a native Discord poll attached to a message. Build it with `poll({ question, answers, hours?, multi? })` and pass it to `ctx.reply`, `followup`, or `bot.send` the same way you pass an embed. Use a poll when you want Discord to count votes. Use buttons plus `ctx.collect` when the bot must react to a single click.
+
+```js
+import { command, poll } from "@draeven/core";
+
+export const ship = command("ship", "Ask the community", async (ctx) =>
+  ctx.reply(
+    poll({
+      question: "Ship it?",
+      answers: ["Yes", "Not yet"],
+      hours: 24,
+    })
+  )
+);
+```
+
+## Answers
+
+Each answer is a string or `{ text, emoji? }`. Text is 1–55 characters. You need **2–10** answers. The question is 1–300 characters.
+
+```js
+poll({
+  question: "Pick tools",
+  answers: [
+    { text: "ESLint", emoji: "✅" },
+    { text: "Vitest", emoji: "🧪" },
+  ],
+  multi: true,
+  hours: 48,
+});
+```
+
+`multi: true` allows more than one answer. It defaults to false. `hours` defaults to **24**, must be an integer, and must be **1–768** (32 days).
+
+## Votes after the message exists
+
+`poll()` does not return the tally. Listen on the gateway:
+
+```js
+import { Start, intentsFor } from "@draeven/core";
+
+await Start({
+  token: process.env.DISCORD_TOKEN,
+  intents: intentsFor("pollVoteAdd", "pollVoteRemove"),
+  events: {
+    pollVoteAdd: (vote) => console.log("add", vote),
+    pollVoteRemove: (vote) => console.log("remove", vote),
+  },
+});
+```
+
+`intentsFor` adds `guildMessagePolls` and `directMessagePolls`. Those are not privileged portal toggles.
+
+<Tip>
+Discord still requires the bot to be allowed to send polls in that channel. Gate the command with `need: "SendPolls"` when only some members should open one.
+</Tip>
+
+## Pitfalls
+
+- A poll is the whole reply. Do not also pass text, an embed, rows, a picture, or a `layout()` on the same `reply`.
+- `{ private: true }` on a poll throws `A poll cannot be private.`
+- `hours: 24.5` throws. Pass an integer.
+- One answer, or eleven, throws at `poll()` time — not later from Discord.
+
+## Related
+
+- [Replies](/docs/replies) · [Events & intents](/docs/events-intents) · [Embeds & layout](/docs/embeds-layout)

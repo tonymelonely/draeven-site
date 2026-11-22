@@ -1,0 +1,43 @@
+---
+title: Terugkoppeling
+description: Hoe je een onduidelijke gids of een echte bug meldt.
+order: 92
+---
+
+De gidsen en de core-API bewegen nog. Een korte melding is nuttiger dan een lange als hij het commando en de exacte fouttekst bevat.
+
+## Op deze site
+
+1. Open **[Terugkoppeling](/feedback)**.
+2. Laat een sterrenbeoordeling en een notitie achter.
+3. Log in met Discord, of blijf anoniem.
+
+Gebruik dat formulier als een pagina niet klopt, een voorbeeld faalde, of je niet ziet welke helper je moet aanroepen.
+
+## Een bug die nagebouwd moet worden
+
+Zet er het commando bij, wat je verwachtte, de `[Draeven]`-regel die je kreeg, core `0.1.9` (of wat `version` afdrukt), je Node-versie, en of het een guild of een DM was.
+
+```bash
+node -e "import('@draeven/core').then(m => console.log(m.version))"
+```
+
+Plak het kleinste `command()` dat faalt. Haal tokens weg. Als de fout een portalinstelling is (privileged intent uit, `applications.commands` ontbreekt), zeg welke schakelaar je controleerde.
+
+<Tip>
+Lees eerst [Bekende limieten](/docs/known-limits). Vertraging van globale commando's, de bevestiging van 3 seconden, en wachttijden in het geheugen staan daar al.
+</Tip>
+
+## Docs wijzigen
+
+De bron van de gidsen is `scripts/docs-catalog.mjs` (Engelse en Nederlandse `body`-strings). Genereer de sitebestanden opnieuw met:
+
+```bash
+node scripts/write-docs.mjs
+```
+
+De embedpagina draagt ook `<Explain>`-markeringen. Nadat je `content/docs/*/embeds-layout.mdx` met de hand bewerkt, draai je `node scripts/sync-embeds-to-catalog.mjs` zodat de volgende `write-docs` die markeringen houdt.
+
+## Verder
+
+- [Welkom](/docs/welcome) · [Bekende limieten](/docs/known-limits)

@@ -1,0 +1,87 @@
+---
+title: Snelstart
+description: Een bot die /ping beantwoordt.
+order: 5
+---
+
+Deze pagina zet een scaffold-bot online en voegt één commando met een optie toe. Doe dit nadat je een token hebt en, voor snelle updates, een guild-id ([App aanmaken](/docs/creating-app)).
+
+## Scaffold draaien
+
+```bash
+npm create draeven@latest -- init my-bot
+cd my-bot
+cp .env.example .env
+# DISCORD_TOKEN=...
+# DISCORD_GUILD_ID=...
+pnpm install
+pnpm start
+```
+
+Voer in Discord **/ping** uit. Het voorbeeldantwoord is `pong`.
+
+`pnpm start` draait `tsc` en daarna `node dist/main.js`. `src/main.ts` roept `Start()` aan. `draeven.config.js` wijst naar `./dist/commands`.
+
+## Minimale Start
+
+```js
+import { Start, intentsFor } from "@draeven/core";
+
+const bot = await Start({
+  token: process.env.DISCORD_TOKEN,
+  watch: true,
+  guildId: process.env.DISCORD_GUILD_ID,
+  intents: intentsFor("ready"),
+  presence: {
+    status: "online",
+    activity: { kind: "watching", text: "slash commands" },
+  },
+});
+
+console.log(`Klaar — ${bot.commands.length} commando('s) geladen.`);
+```
+
+`watch: true` herlaadt de commando-map als `dist/` verandert. `watch: true` met een array `commands: [...]` in het geheugen gooit `[Draeven] watch: true needs commands from a folder path or draeven.config.`
+
+## Ontwikkel-loop
+
+```bash
+pnpm dev
+```
+
+Dat bouwt één keer en draait daarna `tsc -w` naast de bot. Bewerk `src/commands`, sla op, en de nieuwe `.js` wordt opgepakt terwijl de gateway open blijft ([Hot-reload en guard](/docs/hot-reload-guard)).
+
+## Een commando met een optie
+
+```js
+import { command, text } from "@draeven/core";
+
+export const echo = command(
+  "echo",
+  "Herhaal je tekst",
+  { line: text("Wat zeg je?").required() },
+  async (ctx) => ctx.reply(ctx.line)
+);
+```
+
+Zet het bestand in `src/commands`, laat de watcher compileren, en voer `/echo` uit in de guild waarop je registreerde.
+
+<Tip>
+`text()` is optioneel tot je `.required()` aanroept. De vraag is de beschrijving die Discord toont (1–100 tekens). De sleutel `line` is de naam die je als `ctx.line` leest.
+</Tip>
+
+## Voordat je de bot deelt
+
+- Token alleen in `.env`.
+- `guildId` aan zolang je commando's nog wijzigt.
+- Intents gelijk aan de [events](/docs/events-intents) die je toevoegt.
+- `need` of `cooldown` op alles wat schade kan doen ([Rechten](/docs/permissions), [Wachttijden](/docs/cooldowns)).
+
+## Valkuilen
+
+- `/ping` ontbreekt na een herstart meestal omdat de guild-id veranderde, of omdat je globaal registreerde en Discord nog niet heeft doorgevoerd.
+- Een commandonaam moet `^[a-z0-9-]{1,32}$` zijn. `Echo` en spaties worden bij registratie geweigerd.
+
+## Verder
+
+- [Commando's](/docs/commands) · [Opties](/docs/options) · [Projectstructuur](/docs/project-layout)

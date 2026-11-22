@@ -1,0 +1,51 @@
+---
+title: SKU-knoppen
+description: Een Discord-koopknop voor een premium-SKU.
+order: 42
+---
+
+<Explain topic="sku-button">`sku({ id })`</Explain> is een koopknop voor een Discord-SKU. Je zet hem op een antwoord. Discord opent de checkout als iemand klikt. Je handler draait niet voor die klik, en `ctx.collect` ziet hem nooit. Er is geen `press`.
+
+`id` is de SKU-id uit het Developer Portal, geen eigen component-id. Draeven controleert de vorm van die id terwijl de rij wordt gebouwd. Het maakt het product niet aan, en het praat niet met monetization. De applicatie heeft een echte SKU nodig, anders heeft de knop niets te verkopen.
+
+De knop staat in `row()` naast `button()` en `link()`. Die rij houdt hoogstens vijf van die stukken. Een menu of een kiezer neemt de rij nog steeds alleen.
+
+## Uitgewerkt voorbeeld
+
+De portal-id hieronder is een placeholder (18 cijfers). Vervang hem door de id onder **Monetization** van je applicatie. De link is een gewone URL-knop in dezelfde rij. De SKU-klik komt nooit aan in `collect`; de link ook niet.
+
+```js
+import { command, link, row, sku } from "@draeven/core";
+
+export const premium = command("premium", "Steunknop", async (ctx) => {
+  return ctx.reply({
+    text: "Steun de bot.",
+    rows: [
+      row(
+        sku({ id: "123456789012345678" }),
+        link({ url: "https://example.com/premium", label: "Wat je krijgt" })
+      ),
+    ],
+  });
+});
+```
+
+Een `button({ id: "later", label: "Niet nu" })` mag in diezelfde rij. Die knop heeft een eigen id, dus `collect` of `press` kan hem beantwoorden. `sku()` nog steeds niet.
+
+## Grenzen
+
+| Grens | Detail |
+|-------|--------|
+| `id` | 1–20 cijfers na trim. Leeg, letters, of 21 cijfers gooit `A SKU id is a number of 1-20 digits.` |
+| Rijgrootte | Hoogstens vijf stukken `button()`, `link()` of `sku()` |
+| Menu of kiezer | Neemt de rij alleen. `sku()` naast `menu()` gooit |
+| Velden | `label`, `color` en `press` zijn geen velden op `sku()` |
+| Verzamelaar | `ctx.collect` ziet de klik nooit. Er is geen `press` |
+| Product | De SKU moet al op de applicatie bestaan. Draeven maakt hem niet aan |
+
+## Valkuilen
+
+- Een lege id, letters, of meer dan 20 cijfers gooit terwijl de rij wordt gebouwd, vóór Discord het bericht ziet.
+- Het is geen eigen knop. `label` of `color` overnemen van `button()` hoort niet bij `sku()`.
+- `sku()` in de `ids`-lijst van `ctx.collect` zetten doet niets nuttigs. De klik komt nooit aan. Hetzelfde geldt voor `link()`.
+- Een test-id die alleen uit cijfers bestaat komt door Draeven en faalt in Discord als die SKU niet op deze applicatie staat.

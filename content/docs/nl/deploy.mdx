@@ -1,0 +1,74 @@
+---
+title: Deployen
+description: Draai een gebouwde bot onder Node in productie.
+order: 76
+---
+
+Lever de gecompileerde bot. Gebruik Node **20 of nieuwer**, de output van `tsc` in `dist`, `watch: false` en `alone: true`. PM2 en systemd hebben geen TTY, dus de standaard `alone: "ask"` kan niets vragen.
+
+## Het proces
+
+```js
+import { Start, guard } from "@draeven/core";
+
+await Start({
+  token: process.env.DISCORD_TOKEN,
+  guildId: process.env.DISCORD_GUILD_ID,
+  watch: false,
+  alone: true,
+  guard: guard({ via: "console", of: "all" }),
+});
+```
+
+Laat `guildId` staan zolang één server commandowijzigingen binnen seconden moet zien. Laat hem weg voor een **globale** registratie. Die sync kan een uur duren ([App aanmaken](/docs/creating-app)). Zet de token en de guild-id in de omgeving, niet in de repo.
+
+`draeven.config.js` moet `commands` naar `./dist/commands` wijzen ([Config](/docs/config)).
+
+## PM2
+
+```js
+module.exports = {
+  apps: [
+    {
+      name: "draeven",
+      script: "dist/main.js",
+      cwd: "/opt/draeven",
+      env: { NODE_ENV: "production" },
+    },
+  ],
+};
+```
+
+```bash
+pm2 start ecosystem.config.cjs
+pm2 save
+```
+
+Laad geheimen uit de omgeving van de host, of uit een env-bestand dat de procesbeheerder mag lezen. Commit `.env` niet.
+
+## systemd
+
+```ini
+[Service]
+WorkingDirectory=/opt/draeven
+EnvironmentFile=/opt/draeven/.env
+ExecStart=/usr/bin/node dist/main.js
+Restart=on-failure
+User=draeven
+```
+
+Houd `EnvironmentFile` leesbaar voor alleen die servicegebruiker.
+
+## Netwerk
+
+De gateway-verbinding is uitgaand. Met de desk uit open je geen inkomende poort. Zet `DASHBOARD=off` als deze host alleen de bot moet draaien ([Bridge en desk](/docs/bridge-desk)). Draai je wel bridge of desk, bind de poort dan bewust, zet TLS voor alles wat niet localhost is, en sta alleen de adressen toe die mogen aanroepen.
+
+## Valkuilen
+
+- `watch: true` in productie herlaadt bestanden onder het live proces. Laat het uit en herstart bij een deploy.
+- `alone: "ask"` onder PM2 of systemd gooit als er al een pid leeft, omdat stdin geen TTY is.
+- `src/main.ts` starten zonder build ziet de gecompileerde commandomap nooit.
+
+## Verder
+
+- [Config](/docs/config) · [Eén proces](/docs/alone) · [Start-opties](/docs/start-options) · [Bridge en desk](/docs/bridge-desk)

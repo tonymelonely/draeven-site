@@ -1,0 +1,61 @@
+---
+title: Hoe het in elkaar zit
+description: Het pad van Start() naar een antwoord, een press of een gateway-event.
+order: 11
+---
+
+Eén `Start()` bezit het proces. Slash-commando's nemen de linker tak. Gateway-events nemen de rechter tak. Een commandohandler ziet `ctx`. Een eventhandler ziet de payload van dat event.
+
+<FlowDiagram id="architecture" />
+
+| Stap | Wat het doorgeeft |
+|------|-------------------|
+| `Start()` | Geladen commando's, de gateway en het lopende handvat |
+| `loadCommands` / `loadEvents` | Gecompileerde `.js` als commando's en eventhandlers |
+| Discord registreert slash | De applicatiecommando's voor die guild, of globaal |
+| Interactie komt binnen | Eén `ctx` voor dit slash-commando of menu |
+| Gates / cooldown | Een doorgang naar de handler, of een framework-antwoord dat daar stopt |
+| Handler | Jouw `run`-functie |
+| `reply` / `edit` / `wait` / `collect` | De bevestiging, en een wachter in hetzelfde commando |
+| `press` / `submit` | Een latere klik of modal, als niets die id verzamelt |
+| Gateway-events | Bits van `intentsFor`, daarna `onEvent` of de events-map |
+
+## Start()
+
+`Start()` opent de gateway, leest commando's en begint interacties te beantwoorden. `token` is verplicht. `guildId`, `watch`, `autoDefer`, `alone` en `intents` zijn de opties die dit pad veranderen ([Start-opties](/docs/start-options)).
+
+## loadCommands / loadEvents
+
+`loadCommands()` importeert gecompileerde `.js` uit de commandomap (of gebruikt de array die je meegaf). `loadEvents()` importeert een map waarvan de exportnamen eventnamen zijn, en elke `use()` in die bestanden. `watch: true` met een array in het geheugen gooit. Er is geen map ([Commando's](/docs/commands), [Events en intents](/docs/events-intents)).
+
+## Discord registreert slash
+
+Draeven stuurt die commandolijst naar Discord. Met een `guildId` toont de guild nieuwe commando's binnen seconden. Zonder guild-id registreert Discord ze globaal, en die sync kan een uur duren ([Start-opties](/docs/start-options)).
+
+## Interactie komt binnen
+
+Iemand voert het slash-commando of een contextmenu uit. Discord levert één interactie, en de handler krijgt één `ctx` met opties, lookups en antwoordmethoden ([Commando's](/docs/commands)).
+
+## Wachttijd en gates
+
+Het wachttijdboek draait eerst. `take()` bewaart het venster vóór de gates, dus een mislukte gate heeft de wachttijd al verbruikt. Koelt de sleutel nog, dan krijgt de gebruiker `frame("cooldown", …)` en wordt `run` overgeslagen. Anders lopen de gates in volgorde: `ownerOnly`, dan `need`, dan `when`. Een gate die faalt antwoordt met `frame("need" | "owner" | "when", …)` en slaat `run` over ([Rechten & gates](/docs/permissions), [Wachttijden](/docs/cooldowns)).
+
+## Handler
+
+De functie op `command()`, `userMenu()` of `messageMenu()` draait hier. Hij leest `ctx` en antwoordt op diezelfde interactie ([Commando's](/docs/commands)).
+
+## reply, edit, wait, collect
+
+Een tweede `reply()` gooit alleen als er al een antwoord is opgeslagen en je noch hebt gewacht, noch een collect hebt geflusht. `wait` defert. Daarna vult `edit()` of een nieuwe `reply()` het bericht. `collect` blijft in dit commando tot een knop, menu of formulier binnenkomt, of tot de wachttijd afloopt ([Antwoorden](/docs/replies), [Verzamelaars](/docs/collectors)).
+
+## press / submit
+
+Een passende `collect` draait eerst. Anders gebruikt Draeven de inline `press` of `submit` die op die id is onthouden, dan een `use()` uit de events-map, dan de tekst `Received.`. De handler antwoordt op een eigen context ([Press & submit](/docs/press-handlers)).
+
+## Gateway-events
+
+Joins, berichten en reacties zijn gateway-dispatches, los van het slash-pad. `intentsFor` maakt van de eventnamen het bitmasker dat Discord eist. `bot.onEvent`, of een functie uit de events-map, ontvangt de payload ([Events en intents](/docs/events-intents), [Bot-handle](/docs/bot-handle)).
+
+<Tip>
+Als een stap faalt, begin bij [Problemen oplossen](/docs/troubleshooting). Werkende vormen voor de handlertak staan bij [Recepten](/docs/recipes).
+</Tip>

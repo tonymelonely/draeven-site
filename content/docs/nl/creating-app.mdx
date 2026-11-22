@@ -1,0 +1,75 @@
+---
+title: App aanmaken
+description: Portaal-token, uitnodigings-URL, guild-id en intents.
+order: 4
+---
+
+Maak een Discord-applicatie voordat `Start()` kan inloggen. Je hebt een bot-token nodig, een uitnodiging die slash-commando's toestaat, en — zolang je itereert — één guild-id zodat commando-updates meteen zichtbaar zijn.
+
+## Applicatie maken
+
+1. Open het [Discord Developer Portal](https://discord.com/developers/applications).
+2. **New Application**, kies een naam, **Create**.
+3. **Bot** → **Reset Token**. Zet het in `.env` als `DISCORD_TOKEN`.
+
+Commit het token nooit. De scaffold zet `.env` in `.gitignore`.
+
+## Bot uitnodigen
+
+**OAuth2 → URL Generator**:
+
+- Scopes: `bot` en `applications.commands`. Beide zijn nodig voor slash-commando's.
+- Bot-rechten: alleen wat de commando's gebruiken. Een typische dev-bot heeft Send Messages, Read Message History, Embed Links en Use Application Commands nodig. Moderatie vraagt ook Kick Members, Ban Members, Moderate Members of Manage Messages.
+
+Open de URL, kies een server en autoriseer.
+
+## Guild-id voor snelle sync
+
+Globale commando's kunnen ongeveer een uur nodig hebben. Tijdens ontwikkeling registreer je op één guild:
+
+1. Zet **Developer Mode** aan (User Settings → Advanced).
+2. Rechtermuisklik op de server → **Copy Server ID**.
+3. Zet `DISCORD_GUILD_ID` en geef die als `guildId` aan `Start()`.
+
+```bash
+DISCORD_TOKEN=...
+DISCORD_GUILD_ID=123456789012345678
+```
+
+```js
+import { Start, intentsFor } from "@draeven/core";
+
+await Start({
+  token: process.env.DISCORD_TOKEN,
+  guildId: process.env.DISCORD_GUILD_ID,
+  intents: intentsFor("ready"),
+});
+```
+
+Laat `guildId` alleen weg als je bewust globaal wilt publiceren.
+
+## Privileged intents
+
+Zet een privileged intent op het tabblad **Bot** alleen aan als een handler hem nodig heeft. Portaal en code moeten overeenkomen. Portaal uit betekent dat Discord de events niet levert. Laat je `intents` weg, dan is het bitmasker `0`. Discord verstuurt die gateway-events niet. Je krijgt geen lege payloads.
+
+| Portaal | `intentBits`-naam | Typische events |
+|---------|---------------------|-----------------|
+| Server Members Intent | `guildMembers` | `memberJoin`, `memberLeave`, `memberUpdate` |
+| Message Content Intent | `messageContent` | `message`, `messageEdit` (met `content`) |
+| Presence Intent | `guildPresences` | `presenceUpdate` |
+
+`intentsFor("memberJoin", "message")` zet `guildMembers`, `guildMessages`, `directMessages` en `messageContent` voor je aan. Liever dat dan een bitveld met de hand ([Events en intents](/docs/events-intents)).
+
+<Tip>
+Houd de eerste bot privé op een testguild. Installatiecontexten (`install` / `places` op een commando) kun je later vastleggen.
+</Tip>
+
+## Valkuilen
+
+- Een token-reset maakt het oude token meteen ongeldig. Werk `.env` bij en herstart.
+- Een uitnodiging zonder `applications.commands` levert een bot die geen slash-commando's kan registreren.
+- `ready` heeft geen intent-bits. `intentsFor("ready")` is `0`, en dat is geldig voor een bot die alleen slash-commando's gebruikt.
+
+## Verder
+
+- [Snelstart](/docs/quickstart) · [Rechten](/docs/permissions) · [Bekende limieten](/docs/known-limits)

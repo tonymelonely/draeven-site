@@ -1,0 +1,47 @@
+---
+title: Fouten & debuggen
+description: Veelvoorkomende [Draeven]-fouten en wat ze betekenen.
+order: 70
+---
+
+Voor symptoom, oorzaak en oplossing in één tabel, open [Problemen oplossen](/docs/troubleshooting). Als een aanroep gooit, begint het bericht met `[Draeven]` en noemt het de regel. Lees die zin vóór je hem inpakt. Deze pagina koppelt de fouten die het eerst opduiken aan de gidsectie die ze oplost. De regels zelf staan uitgeschreven bij [Vuistregels](/docs/rules).
+
+## Uitgewerkt voorbeeld
+
+Een trage `await` vóór `reply()` mist het venster van ongeveer 3 seconden van Discord. Bevestig eerst, en vul daarna het uitgestelde bericht. Auto-defer zou na 2 seconden hebben bevestigd als je het aan liet. Met auto-defer uit roep je zelf `wait()` aan:
+
+```js
+import { command } from "@draeven/core";
+
+export const profile = command("profile", "Laadt een profiel", async (ctx) => {
+  await ctx.wait();
+  const name = await loadName(ctx.author.id); // jouw trage aanroep
+  return ctx.edit(name);
+});
+```
+
+`wait()` pakt het token vóór de trage aanroep. `edit()` vult het uitgestelde antwoord. Hetzelfde patroon staat bij [Antwoorden](/docs/replies): laat <Explain topic="auto-defer">auto-defer</Explain> aan, of roep `wait()` aan / zet `defer` vóór traag werk.
+
+## Checklist
+
+| Je ziet | Wat het betekent | Oplossing |
+|---------|----------------|-----------|
+| Discord toont dat de interactie faalde na ongeveer 3 seconden | De handler bevestigde niet op tijd. | Laat auto-defer aan, of roep `wait()` aan / zet `defer` vóór traag werk. [Antwoorden](/docs/replies). |
+| `A form cannot follow wait()` | De modal moet de eerste bevestiging zijn. | Geen `wait`, `defer` in metadata, of `transcript` vóór `form()` (<Explain topic="form-first">formulier eerst</Explain>). [Knoppen, menu's & formulieren](/docs/pieces). |
+| `A layout cannot mix with text, embeds, or polls.` | `layout()` is het hele antwoord. | Geef er geen tekst, embed, peiling of canvas-afbeelding naast mee (<Explain topic="layout-mix">niet mengen</Explain>). [Embeds en layout](/docs/embeds-layout). |
+| `A command can only reply once.` | Er was al een antwoord opgeslagen, en je hebt noch `wait()` gedaan, noch een collect geflusht. | Na `wait()` gebruik je `edit()` of een nieuwe `reply()`. Na een collect-flush vervangt een nieuwe `reply()` het opgeslagen antwoord. `followup()` voegt een bericht toe. [Antwoorden](/docs/replies). |
+| `Unknown user …` | `getUser` kent alleen gebruikers die Discord op deze interactie meestuurde. | Geef het optie-object of `author` mee, niet een id die je zelf verzon. [Lookups](/docs/lookups). |
+| `watch: true needs commands from a folder path or draeven.config.` | Een array in het geheugen kan niet worden bekeken. | Geef een mappad of `draeven.config.js`. [Configbestand](/docs/config). |
+| `Another bot is already running`, en er werd niets gevraagd | `alone: "ask"` vraagt alleen op een TTY. | Onder PM2 of systemd geef je `alone: true`. [Eén proces](/docs/alone). |
+| `Missing Discord token` | `token` was leeg. `Start` gooit al vóór de gateway opent. | Zet het token in de omgeving die de process manager echt laadt. [Deployen](/docs/deploy). |
+| Commando's verdwijnen, of de map laadt niets | `loadCommands` leest alleen `.js`. | Compileer naar `dist` en wijs de config naar die map vóór de productiestart. [Deployen](/docs/deploy). |
+
+## Als de handler gooit
+
+Op het live slash-pad wordt een ongecatchte fout een zichtbare regel: een korte `[Draeven]`-message (prefix eraf) als die past, anders `frame("failed", locale)` (“The command failed.” / “Het command is mislukt.”). Press-handlers buiten `collect` antwoorden met de Engelse string `The command failed.` — zij roepen `frame("failed")` niet aan.
+
+## Valkuilen
+
+- `simulate()` draait de handler zonder interactietoken, dus `wait`, `edit`, `collect` en `send` gooien daar. Gebruik het voor de terugkeerwaarde. Bouw gates na op een live guild ([Simuleren](/docs/simulate)).
+- De fout inpakken en alleen `error.message` loggen ná een eigen voorvoegsel verbergt de `[Draeven]`-zin. Houd die zin in het log.
+- `guard({ via: "console", of: "all" })` houdt het proces overeind en print de `[Draeven]`-regel ([Hot-reload en guard](/docs/hot-reload-guard)). Het herstelt de regel die de zin noemt niet.

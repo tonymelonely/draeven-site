@@ -1,0 +1,62 @@
+---
+title: formatDate utility
+description: Helper that formats one UTC calendar day for a country — not Discord time().
+order: 30
+---
+
+`formatDate(date, country)` writes one calendar day as a plain string. The day is **UTC**. The country chooses the order, the separators, and the digits. It does not shift the instant into the reader's clock, and it does not include a time of day.
+
+Use it when every reader must see the same characters: a log line, a plain `reply`, or an embed field that should not retick. A Discord timestamp that each person sees in their own zone is <Explain topic="format-vs-time">`time()`</Explain> inside an embed. `formatDate` does not take a style such as `"relative"` or `"long date"`.
+
+## Worked example
+
+`person.createdAt` is a `Date`. `Netherlands` is the country code `"NL"` (`countries.Netherlands` is the same value). The embed shows both strings so you can see what stays fixed and what Discord localizes.
+
+```js
+import { command, embed, formatDate, Netherlands, time } from "@draeven/core";
+
+export const joined = command("joined", "When this account was created", async (ctx) => {
+  const person = ctx.getUser(ctx.author);
+  const day = formatDate(person.createdAt, Netherlands);
+  return ctx.reply(
+    embed({
+      header: { title: person.name },
+      fields: [
+        { name: "UTC day", value: day },
+        { name: "For the reader", value: time(person.createdAt, "date") },
+      ],
+    })
+  );
+});
+```
+
+For 5 March 2020, 00:00 UTC, `formatDate` returns:
+
+| Country | Result |
+|---------|--------|
+| `Netherlands` | `05-03-2020` |
+| `UnitedStates` | `03/05/2020` |
+| `UnitedKingdom` | `05/03/2020` |
+| `Japan` | `2020/03/05` |
+
+`time(person.createdAt, "date")` becomes a Discord `<t:…>` stamp. Each reader sees that stamp in their own zone. The `formatDate` cell stays `05-03-2020` for everyone when the country is `Netherlands`.
+
+## Limits
+
+| Limit | What happens |
+|-------|----------------|
+| Input | A real `Date`. Anything else, including an invalid date, throws `A date is required.` |
+| Country | A code from `countries`. `Netherlands` is `"NL"`. Anything else throws `Unknown country.` |
+| Calendar day | UTC. The country only picks order, separators, and digits. |
+| Clock | No hours or minutes. The string is one day. |
+| Zone | The reader's zone is not applied. `time()` does that. |
+| Shape | Day and month are 2 digits, year is numeric, calendar is Gregorian. |
+
+Every value in `countries` is accepted. The named exports (`Netherlands`, `Japan`, …) are those codes.
+
+## Pitfalls
+
+- The English name `"Netherlands"` is not a code. Pass the constant `Netherlands` or `"NL"`. `"ZZ"` throws `Unknown country.`
+- A string such as `"2020-03-05"` is not a `Date`. Wrap it in `new Date(...)` first. `new Date(NaN)` throws `A date is required.`
+- Around midnight UTC the calendar day can differ from the date the reader still sees locally. Use `time()` when each reader should see their own day.
+- `formatDate` has no style argument. `"relative"` and `"long date"` belong to `time()`.

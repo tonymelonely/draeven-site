@@ -1,0 +1,47 @@
+---
+title: Errors & debugging
+description: Common [Draeven] failures and what they mean.
+order: 70
+---
+
+For a symptom, cause, and fix in one table, open [Troubleshooting](/docs/troubleshooting). When a call throws, the message starts with `[Draeven]` and names the rule. Read that sentence before wrapping it. This page maps the failures that show up first to the guide section that fixes them. The constraints themselves are written out on [Rules of thumb](/docs/rules).
+
+## Worked example
+
+A slow `await` before `reply()` misses Discord's window of about 3 seconds. Acknowledge first, then fill the deferred message. Auto-defer would have acknowledged at 2 seconds if you left it on. With auto-defer off, call `wait()` yourself:
+
+```js
+import { command } from "@draeven/core";
+
+export const profile = command("profile", "Loads a profile", async (ctx) => {
+  await ctx.wait();
+  const name = await loadName(ctx.author.id); // your slow call
+  return ctx.edit(name);
+});
+```
+
+`wait()` takes the token before the slow call. `edit()` fills the deferred reply. The same pattern is [Replies](/docs/replies): leave <Explain topic="auto-defer">auto-defer</Explain> on, or call `wait()` / set `defer` before slow work.
+
+## Checklist
+
+| You see | What it means | Fix |
+|---------|----------------|-----|
+| Discord shows the interaction failed after about 3 seconds | The handler did not acknowledge in time. | Leave auto-defer on, or call `wait()` / set `defer` before slow work. [Replies](/docs/replies). |
+| `A form cannot follow wait()` | The modal has to be the first acknowledgement. | No `wait`, metadata `defer`, or `transcript` before `form()` (<Explain topic="form-first">form first</Explain>). [Buttons, menus & forms](/docs/pieces). |
+| `A layout cannot mix with text, embeds, or polls.` | `layout()` is the whole reply. | Do not pass text, an embed, a poll, or a canvas picture beside it (<Explain topic="layout-mix">no mix</Explain>). [Embeds & layout](/docs/embeds-layout). |
+| `A command can only reply once.` | A reply was already stored, and you have neither `wait()`ed nor flushed a collect. | After `wait()`, use `edit()` or another `reply()`. After a collect flush, another `reply()` replaces the stored reply. `followup()` adds a message. [Replies](/docs/replies). |
+| `Unknown user …` | `getUser` only knows users Discord sent on this interaction. | Pass the option object or `author`, not an id you invented. [Lookups](/docs/lookups). |
+| `watch: true needs commands from a folder path or draeven.config.` | An in-memory array cannot be watched. | Pass a folder path or `draeven.config.js`. [Config file](/docs/config). |
+| `Another bot is already running`, and nothing asked you | `alone: "ask"` prompts only on a TTY. | Under PM2 or systemd pass `alone: true`. [One process](/docs/alone). |
+| `Missing Discord token` | `token` was empty. `Start` throws before the gateway opens. | Set the token in the environment the process manager actually loads. [Deploy](/docs/deploy). |
+| Commands disappear, or the folder loads nothing | `loadCommands` reads `.js` only. | Compile to `dist` and point the config at that folder before the production start. [Deploy](/docs/deploy). |
+
+## When the handler throws
+
+On the live slash path, an uncaught error becomes a user-visible line: a short `[Draeven]` message (prefix stripped) if it fits, otherwise `frame("failed", locale)` (“The command failed.” / “Het command is mislukt.”). Press handlers that are not behind `collect` answer with the English string `The command failed.` — they do not call `frame("failed")`.
+
+## Pitfalls
+
+- `simulate()` runs the handler without an interaction token, so `wait`, `edit`, `collect`, and `send` throw there. Use it for the return value. Reproduce gates on a live guild ([Simulate](/docs/simulate)).
+- Wrapping the error and logging only `error.message` after a custom prefix hides the `[Draeven]` sentence. Keep that sentence in the log.
+- `guard({ via: "console", of: "all" })` keeps the process up and prints the `[Draeven]` line ([Hot-reload & guard](/docs/hot-reload-guard)). It does not fix the rule the line names.

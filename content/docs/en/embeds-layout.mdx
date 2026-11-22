@@ -1,0 +1,191 @@
+---
+title: Embeds & layout
+description: embed() parts, and Components V2 layout() helpers.
+order: 45
+---
+
+## Anatomy of an embed
+
+A Draeven embed is one message block you build with `embed({ ... })` and send through <Explain topic="embed-reply">reply</Explain>, `edit`, `followup`, or `bot.send`.
+
+<DocMedia id="embeds" />
+
+It is **not** discord.js: there is no `EmbedBuilder`, no root `title`, and no `inline` flag. You build one with `embed({ ... })`.
+
+| Discord.js habit | Draeven |
+|------------------|---------|
+| `title: "..."` | `header: { title: "..." }` |
+| `inline: true` | share the row, or `wide: true` |
+| `time(Date.now())` | `time(new Date(), "relative")` |
+
+Click any dotted term — <Explain topic="embed-header">header</Explain>, <Explain topic="embed-fields">fields</Explain>, <Explain topic="embed-footer">footer</Explain>, <Explain topic="embed-time">time()</Explain> — for a popup with rules and copy-paste examples.
+
+## Full example
+
+```js
+import { command, embed, colors, time, breakline } from "@draeven/core";
+
+export const status = command("status", "Show status", async (ctx) =>
+  ctx.reply(
+    embed({
+      color: colors.green,
+      author: { name: "Ops" },
+      header: { title: "Bot status" },
+      description: `Online since ${time(new Date(), "relative")}`,
+      fields: [
+        { name: "Shard", value: "OK" },
+        { name: "Ping", value: "42ms" },
+        breakline,
+        { name: "Notes", value: "Wide rows use wide: true.", wide: true },
+      ],
+      footer: { text: "Draeven" },
+      timestamp: new Date(),
+    })
+  )
+);
+```
+
+## Parts of the embed
+
+### color
+
+Left accent bar. Prefer named <Explain topic="embed-colors">colors</Explain> (including `colors.blurple`), a `#RRGGBB` string, or a number `0`–`0xffffff`. More: <Explain topic="embed-color">color</Explain>.
+
+### author
+
+Optional name line **above** the title — `name` (1–256), optional `icon`, optional `link`. More: <Explain topic="embed-author">author</Explain>.
+
+### header
+
+The real title block: `{ title, link?, image? }`.
+**Wrong:** `title: "…"` on the embed root. **Right:** `header: { title: "…" }`.
+A header needs a title or an image. A `link` needs a title. More: <Explain topic="embed-header">header</Explain>.
+
+### description
+
+Paragraph under the header (≤ 4096). Markdown and `time()` stamps are fine.
+More: <Explain topic="embed-description">description</Explain>.
+
+### fields
+
+Array of `{ name, value, wide? }` plus <Explain topic="embed-breakline">breakline</Explain> markers.
+
+- Up to **three** fields share a row
+- `breakline` starts the next row
+- `wide: true` takes the full width
+- `value` may be text, number, boolean, `Date`, or a `time()` string
+- `name` is 1–256 characters; `value` is 1–1024
+- There is no `inline` flag
+
+More: <Explain topic="embed-fields">fields</Explain>.
+
+### image
+
+Large picture **under** the fields (not the header thumbnail — that is `header.image`). The URL must be `http` or `https`.
+More: <Explain topic="embed-image">image</Explain>.
+
+### footer
+
+Bottom line `{ text, icon? }`. `text` is 1–2048 when set. Pair with `timestamp: new Date()` for a clock beside it.
+More: <Explain topic="embed-footer">footer</Explain>.
+
+### rows & picture
+
+Buttons and menus that travel with the embed (<Explain topic="embed-rows">rows</Explain>), up to five rows, and an optional `canvas()` bitmap (<Explain topic="embed-picture">picture</Explain>). Presses use `ctx.collect`.
+
+## Text above an embed
+
+Classic embeds can sit under a content line. `layout()` cannot — see below.
+
+```js
+return ctx.reply(
+  "Heads up:",
+  embed({ header: { title: "Details" }, color: colors.blurple })
+);
+```
+
+## Components V2 — `layout()`
+
+`layout()` builds Discord **Components V2** messages (flag `IS_COMPONENTS_V2`). That is Discord's name for this UI system — Draeven's entry point is `layout()`, not a separate `section()` export.
+
+Discord itself has a piece called **Section** (text + one accessory). In Draeven that is `beside()`. The other helpers map to Discord's display pieces: text, separator, container, gallery, file, thumbnail, and action row.
+
+On one reply, a layout <Explain topic="layout-mix">cannot mix</Explain> with message text, `embed()`, `poll()`, or a `canvas()` picture. `reply("text", layout(...))` throws `A reply takes text, an embed, or text and an embed.` The mix error `A layout cannot mix with text, embeds, or polls.` is for `{ text, layout }`. A `form()` is its own reply too. You can still mark the layout private with `{ private: true }`, and you can append extra `row()` values on the same reply object — those action rows are sent after the layout parts.
+
+`layout(...parts)` holds **1–40** parts. Each part comes from `show`, `divide`, `pack`, `beside`, `album`, `showFile`, or `row`. `thumb()` is not a layout part on its own. It is only the image accessory you pass to `beside({ with })`.
+
+| Helper | Discord piece | Shape |
+|--------|----------------|--------|
+| `show(text)` | Text Display | 1–4000 characters |
+| `divide({ size?, line? })` | Separator | `size` is `"sm"` (default) or `"lg"`. `line: true` draws a line |
+| `pack({ color?, spoiler? }, ...parts)` | Container | At least one nested part. `color` is `colors.*`, `#RRGGBB`, or a number |
+| `beside({ text, with })` | Section | Text 1–4000. `with` is `thumb()` or a `row()` |
+| `thumb(url \| { url, description? })` | Thumbnail | `https` URL. Description 1–1024. Only as `beside`'s accessory |
+| `album(...items)` | Media Gallery | 1–10 images. A string URL, or `{ url, description?, spoiler? }` |
+| `showFile(name \| { name, spoiler? })` | File | An `https` URL, or the filename of an attachment already on the message |
+| `row(...)` | Action Row | The same buttons, links, and menus as a classic row |
+
+`beside`'s row accessory uses the **first** component on that row. Give it one button. `pack()` may nest the same parts, including another `beside()` or `album()`.
+
+```js
+import {
+  album,
+  beside,
+  button,
+  colors,
+  command,
+  divide,
+  layout,
+  pack,
+  row,
+  show,
+  showFile,
+  thumb,
+} from "@draeven/core";
+
+export const panel = command("panel", "Show a panel", async (ctx) =>
+  ctx.reply(
+    layout(
+      show("**Welcome**"),
+      divide({ size: "sm", line: true }),
+      pack(
+        { color: colors.blurple },
+        show("Inside a container"),
+        beside({
+          text: "Text plus an accessory. Discord calls this a Section.",
+          with: thumb("https://cdn.discordapp.com/embed/avatars/0.png"),
+        })
+      ),
+      album("https://cdn.discordapp.com/embed/avatars/1.png"),
+      showFile("https://cdn.discordapp.com/embed/avatars/2.png"),
+      row(button({ id: "ok", label: "OK", color: "green" }))
+    )
+  )
+);
+```
+
+A button beside the text, instead of a thumbnail:
+
+```js
+beside({
+  text: "Confirm?",
+  with: row(button({ id: "yes", label: "Yes", color: "green" })),
+});
+```
+
+<Tip>
+`time(new Date(), "relative")` is the usual stamp inside an embed description or field. Other styles are `"time"`, `"long time"`, `"date"`, `"long date"`, `"date and time"`, and `"full"` — or the short letters `t`, `T`, `d`, `D`, `f`, `F`, `R`. `time()` needs a `Date`, not `Date.now()`.
+</Tip>
+
+## Limits
+
+- Header title ≤ 256, description ≤ 4096, author name ≤ 256
+- Field name ≤ 256, field value ≤ 1024, max **25** fields (blank fillers from short rows count)
+- Total visible embed text ≤ 6000 characters
+- Footer text 1–2048 when set
+- `layout()` holds 1–40 parts. `show()` and `beside()` text are 1–4000. `album()` holds 1–10 images
+- A layout cannot share its reply with text, an embed, a poll, or a canvas picture
+
+## Related
+
+- [Replies](/docs/replies) · [Collectors](/docs/collectors) · [Polls](/docs/polls) · [Sending messages](/docs/sending-messages)

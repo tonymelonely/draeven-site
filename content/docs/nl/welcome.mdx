@@ -1,0 +1,58 @@
+---
+title: Welkom
+description: Wat Draeven is, en hoe een bot in elkaar zit.
+order: 1
+---
+
+Draeven is een Discord-botframework dat vanaf nul is gebouwd. Je beschrijft slash-commando's met `command()`, start de gateway met `Start()`, en antwoordt vanuit één `ctx` (`reply`, `edit`, `wait`, `followup`, `collect`).
+
+Gebruik het als je een kleine, getypeerde commandolaag wilt. Het is geen discord.js: geen `Client`, geen `EmbedBuilder`, en geen gedeeld plugin-ecosysteem.
+
+<FiveMinPath />
+
+Voorbeelden in de docs hergebruiken dezelfde vormen: `/ping` → `pong`, en `/greet` als er opties zijn. Starter-bots (mod, ticket, welkom) staan op [Starter-bots](/docs/starters).
+
+Het pad van `Start()` naar een antwoord is [Hoe het in elkaar zit](/docs/architecture). Namen die je al kent uit discord.js staan op [Vanuit discord.js](/docs/from-discordjs). Als een commando of event dwarszit, open [Waarom faalt dit?](/docs/why-failing) of [Problemen oplossen](/docs/troubleshooting). Woorden als `ctx`, `wait()` en `leaf` staan in het [Glossarium](/docs/glossary).
+
+## Wat je krijgt
+
+- **Eén context.** Opties, lookups, antwoorden, verzamelaars en moderatiehelpers zitten op `ctx`.
+- **Declaratieve commando's.** Exporteer `command()`, `userMenu()` of `messageMenu()`. Draeven registreert ze.
+- **Verbonden blijven tijdens het bewerken.** `Start({ watch: true })` herlaadt gecompileerde commando's zonder de gateway te sluiten.
+- **De handler offline testen.** `simulate()` draait een commando zonder token.
+
+<Note>
+Draeven praat met Discord via `@draeven/discord` (gateway en REST). Je installeert normaal alleen `@draeven/core`.
+</Note>
+
+## Packages
+
+| Package | Rol |
+|---------|-----|
+| `@draeven/core` | `Start`, `command`, verzamelaars, `embed`, `layout`, `poll`, `guard` |
+| `@draeven/discord` | Gateway-sessie. Core hangt ervan af. |
+| `@draeven/bridge` | Optionele owner-desk voor *jouw* proces |
+| `create-draeven` | `npm create draeven@latest` |
+
+De open-source doos is het framework plus een optionele owner-desk. Een gehost guild-dashboard is een apart product en zit er niet bij.
+
+## Hoe een commando loopt
+
+`loadCommands()` leest gecompileerde bestanden, Discord bewaart de applicatiecommando's, en een slash-aanroep komt binnen als één `ctx`.
+
+```text
+ dist/commands/*.js
+        │
+        ▼
+ loadCommands() ──► Discord application commands
+        │
+ user runs /cmd
+        ▼
+ gateway interaction ──► ctx (options, reply, collect, …)
+        │
+        ├── reply / wait+edit
+        ├── collect (buttons/menus/forms)
+        └── followup / send
+```
+
+Commando's moeten **gecompileerde JavaScript** zijn. Wijs `draeven.config.js` naar `./dist/commands`, niet naar TypeScript-bronnen. Discord geeft je ongeveer **3 seconden** om een interactie te bevestigen. Draeven doet standaard na 2 seconden een auto-defer, tenzij je dat uitzet ([Antwoorden](/docs/replies)). De harde regels staan bij [Vuistregels](/docs/rules).

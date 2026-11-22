@@ -1,0 +1,78 @@
+---
+title: Taalvarianten
+description: Vertaalde commandotekst en say().
+order: 28
+---
+
+Discord stuurt de locale van de aanroeper mee (`en-US`, `nl`, `nl-NL`). Draeven zet die op `ctx.locale`. Je vertaalt drie verschillende lagen. Ze delen geen woordenboek.
+
+Gebruik dit als hetzelfde commando in meer dan één taal verschijnt. Gateteksten van het framework zijn al tweetalig (Engels en Nederlands).
+
+## Drie lagen
+
+| Laag | API | Wat de gebruiker ziet |
+|------|-----|------------------------|
+| Commando | `locales` op metadata | Slash-naam en beschrijving in de kiezer |
+| Optie of sub | `withLocales()` of `sub(..., { locales })` | Naam en beschrijving van dat veld |
+| Jouw antwoord | `say(map, ctx.locale)` | Het bericht nadat ze het uitvoeren |
+
+Locale-sleutels moeten `nl` of `nl-NL` lijken (`xx` of `xx-YY`). Lege strings gooien.
+
+## Voorbeeld
+
+```js
+import { command, say, withLocales, user } from "@draeven/core";
+
+export const greet = command(
+  "greet",
+  "Zegt hallo",
+  {
+    who: withLocales(user("Wie?"), {
+      nl: { description: "Wie?", name: "wie" },
+    }),
+  },
+  async (ctx) => ctx.reply(say({ en: "Hello!", nl: "Hallo!" }, ctx.locale)),
+  { locales: { nl: { description: "Zegt hallo", name: "groet" } } }
+);
+```
+
+De JavaScript-sleutel blijft `who`. Je leest nog steeds `ctx.who`. `name: "wie"` is alleen het label dat Discord voor locale `nl` toont.
+
+`withLocales` accepteert ook een string (`{ nl: "Wie?" }`), en die zet alleen de beschrijving.
+
+## Volgorde van say()
+
+1. Exacte sleutel (`nl-NL` als jij die gaf én Discord die stuurde).
+2. Taalprefix (`nl` uit `nl-NL`).
+3. `en`, daarna `en-US`.
+4. De eerste string in het object.
+
+`say()` gooit als de map leeg is of een waarde blanco is. Het doet geen netwerkoproep.
+
+## Frameworkteksten
+
+Ingebouwde blokkades gebruiken `frame(key, locale, vars?)`. Alleen **`cooldown`** heeft placeholders (`{seconds}`, `{name}`). De andere sleutels zijn vaste zinnen — de `—` in de tabel betekent géén placeholders, niet dat tekst ontbreekt.
+
+| Sleutel | Placeholders | Engelse default |
+|---------|----------------|-----------------|
+| `cooldown` | `{seconds}`, `{name}` | Wait {seconds}s before using /{name} again. |
+| `need` | — | You need permission to use this. |
+| `when` | — | You cannot use this right now. |
+| `owner` | — | Only the server owner can use this. |
+| `failed` | — | The command failed. |
+
+Nederlandse defaults staan in dezelfde maps (`nl`). Je hoeft die niet zelf door `say()` te halen, behalve als je de tekst wilt bekijken. De live dispatcher roept `frame()` al aan.
+
+<Tip>
+Zet `locale: "nl"` op `simulate()` als je de uitvoer van `say()` wilt asserten. Gate- en wachttekst komt niet uit `simulate`.
+</Tip>
+
+## Valkuilen
+
+- Een gelokaliseerde **commandonaam** moet nog steeds de naamregels van Discord voor die locale volgen.
+- De optie-`name` vertalen hernoemt `ctx.who` niet. Handlers die `ctx.wie` lezen krijgen `undefined`.
+- `say` valt niet vanzelf terug op Nederlands omdat de machine Nederlands is. Voeg de sleutel `nl` toe.
+
+## Verder
+
+- [Commando's](/docs/commands) · [Opties](/docs/options) · [Wachttijden](/docs/cooldowns)

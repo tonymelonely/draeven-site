@@ -1,0 +1,98 @@
+---
+title: Opties
+description: text, user, number, choice, file en de rest.
+order: 21
+---
+
+Opties zijn de invoer die Discord onder een slash-commando toont. Bouw ze met `text()`, `user()` en de andere helpers, en geef het object als derde argument aan `command()`. De sleutel is de naam op `ctx`. De string die je aan de helper geeft is de beschrijving die de gebruiker leest.
+
+Roep `.required()` aan als het commando zonder die waarde niet kan. Optionele waarden zijn `undefined` in de handler.
+
+## Builders
+
+| Builder | Discord-type | Op `ctx` |
+|---------|--------------|------------|
+| `text(question, { min, max })` | STRING | `string` |
+| `user(question)` | USER | `User` (`id`, `name`, `bot`, `createdAt`, `icon?`) |
+| `role(question)` | ROLE | `Role` |
+| `channel(question, { kinds })` | CHANNEL | `Channel`. `kinds` filtert met `channelKinds` |
+| `mentionable(question)` | MENTIONABLE | `User` of `Role` |
+| `number(question, { min, max, choices })` | INTEGER | `number` |
+| `decimal(question, { min, max, choices })` | NUMBER | `number` |
+| `flag(question)` | BOOLEAN | `boolean` |
+| `file(question)` | ATTACHMENT | `File` |
+| `choice(question, items)` | STRING + choices | de `value` van de keuze |
+
+`channelKinds` is `text`, `voice`, `category`, `announcement`, `announcement thread`, `thread`, `private thread`, `stage`, `forum` en `media`.
+
+`choice()` neemt 1–25 items. Een string wordt label én waarde. Een object is `{ label, value, note? }`. Waarden zijn uniek en 1–100 tekens. Discord toont alleen label en waarde. `note` wordt opgeslagen op de optie en nooit meegestuurd.
+
+`number()` / `decimal()` mogen numerieke `choices` hebben. Meng die niet met `.suggest()`.
+
+## Voorbeeld
+
+```js
+import { command, text, user, decimal, choice, channel, channelKinds, flag } from "@draeven/core";
+
+export const tip = command(
+  "tip",
+  "Stuur een tip",
+  {
+    who: user("Wie?").required(),
+    amount: decimal("Bedrag?", { min: 0.5, max: 50 }),
+    note: text("Notitie?", { max: 200 }),
+    tier: choice("Niveau", [
+      { label: "Brons", value: "b" },
+      { label: "Goud", value: "g" },
+    ]),
+    room: channel("Kanaal?", { kinds: [channelKinds.text] }),
+    loud: flag("Hardop?"),
+  },
+  async (ctx) =>
+    ctx.reply(`${ctx.who.name} · ${ctx.amount ?? 1} · ${ctx.tier ?? "geen"}`)
+);
+```
+
+## Gebruiker of rol
+
+```js
+import { command, mentionable } from "@draeven/core";
+
+export const poke = command(
+  "poke",
+  "Noem een gebruiker of rol",
+  { target: mentionable("Wie of welke rol?").required() },
+  async (ctx) => {
+    if ("bot" in ctx.target) return ctx.reply(`Gebruiker ${ctx.target.name}`);
+    return ctx.reply(`Rol ${ctx.target.name}`);
+  }
+);
+```
+
+Een `User` heeft `bot`. Een `Role` niet. Dat is het onderscheid.
+
+<Tip>
+Automatisch aanvullen is `.suggest()` op `text()`, `number()` of `decimal()`. Vaste lijsten blijven `choice()`. Zie [Automatisch aanvullen](/docs/autocomplete).
+</Tip>
+
+## Limieten
+
+| Regel | Waarde |
+|-------|--------|
+| Opties op één commando | 25, gedeeld met de subcommando-boom |
+| Vraag (beschrijving) | 1–100 tekens |
+| Optienaam | `^[a-z0-9-]{1,32}$`, geen gereserveerde `ctx`-sleutel |
+| `text` min / max | integers, min 0–6000, max 1–6000 |
+| `choice`-lijst | 1–25, waarde ≤ 100 |
+
+Vertaalde optietekst gaat via `withLocales()` ([Taalvarianten](/docs/locales)). De JavaScript-sleutel verandert niet.
+
+## Valkuilen
+
+- Er is geen `attachment()`-helper. Gebruik `file()`.
+- `flag()` is een ja/nee-optie, geen rechtenbit.
+- Een overgeslagen getal blijft `undefined`. Geef de standaard in de handler (`ctx.amount ?? 1`), niet in de builder.
+
+## Verder
+
+- [Commando's](/docs/commands) · [Subcommando's](/docs/subcommands) · [Automatisch aanvullen](/docs/autocomplete)

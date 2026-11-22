@@ -1,0 +1,87 @@
+---
+title: Automatisch aanvullen
+description: Suggesties terwijl iemand een optie typt.
+order: 24
+---
+
+Automatisch aanvullen vult een gefocuste optie terwijl de gebruiker nog typt. Hang `.suggest(handler)` aan `text()`, `number()` of `decimal()`. Discord roept die handler aan bij elke toets. De commandohandler draait later, met de waarde die werd verstuurd.
+
+Gebruik `choice()` als de lijst vast en kort is. Suggesties zijn om te zoeken, niet om te valideren.
+
+## Suggest-context
+
+De handler krijgt lookups plus:
+
+| Veld | Betekenis |
+|------|-----------|
+| `typed` | Wat er tot nu toe is getypt. Niet `value`. |
+| `focused` | Optienaam die Discord bewerkt. |
+| `author` | Aanroeper `{ id }`. |
+
+Geef maximaal **25** items terug. De rest valt weg. Elk item is een string of `{ label, value }`. Stringwaarden zijn 1–100 tekens. Een getalsuggestie is een string zoals `"5"`, of `{ label, value }` met een numerieke `value`. Een kaal getal gooit.
+
+## Voorbeeld
+
+```js
+import { command, text } from "@draeven/core";
+
+const NAMES = ["alpha", "beta", "gamma", "delta"];
+
+export const find = command(
+  "find",
+  "Zoek iets",
+  {
+    query: text("Zoekterm?").required().suggest(async (ctx) => {
+      const q = ctx.typed.toLowerCase();
+      return NAMES.filter((name) => name.includes(q))
+        .slice(0, 25)
+        .map((name) => ({ label: name, value: name }));
+    }),
+  },
+  async (ctx) => ctx.reply(`Gekozen: ${ctx.query}`)
+);
+```
+
+Een lijst strings is genoeg als label en waarde gelijk zijn:
+
+```js
+.suggest((ctx) => NAMES.filter((name) => name.startsWith(ctx.typed)).slice(0, 25))
+```
+
+## Getallen
+
+```js
+import { command, number } from "@draeven/core";
+
+export const qty = command(
+  "qty",
+  "Kies een maat",
+  {
+    n: number("Hoeveel?").required().suggest((ctx) => {
+      const prefix = ctx.typed.trim();
+      return ["1", "5", "10", "25"].filter((n) => n.startsWith(prefix));
+    }),
+  },
+  async (ctx) => ctx.reply(String(ctx.n))
+);
+```
+
+Vaste `choices` op `number()` of `decimal()` kunnen niet samen met `.suggest()`. Draeven gooit bij het bouwen van die optie.
+
+<Warn>
+De handler valideert niet. Iemand kan tekst insturen die nooit in de lijst stond. Controleer `ctx.query` opnieuw in het commando als alleen bekende ids geldig zijn.
+</Warn>
+
+## Snel houden
+
+Discord verwacht het suggestie-antwoord in een kort venster, los van de 3 seconden van het commando. Filter in het geheugen. Open geen nieuwe database-ronde per teken. Cache de lijst buiten de handler.
+
+## Valkuilen
+
+- `.suggest()` bestaat niet op `user()`, `role()`, `channel()`, `choice()` of `flag()`.
+- Een lege `typed` hoort nog steeds een nuttige eerste pagina te geven, anders oogt het menu stuk bij focus.
+- Meer dan 25 items wordt stil afgekapt, zonder fout. Snijd zelf zodat de volgorde klopt.
+
+## Verder
+
+- [Opties](/docs/options) · [Commando's](/docs/commands)

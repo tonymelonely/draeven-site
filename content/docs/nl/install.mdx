@@ -1,0 +1,71 @@
+---
+title: Installatie
+description: Node 20, de scaffold en een handmatige installatie.
+order: 2
+---
+
+Installeer Draeven als je een bot start of het framework aan een bestaand Node-project toevoegt. Je hebt **Node.js 20+** nodig (ESM en `node:fs` watch). Het bot-token komt later ([App aanmaken](/docs/creating-app)).
+
+## Scaffold
+
+`create-draeven` schrijft `draeven.config.js`, `src/main.ts`, een `ping`-commando en de scripts hieronder.
+
+```bash
+npm create draeven@latest -- init my-bot
+cd my-bot
+pnpm install
+pnpm build
+pnpm start
+```
+
+| Script | Wat het doet |
+|--------|----------------|
+| `pnpm build` | `tsc -p tsconfig.json` |
+| `pnpm start` | build, daarna `node dist/main.js` |
+| `pnpm watch` | alleen `tsc -w` |
+| `pnpm dev` | één build, daarna `tsc -w` plus de bot |
+
+### Owner-desk
+
+```bash
+npm create draeven@latest -- init my-bot --with-dashboard
+```
+
+Dat voegt `@draeven/bridge`, `pnpm desk` en desk-variabelen toe. Zie [Bridge en desk](/docs/bridge-desk).
+
+### Commando-map
+
+```bash
+npm create draeven@latest -- init my-bot --commands ./src/slash
+```
+
+De config wijst nog steeds naar de gecompileerde `dist/`-spiegel van dat pad. Vlaggen, de bestandslijst en het `init`-argument staan bij [create-draeven CLI](/docs/create-cli).
+
+## Core zelf toevoegen
+
+```bash
+pnpm add @draeven/core
+```
+
+`@draeven/discord` installeer je niet apart. `@draeven/bridge` alleen voor de desk.
+
+## Versie controleren
+
+```bash
+node -e "import('@draeven/core').then(m => console.log('Draeven core', m.version))"
+```
+
+Deze gidsen beschrijven core **0.1.9**. Pin die versie in productie. De API is nog beta.
+
+<Warn fix="Wijs commands (en events) na tsc naar dist/." href="/docs/why-failing">
+`Start()` laadt `.js` uit de commando-map. `draeven.config.js` naar `./src/commands` wijzen vóór `tsc` mislukt.
+</Warn>
+
+## Valkuilen
+
+- Op Windows heeft `alone: "ask"` een echte TTY nodig. In CI zet je `alone: false` of `alone: true` ([Één proces](/docs/alone)).
+- Scaffolds zijn ESM. Niet naar CommonJS compileren.
+
+## Verder
+
+- [Projectstructuur](/docs/project-layout) · [Snelstart](/docs/quickstart)

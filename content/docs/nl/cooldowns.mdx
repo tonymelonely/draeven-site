@@ -1,0 +1,73 @@
+---
+title: Wachttijden
+description: Wachttijd per commando voor een user, kanaal of guild.
+order: 27
+---
+
+Wachttijd in het geheugen per commandonaam — niet Discords rate limit. Nog koel → privé `frame("cooldown")`, `run` overgeslagen.
+
+<WhenToUse topic="cooldowns" />
+
+Sleutel is `name:scope:id` (slash + menu met dezelfde naam delen een emmer).
+
+## Seconden
+
+Een positief getal betekent seconden, scope `user`, en een privé-afwijzing.
+
+```js
+import { command } from "@draeven/core";
+
+export const ping = command(
+  "ping",
+  "Checkt of de bot leeft",
+  async (ctx) => ctx.reply("pong"),
+  { cooldown: 5 }
+);
+```
+
+`0`, negatieve getallen en niet-eindige waarden gooien als het commando draait, niet als `command()` wordt gebouwd. `readCooldown` draait in de dispatcher. Breuken mogen.
+
+## Scope
+
+```js
+export const spam = command("spam", "Niet doen", async (ctx) => ctx.reply("ok"), {
+  cooldown: { seconds: 30, scope: "guild", private: true },
+});
+```
+
+| `scope` | Sleutel | Als de id ontbreekt |
+|-----------|---------|---------------------|
+| `user` (standaard) | `name:user:id` | altijd aanwezig |
+| `guild` | `name:guild:id` | geen wachttijd in DM's |
+| `channel` | `name:channel:id` | geen wachttijd zonder kanaal |
+
+`private` staat standaard op `true`. Zet `private: false` alleen als het hele kanaal de wachttekst moet zien.
+
+Engels: `Wait {seconds}s before using /{name} again.` Nederlands: `Wacht {seconds}s voor je /{name} opnieuw gebruikt.`
+
+```js
+import { frame } from "@draeven/core";
+
+frame("cooldown", "nl", { name: "ping", seconds: 5 });
+```
+
+Sleutels zijn `cooldown`, `need`, `when`, `owner` en `failed`. Er is geen sleutel `cooldown.wait`.
+
+<Note>
+Het boek zit in het procesgeheugen. Een herstart wist elke wachttijd. `simulate()` past wachttijden **niet** toe — die draait alleen de handler ([Simuleren](/docs/simulate)).
+</Note>
+
+## Subcommando's
+
+Eén `cooldown` op de parent dekt elk blad onder die slash-naam. Je kunt geen wachttijd aan alleen `sub()` hangen.
+
+## Valkuilen
+
+- `take()` draait vóór de gates. Een mislukte `need`, `ownerOnly` of `when` heeft de wachttijd al verbruikt.
+- Guild-scope zonder guild-id levert geen sleutel, dus het commando draait. Gebruik `guild` niet als DM-limiet.
+- Een druk commando met `scope: "user"` laat de rest van de server tegelijk aanroepen. Gebruik `channel` of `guild` als dat uitmaakt.
+- De wachttekst is standaard efemeer, dus mods in het kanaal zien hem niet.
+
+## Verder
+
+- [Rechten](/docs/permissions) · [Taalvarianten](/docs/locales) · [Commando's](/docs/commands)

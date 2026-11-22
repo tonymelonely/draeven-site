@@ -10,7 +10,7 @@ order: 25
 
 ## need
 
-`need` is één `PermissionName`, een lijst (allemaal vereist), of een ruw bitveld (`string` of `bigint`). Namen volgen Discord's PascalCase, waaronder `BanMembers`, `KickMembers`, `ModerateMembers`, `ManageMessages`, `ManageGuild` en `SendPolls`.
+`need` is één `PermissionName`, een lijst (allemaal vereist), of ruwe rechtenbits (`string` of `bigint`). Namen volgen Discord's PascalCase, waaronder `BanMembers`, `KickMembers`, `ModerateMembers`, `ManageMessages`, `ManageGuild` en `SendPolls`.
 
 ```js
 import { command, user } from "@draeven/core";
@@ -27,7 +27,7 @@ export const ban = command(
 );
 ```
 
-Het bitveld is de kanaalrechten van het lid, zoals Discord ze op de interactie zette. Draeven rekent de rolhiërarchie niet opnieuw uit.
+Die bits zijn de kanaalrechten van het lid, zoals Discord ze op de interactie zette. Draeven rekent de rolhiërarchie niet opnieuw uit.
 
 ## ownerOnly
 
@@ -65,7 +65,7 @@ Subcommando's kunnen geen eigen `need` dragen. Zet de gate op de parent `command
 
 - `Administrator` slaagt voor `hasPermissions` en `need`. Draeven behandelt de Administrator-bit (`1 << 3`) als elk recht.
 - De auto-defer-timer start ná de gates. Een trage `when()` wordt niet gedefered. Houd de gate snel, anders kan de interactie verlopen vóór de handler start ([Antwoorden](/docs/replies)).
-- `hasPermissions(have, need)` is geëxporteerd als je bitvelden zelf vergelijkt. Het commandopad roept het al aan voor `need`.
+- `hasPermissions(have, need)` is geëxporteerd als je rechtenbits zelf vergelijkt. Het commandopad roept het al aan voor `need`.
 
 ## Verder
 

@@ -406,7 +406,7 @@ Zet een geprivilegieerde intent op het tabblad **Bot** alleen aan als een handle
 | Message Content Intent | \`messageContent\` | \`message\`, \`messageEdit\` (met \`content\`) |
 | Presence Intent | \`guildPresences\` | \`presenceUpdate\` |
 
-\`intentsFor("memberJoin", "message")\` zet \`guildMembers\`, \`guildMessages\`, \`directMessages\` en \`messageContent\` voor je aan. Liever dat dan een bitveld met de hand ([Events en intents](/docs/events-intents)).
+\`intentsFor("memberJoin", "message")\` zet \`guildMembers\`, \`guildMessages\`, \`directMessages\` en \`messageContent\` voor je aan. Gebruik dat liever dan zelf bits optellen ([Events en intents](/docs/events-intents#intents)).
 
 <Tip>
 Houd de eerste bot privé op een testguild. Installatiecontexten (\`install\` / \`places\` op een commando) kun je later vastleggen.
@@ -971,7 +971,7 @@ Guild-sync toont nieuwe commando's binnen seconden in die server. Een globale sy
 
 ## Intents en events
 
-\`intentsFor("memberJoin", "message")\` verenigt de bits die die events nodig hebben, inclusief geprivilegieerde intents die Discord eist. \`intentBits("guilds", "guildMessages")\` doet een OR van benoemde vlaggen als je het masker al kent. Event-handlers hebben nog steeds de bits van hun naam nodig ([Events en intents](/docs/events-intents)).
+\`intentsFor("memberJoin", "message")\` voegt de bits samen die die events nodig hebben, inclusief geprivilegieerde intents die Discord eist. \`intentBits("guilds", "guildMessages")\` doet een OR van benoemde vlaggen als je de namen al kent. Event-handlers hebben nog steeds de bits van hun naam nodig ([Events en intents](/docs/events-intents#intents)).
 
 \`events\` als object staat vast voor het proces. Dat object laadt geen \`use()\`. \`events: "./dist/events"\` laadt modules waarvan de exportnaam de eventnaam is, plus \`use()\`-handlers in die bestanden. Laat je \`events\` weg, dan gebruikt Draeven het \`events\`-pad uit \`draeven.config.js\` als het bestand er een zet. \`watch: true\` herlaadt die map als de bestanden veranderen.
 
@@ -1476,7 +1476,7 @@ export const letters = use({
 
 ## Modaal formulier
 
-Het formulier is het hele eerste antwoord. Roep niet eerst \`wait()\` aan. \`kind: "submit"\` wacht op de modal, en \`fields\` is gekeyed op veld-id.
+Het formulier is het hele eerste antwoord. Roep niet eerst \`wait()\` aan. \`kind: "submit"\` wacht op de modal, en \`fields\` gebruikt de veld-id als sleutel.
 
 \`\`\`js
 import { command, fieldStyles, form } from "@draeven/core";
@@ -1673,7 +1673,7 @@ export const choose = command("choose", "Asks yes or no and waits for a press", 
 
 ### Vragen met een formulier
 
-Het formulier is het eerste antwoord. \`kind: "submit"\` wacht op die modal. \`fields\` is gekeyed op veld-id.
+Het formulier is het eerste antwoord. \`kind: "submit"\` wacht op die modal. \`fields\` gebruikt de veld-id als sleutel.
 
 \`\`\`js
 import { command, form, fieldStyles } from "@draeven/core";
@@ -2696,7 +2696,7 @@ export const report = userMenu("Rapporteer", { defer: { private: true } }, async
 
 De menucontext heeft \`reply\`, \`wait\`, \`edit\`, lookups, \`author\` en \`locale\`. Geen slash-opties, geen \`followup\`, geen \`collect\` en geen moderatiehelpers. \`reply(form())\` werkt vanuit een menu. Een formulier is niet beperkt tot slash-commando's. Menu-\`reply\` neemt geen \`poll()\`, \`layout()\` of een \`{ private: true }\`-optieobject. Dat tweede argument moet een embed zijn. Voor een efemeer menu roep je \`await ctx.wait({ private: true })\` aan en daarna \`edit\`, of zet je \`defer: { private: true }\` in metadata.
 
-Menu-\`need\` krijgt geen \`memberPermissions\`. Het bitveld is \`0\`. Elke \`need\` die niet nul is blokkeert altijd, ook \`Administrator\`. Gebruik \`ownerOnly\` of \`when\` als je een gate nodig hebt.
+Menu-\`need\` krijgt geen \`memberPermissions\`. De rechtenbits staan op \`0\`. Elke \`need\` die niet nul is blokkeert altijd, ook \`Administrator\`. Gebruik \`ownerOnly\` of \`when\` als je een gate nodig hebt.
 
 <Note>
 Menu's synchroniseren met dezelfde guild- of globale regels als slash-commando's. Een ontbrekend menu na een deploy is meestal een verouderde globale registratie, geen mislukte export.
@@ -2977,7 +2977,7 @@ Subcommands cannot carry their own \`need\`. Put the gate on the parent \`comman
 
 ## need
 
-\`need\` is één \`PermissionName\`, een lijst (allemaal vereist), of een ruw bitveld (\`string\` of \`bigint\`). Namen volgen Discord's PascalCase, waaronder \`BanMembers\`, \`KickMembers\`, \`ModerateMembers\`, \`ManageMessages\`, \`ManageGuild\` en \`SendPolls\`.
+\`need\` is één \`PermissionName\`, een lijst (allemaal vereist), of ruwe rechtenbits (\`string\` of \`bigint\`). Namen volgen Discord's PascalCase, waaronder \`BanMembers\`, \`KickMembers\`, \`ModerateMembers\`, \`ManageMessages\`, \`ManageGuild\` en \`SendPolls\`.
 
 \`\`\`js
 import { command, user } from "@draeven/core";
@@ -2994,7 +2994,7 @@ export const ban = command(
 );
 \`\`\`
 
-Het bitveld is de kanaalrechten van het lid, zoals Discord ze op de interactie zette. Draeven rekent de rolhiërarchie niet opnieuw uit.
+Die bits zijn de kanaalrechten van het lid, zoals Discord ze op de interactie zette. Draeven rekent de rolhiërarchie niet opnieuw uit.
 
 ## ownerOnly
 
@@ -3032,7 +3032,7 @@ Subcommando's kunnen geen eigen \`need\` dragen. Zet de gate op de parent \`comm
 
 - \`Administrator\` slaagt voor \`hasPermissions\` en \`need\`. Draeven behandelt de Administrator-bit (\`1 << 3\`) als elk recht.
 - De auto-defer-timer start ná de gates. Een trage \`when()\` wordt niet gedefered. Houd de gate snel, anders kan de interactie verlopen vóór de handler start ([Antwoorden](/docs/replies)).
-- \`hasPermissions(have, need)\` is geëxporteerd als je bitvelden zelf vergelijkt. Het commandopad roept het al aan voor \`need\`.
+- \`hasPermissions(have, need)\` is geëxporteerd als je rechtenbits zelf vergelijkt. Het commandopad roept het al aan voor \`need\`.
 
 ## Verder
 
@@ -3927,6 +3927,10 @@ A form cannot follow \`wait()\` or a metadata \`defer\`. Reply with the form fir
 - \`link()\` never arrives in \`collect\`. Do not list a link in \`ids\`.
 - A menu or picker beside a button throws: "A menu takes the whole row."
 - After a timeout the controls stay. A text-only \`edit\` keeps the row, because \`components\` is omitted. \`rows: []\` is dropped too. \`remove()\` deletes the reply.
+
+## Related
+
+- [Collectors](/docs/collectors) · [Replies](/docs/replies) · [Embeds & layout](/docs/embeds-layout) · [Press & submit](/docs/press-handlers#use)
 `,
     },
     nl: {
@@ -4096,7 +4100,7 @@ Een formulier kan niet volgen op \`wait()\` of een \`defer\` in metadata. Antwoo
 
 ## Verder
 
-- [Verzamelaars](/docs/collectors) · [Antwoorden](/docs/replies) · [Embeds en layout](/docs/embeds-layout)
+- [Verzamelaars](/docs/collectors) · [Antwoorden](/docs/replies) · [Embeds en layout](/docs/embeds-layout) · [Press & submit](/docs/press-handlers#use)
 `,
     },
   },
@@ -6310,7 +6314,7 @@ Voorwaarden:
 - Iets moet die map herschrijven. \`pnpm dev\` draait \`tsc -w\` na de eerste build.
 - Eventmappen worden alleen bekeken als \`events\` een pad is, geen object.
 
-\`bot.syncState()\` is een momentopname. \`bot.onSync(handler)\` abonneert en geeft een afmeldfunctie terug.
+\`bot.syncState()\` is een momentopname. \`bot.onSync(handler)\` zet een listener en geeft een afmeldfunctie terug.
 
 | Veld | Betekenis |
 |------|-----------|

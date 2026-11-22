@@ -66,7 +66,7 @@ Guild-sync toont nieuwe commando's binnen seconden in die server. Een globale sy
 
 ## Intents en events
 
-`intentsFor("memberJoin", "message")` verenigt de bits die die events nodig hebben, inclusief geprivilegieerde intents die Discord eist. `intentBits("guilds", "guildMessages")` doet een OR van benoemde vlaggen als je het masker al kent. Event-handlers hebben nog steeds de bits van hun naam nodig ([Events en intents](/docs/events-intents)).
+`intentsFor("memberJoin", "message")` voegt de bits samen die die events nodig hebben, inclusief geprivilegieerde intents die Discord eist. `intentBits("guilds", "guildMessages")` doet een OR van benoemde vlaggen als je de namen al kent. Event-handlers hebben nog steeds de bits van hun naam nodig ([Events en intents](/docs/events-intents#intents)).
 
 `events` als object staat vast voor het proces. Dat object laadt geen `use()`. `events: "./dist/events"` laadt modules waarvan de exportnaam de eventnaam is, plus `use()`-handlers in die bestanden. Laat je `events` weg, dan gebruikt Draeven het `events`-pad uit `draeven.config.js` als het bestand er een zet. `watch: true` herlaadt die map als de bestanden veranderen.
 

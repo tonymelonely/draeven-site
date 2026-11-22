@@ -116,7 +116,7 @@ export const letters = use({
 
 ## Modaal formulier
 
-Het formulier is het hele eerste antwoord. Roep niet eerst `wait()` aan. `kind: "submit"` wacht op de modal, en `fields` is gekeyed op veld-id.
+Het formulier is het hele eerste antwoord. Roep niet eerst `wait()` aan. `kind: "submit"` wacht op de modal, en `fields` gebruikt de veld-id als sleutel.
 
 ```js
 import { command, fieldStyles, form } from "@draeven/core";
@@ -313,7 +313,7 @@ export const choose = command("choose", "Asks yes or no and waits for a press", 
 
 ### Vragen met een formulier
 
-Het formulier is het eerste antwoord. `kind: "submit"` wacht op die modal. `fields` is gekeyed op veld-id.
+Het formulier is het eerste antwoord. `kind: "submit"` wacht op die modal. `fields` gebruikt de veld-id als sleutel.
 
 ```js
 import { command, form, fieldStyles } from "@draeven/core";

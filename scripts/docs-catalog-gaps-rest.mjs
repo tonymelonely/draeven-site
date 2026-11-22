@@ -280,7 +280,7 @@ export const choose = command("choose", "Een menu met een eigen press", async (c
 });
 \`\`\`
 
-Een formulier gebruikt \`submit\`, en \`ctx.fields\` is ingedeeld op veld-id:
+Een formulier gebruikt \`submit\`, en \`ctx.fields\` gebruikt de veld-id als sleutel:
 
 \`\`\`js
 form({
@@ -764,7 +764,7 @@ await Start({
 | \`file\` | Pad dat als UTF-8 wordt aangevuld. Verplicht als \`via\` \`"file"\` bevat, ook bij \`"all"\`. Bovenliggende mappen worden gemaakt. |
 | \`uptime\` | \`true\` zet de tijd sinds \`Start\` op de ready-regel en op elk rapport. |
 
-\`of: "commands"\` is een throw uit een slash- of menu-handler. \`of: "events"\` is een throw uit een gateway-handler. \`of: "process"\` abonneert op \`uncaughtException\` en \`unhandledRejection\`, en \`dispose\` (van \`bot.stop\`) haalt die listeners weg.
+\`of: "commands"\` is een fout uit een slash- of menu-handler. \`of: "events"\` is een fout uit een gateway-handler. \`of: "process"\` hangt listeners aan \`uncaughtException\` en \`unhandledRejection\`, en \`dispose\` (van \`bot.stop\`) haalt die weer weg.
 
 Een onbekende \`via\` of \`of\` faalt al bij \`guard()\`. Een lege lijst geeft de fout \`guard() needs at least one via\` of \`at least one of\`.
 

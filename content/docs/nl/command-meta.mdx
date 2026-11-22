@@ -16,19 +16,19 @@ Laat een veld weg om de standaard van Draeven of Discord te houden. Een leeg obj
 
 | Veld | Soort | Wat het doet |
 |------|-------|----------------|
-| `permissions` | `PermissionName`, een lijst, een cijferstring of `bigint` | Standaard lid-rechten op het commando. Een lijst OR't de bits. Discord eist daarna alle bits. |
+| `permissions` | `PermissionName`, een lijst, een cijferstring of `bigint` | Standaard lid-rechten op het commando. Een lijst combineert de bits met OR. Discord eist daarna alle bits. |
 | <Explain topic="command-nsfw">`nsfw`</Explain> | `boolean` | `true` beperkt het commando tot leeftijdsbegrensde kanalen. `false` stuurt `nsfw: false`. Laat de sleutel weg om hem niet te zetten. |
 | <Explain topic="command-places">`places`</Explain> | `"guild"`, `"bot dm"`, `"private"` | Discord-contexts `0`, `1` en `2`. Weglaten houdt de standaard van Discord. |
 | <Explain topic="command-install">`install`</Explain> | `"guild"`, `"user"` | Integratietypes `0` en `1`. Weglaten houdt de standaard van Discord. |
 | `cooldown` | getal of `{ seconds, scope?, private? }` | Wachttijd in het geheugen vóór `run`. Zie [Wachttijden](/docs/cooldowns). |
 | `locales` | record van Discord-locale naar `{ name?, description? }` | Registratieteksten, niet `say()`. Zie [Taalvarianten](/docs/locales). |
-| <Explain topic="command-need">`need`</Explain> | hetzelfde type als `permissions` | Runtime-gate. Het bitveld van het lid op de interactie moet elke bit bevatten. |
+| <Explain topic="command-need">`need`</Explain> | hetzelfde type als `permissions` | Runtime-gate. De rechtenbits van het lid op de interactie moeten elke bit bevatten. |
 | `ownerOnly` | `boolean` | Runtime-gate. `author.id` moet de guild-owner-id zijn. |
 | `when` | `(ctx) => boolean` | Runtime-gate. Geef `false` terug om te blokkeren. `ctx` heeft `author`, `locale` en lookups, geen `reply`. |
 | <Explain topic="command-defer">`defer`</Explain> | `true` of `{ private?: boolean }` | Defer vóór de handler. `true` is publiek. `{ private: true }` is efemeer. |
 | `autoDefer` | `boolean` | `false` zet de auto-defer van 2 seconden uit voor dit commando alleen. `true` overschrijft `Start({ autoDefer: false })` niet. |
 
-`hasPermissions` behandelt de Administrator-bit als een pass voor `need`. Discord moet die bit wel op de interactie zetten. `permissionBitfield` geeft de fout `[Draeven] Unknown permission …` voor een naam die niet in de lijst hieronder staat. Een string van cijfers is een ruw bitveld.
+`hasPermissions` behandelt de Administrator-bit als vrijstelling voor `need`. Discord moet die bit wel op de interactie zetten. `permissionBitfield` geeft de fout `[Draeven] Unknown permission …` voor een naam die niet in de lijst hieronder staat. Een string van cijfers zijn ruwe rechtenbits.
 
 ## PermissionName
 

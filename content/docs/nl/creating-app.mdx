@@ -58,7 +58,7 @@ Zet een geprivilegieerde intent op het tabblad **Bot** alleen aan als een handle
 | Message Content Intent | `messageContent` | `message`, `messageEdit` (met `content`) |
 | Presence Intent | `guildPresences` | `presenceUpdate` |
 
-`intentsFor("memberJoin", "message")` zet `guildMembers`, `guildMessages`, `directMessages` en `messageContent` voor je aan. Liever dat dan een bitveld met de hand ([Events en intents](/docs/events-intents)).
+`intentsFor("memberJoin", "message")` zet `guildMembers`, `guildMessages`, `directMessages` en `messageContent` voor je aan. Gebruik dat liever dan zelf bits optellen ([Events en intents](/docs/events-intents#intents)).
 
 <Tip>
 Houd de eerste bot privé op een testguild. Installatiecontexten (`install` / `places` op een commando) kun je later vastleggen.

@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { useLocale } from "next-intl";
 import { CopyButton } from "@/components/docs/CopyButton";
 import { useSiteTheme } from "@/components/chrome/ThemeProvider";
 
@@ -19,8 +21,21 @@ export function CodeBlockChrome({
   lightHtml: string;
 }) {
   const { theme } = useSiteTheme();
+  const locale = useLocale();
+  const isNl = locale === "nl";
   const light = theme === "white";
   const html = light ? lightHtml : darkHtml;
+  const [open, setOpen] = useState(true);
+
+  useEffect(() => {
+    const mobile = window.matchMedia("(max-width: 639px)");
+    function sync() {
+      setOpen(!mobile.matches);
+    }
+    sync();
+    mobile.addEventListener("change", sync);
+    return () => mobile.removeEventListener("change", sync);
+  }, []);
 
   return (
     <div
@@ -39,7 +54,23 @@ export function CodeBlockChrome({
             : "border-[var(--color-line)] bg-[color-mix(in_srgb,#121a24_88%,var(--color-accent))] text-[var(--color-ink-soft)]"
         }`}
       >
-        <span className="truncate font-medium tracking-wide">{name}</span>
+        <button
+          type="button"
+          className="min-w-0 flex-1 truncate text-left font-medium tracking-wide sm:pointer-events-none"
+          onClick={() => setOpen((value) => !value)}
+          aria-expanded={open}
+        >
+          <span className="sm:hidden">
+            {open
+              ? isNl
+                ? "Voorbeeld verbergen · "
+                : "Hide example · "
+              : isNl
+                ? "Voorbeeld tonen · "
+                : "Show example · "}
+          </span>
+          {name}
+        </button>
         <div className="flex shrink-0 items-center gap-2">
           <span
             className={`rounded-md px-1.5 py-0.5 text-[0.62rem] font-semibold tracking-[0.14em] uppercase ${
@@ -53,11 +84,19 @@ export function CodeBlockChrome({
           {copyable ? <CopyButton code={code} /> : null}
         </div>
       </div>
-      <div
-        data-no-swipe=""
-        className="code-block__body themed-scroll max-w-full overflow-x-auto p-4 text-[0.86rem] leading-[1.7] [-webkit-overflow-scrolling:touch] [&_pre]:m-0! [&_pre]:max-w-full [&_pre]:rounded-none! [&_pre]:border-0! [&_pre]:bg-transparent! [&_pre]:p-0! [&_pre]:shadow-none! [&_pre]:whitespace-pre-wrap! [&_pre]:break-words! [&_code]:max-w-full [&_code]:bg-transparent! [&_code]:whitespace-pre-wrap! [&_code]:break-words! [&_.line]:break-words [&_span]:break-words"
-        dangerouslySetInnerHTML={{ __html: html }}
-      />
+      {open ? (
+        <div
+          data-no-swipe=""
+          className="code-block__body themed-scroll max-w-full overflow-x-auto p-4 text-[0.86rem] leading-[1.7] [-webkit-overflow-scrolling:touch] [&_pre]:m-0! [&_pre]:max-w-full [&_pre]:rounded-none! [&_pre]:border-0! [&_pre]:bg-transparent! [&_pre]:p-0! [&_pre]:shadow-none! [&_pre]:whitespace-pre-wrap! [&_pre]:break-words! [&_code]:max-w-full [&_code]:bg-transparent! [&_code]:whitespace-pre-wrap! [&_code]:break-words! [&_.line]:break-words [&_span]:break-words"
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
+      ) : (
+        <p className="px-4 py-3 text-[0.8rem] text-[var(--color-ink-soft)] sm:hidden">
+          {isNl
+            ? "Tik de bestandsnaam om het voorbeeld te openen."
+            : "Tap the filename to open the example."}
+        </p>
+      )}
     </div>
   );
 }

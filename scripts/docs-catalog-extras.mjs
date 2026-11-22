@@ -221,6 +221,8 @@ Vormen naast elkaar blijven op de spiekbrief. Als iets breekt tijdens de migrati
       body: `
 Start from the \`[Draeven]\` log line when you have one. Otherwise match the symptom below. Short matrix also lives on [Troubleshooting](/docs/troubleshooting); throw-text detail is [Errors & debugging](/docs/debugging).
 
+<ErrorPaste />
+
 ## Symptom map
 
 <ErrorMapTable />
@@ -237,6 +239,8 @@ Start from the \`[Draeven]\` log line when you have one. Otherwise match the sym
       description: "Symptoom → oorzaak → de gids die het oplost.",
       body: `
 Begin bij de \`[Draeven]\`-logregel als je die hebt. Zo niet, match het symptoom hieronder. De korte matrix staat ook op [Problemen oplossen](/docs/troubleshooting); detail over throw-tekst bij [Fouten & debuggen](/docs/debugging).
+
+<ErrorPaste />
 
 ## Symptoomkaart
 

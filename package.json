@@ -9,7 +9,8 @@
     "lint": "eslint",
     "api:docs": "node scripts/generate-api-docs.mjs",
     "docs:write": "node scripts/write-docs.mjs",
-    "docs:sync": "node scripts/check-docs-sync.mjs"
+    "docs:sync": "node scripts/check-docs-sync.mjs",
+    "docs:parity": "node scripts/check-docs-parity.mjs"
   },
   "dependencies": {
     "@mdx-js/loader": "^3.1.1",

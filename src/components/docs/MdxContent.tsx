@@ -23,6 +23,10 @@ import { DocTour } from "@/components/docs/DocTour";
 import { CodeResult } from "@/components/docs/CodeResult";
 import { CollapsibleCheatsheet } from "@/components/docs/CollapsibleCheatsheet";
 import { DocsMdxLink } from "@/components/docs/DocsMdxLink";
+import { RecipeFiles } from "@/components/docs/RecipeFiles";
+import { IntentCalc } from "@/components/docs/IntentCalc";
+import { MigrationMap } from "@/components/docs/MigrationMap";
+import { ErrorPaste } from "@/components/docs/ErrorPaste";
 
 const CALLOUT_LABELS = {
   en: { tip: "Tip", note: "Note", warn: "Watch out" },
@@ -110,6 +114,10 @@ export async function MdxContent({ source }: { source: string }) {
           DocTour,
           CodeResult,
           CollapsibleCheatsheet,
+          RecipeFiles,
+          IntentCalc,
+          MigrationMap,
+          ErrorPaste,
           Explain,
           Callout,
           Tip: (props: { title?: string; children?: ReactNode }) => (

@@ -10,8 +10,11 @@ import { MdxContent } from "@/components/docs/MdxContent";
 import { OnThisPage } from "@/components/docs/OnThisPage";
 import { SectionChips } from "@/components/docs/SectionChips";
 import { PathNext } from "@/components/docs/PathNext";
+import { GuideChecklist } from "@/components/docs/GuideChecklist";
+import { CoreAlignBadge } from "@/components/docs/CoreAlignBadge";
 import { docsSidebar, extractHeadings, getDoc } from "@/lib/docs";
 import { DOCS_CORE_VERSION, getDocExtras, PATH_NEXT_SLUGS } from "@/lib/docs-meta";
+import { getGuideChecks } from "@/lib/guide-checks";
 import { getDocUpdated } from "@/lib/doc-updates";
 import { estimateReadingMinutes } from "@/lib/reading-time";
 import type { AppLocale } from "@/i18n/routing";
@@ -43,6 +46,7 @@ export default async function DocPage({
     PATH_NEXT_SLUGS.has(slugKey) && extras.nextStep
       ? sidebar.find((item) => item.slug.join("/") === extras.nextStep)
       : undefined;
+  const guideChecks = getGuideChecks(slugKey);
 
   return (
     <DocsShell
@@ -74,9 +78,7 @@ export default async function DocPage({
             <span className="text-[var(--color-ink-soft)]">
               {t("guideStep", { step, total: sidebar.length })}
             </span>
-            <span className="text-[var(--color-ink-soft)]">
-              {t("coreVersion", { version: DOCS_CORE_VERSION })}
-            </span>
+            <CoreAlignBadge />
             <DocsVersionSwitch />
             <span className="text-[var(--color-ink-soft)]">
               {t("readTime", { minutes })}
@@ -95,11 +97,25 @@ export default async function DocPage({
               {doc.meta.description}
             </p>
           ) : null}
+          {extras.api && extras.api.length > 0 ? (
+            <div className="flex flex-wrap gap-2 pt-1">
+              {extras.api.map((item) => (
+                <Link
+                  key={item.href + item.label}
+                  href={item.href}
+                  className="rounded-md border border-[var(--color-line)] px-2 py-1 font-mono text-[0.72rem] text-[var(--color-accent-bright)] no-underline transition hover:border-[var(--color-accent)]"
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+          ) : null}
         </header>
 
         <div className="px-5 py-6 sm:px-7 sm:py-7">
           <SectionChips title={t("jumpTo")} headings={headings} />
           <MdxContent source={doc.content} />
+          {guideChecks ? <GuideChecklist slug={slugKey} items={guideChecks} /> : null}
           {pathNext ? (
             <PathNext
               href={`/docs/${pathNext.slug.join("/")}`}

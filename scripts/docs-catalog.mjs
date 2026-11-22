@@ -1005,6 +1005,8 @@ Discord geeft de handler ongeveer 3 seconden. De standaard <Explain topic="auto-
       body: `
 Copy-paste command files for \`src/commands\`. Letters also needs a \`use()\` file in \`src/events\`.
 
+<RecipeFiles />
+
 ## How to drop one in
 
 1. Save as \`src/commands/<name>.ts\` (named \`export\`).
@@ -1363,6 +1365,8 @@ export const ask = command("ask", "Opens a short form and waits for the answer",
       description: "Kant-en-klare commando's om te kopiëren.",
       body: `
 Kant-en-klare commandobestanden voor \`src/commands\`. Letters heeft ook een \`use()\`-bestand in \`src/events\` nodig.
+
+<RecipeFiles />
 
 ## Eén bestand plaatsen
 
@@ -5412,6 +5416,8 @@ Joins, messages, reactions, and durable \`use()\` handlers live outside slash co
 
 Each event needs the intents in \`eventIntents\`. \`intentsFor("memberJoin", "message")\` unions those bits. Prefer \`intentsFor\` over a hand-written mask.
 
+<IntentCalc />
+
 ## Inline handlers
 
 \`\`\`js
@@ -5527,6 +5533,8 @@ Joins, berichten, reacties en duurzame \`use()\`-handlers horen buiten slash-com
 <WhenToUse topic="events" />
 
 Elk event heeft de intents uit \`eventIntents\` nodig. \`intentsFor("memberJoin", "message")\` voegt die bits samen. Liever \`intentsFor\` dan een masker met de hand.
+
+<IntentCalc />
 
 ## Handlers inline
 

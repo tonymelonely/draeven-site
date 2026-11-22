@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
+import { withInlineCode } from "@/components/docs/inlineCode";
 import { MIGRATION_CHECKLIST } from "@/lib/migration-checklist";
 
 const STORAGE_KEY = "draeven-migration-checklist";
@@ -62,7 +63,7 @@ export function Checklist({ id = "migration" }: { id?: string }) {
                   done[item.id] ? "text-[var(--color-ink-soft)] line-through" : "text-[var(--color-ink)]"
                 }
               >
-                {isNl ? item.nl : item.en}
+                {withInlineCode(isNl ? item.nl : item.en)}
               </span>
               {item.href ? (
                 <>

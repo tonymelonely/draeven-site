@@ -135,6 +135,8 @@ Als een stap faalt, begin bij [Problemen oplossen](/docs/troubleshooting). Werke
       body: `
 A name map only. Draeven is its own framework. There is no \`Client\`, and a discord.js \`Client\` does not mix into this process.
 
+<MigrationMap />
+
 | You know (discord.js) | In Draeven |
 |-----------------------|------------|
 | \`Client\` / Events | \`Start\` + \`events\` / \`intentsFor\` |
@@ -184,6 +186,8 @@ Shapes for the right-hand column: [Embeds & layout](/docs/embeds-layout) · [But
       description: "discord.js-namen naast de Draeven-aanroep die ze vervangt.",
       body: `
 Alleen een namenkaart. Draeven is een eigen framework. Er is geen \`Client\`, en een discord.js-\`Client\` mengt niet in dit proces.
+
+<MigrationMap />
 
 | Je kent (discord.js) | In Draeven |
 |----------------------|------------|

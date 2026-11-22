@@ -4,11 +4,19 @@ import { useEffect, useMemo, useState } from "react";
 import { useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import type { DocMeta } from "@/lib/docs";
+import { LEARNING_PATHS, PATH_NEXT_SLUGS } from "@/lib/docs-meta";
 
 const BADGE_COPY = {
   new: { en: "new", nl: "nieuw" },
   miss: { en: "often miss", nl: "vaak mis" },
 } as const;
+
+const VISITED_KEY = "draeven-docs-visited";
+
+const PATH_SLUGS = new Set<string>([
+  ...PATH_NEXT_SLUGS,
+  ...LEARNING_PATHS.flatMap((path) => path.steps.map((step) => step.slug)),
+]);
 
 export function DocsSidebar({
   items,
@@ -40,6 +48,7 @@ export function DocsSidebar({
   const [open, setOpen] = useState<Record<string, boolean>>(() =>
     Object.fromEntries(sections.map((section) => [section.name, section.name === activeSection]))
   );
+  const [visited, setVisited] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (!activeSection) return;
@@ -48,6 +57,23 @@ export function DocsSidebar({
       return { ...current, [activeSection]: true };
     });
   }, [activeSection]);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(VISITED_KEY);
+      const current = raw ? (JSON.parse(raw) as Record<string, boolean>) : {};
+      if (activeSlug && PATH_SLUGS.has(activeSlug)) {
+        current[activeSlug] = true;
+        localStorage.setItem(VISITED_KEY, JSON.stringify(current));
+      }
+      setVisited(current);
+    } catch {
+      /* ignore */
+    }
+  }, [activeSlug]);
+
+  const pathDone = [...PATH_SLUGS].filter((slug) => visited[slug]).length;
+  const pathTotal = PATH_SLUGS.size;
 
   return (
     <aside className="docs-sidebar docs-rail flex h-full min-h-0 flex-col overflow-hidden p-3.5">
@@ -59,6 +85,9 @@ export function DocsSidebar({
           {items.length}
         </span>
       </div>
+      <p className="mb-2 px-1 text-[0.65rem] text-[var(--color-ink-soft)]">
+        {isNl ? `Pad ${pathDone}/${pathTotal}` : `Path ${pathDone}/${pathTotal}`}
+      </p>
       <nav className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain">
         {sections.map((section) => {
           const isOpen = Boolean(open[section.name]);
@@ -118,7 +147,19 @@ export function DocsSidebar({
                             : "text-[var(--color-ink-soft)] hover:bg-[color-mix(in_srgb,var(--color-paper-deep)_70%,transparent)] hover:text-[var(--color-ink)]"
                         }`}
                       >
-                        <span className="min-w-0 truncate">{item.title}</span>
+                        <span className="flex min-w-0 items-center gap-1.5 truncate">
+                          {PATH_SLUGS.has(item.slug.join("/")) ? (
+                            <span
+                              className={`h-1.5 w-1.5 shrink-0 rounded-full ${
+                                visited[item.slug.join("/")]
+                                  ? "bg-[var(--color-accent)]"
+                                  : "bg-[var(--color-line-strong)]"
+                              }`}
+                              aria-hidden
+                            />
+                          ) : null}
+                          <span className="truncate">{item.title}</span>
+                        </span>
                         {chip ? (
                           <span
                             className={`shrink-0 rounded-md px-1.5 py-0.5 text-[0.58rem] tracking-[0.06em] uppercase ${

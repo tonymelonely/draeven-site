@@ -1,6 +1,12 @@
 /** Core package version these guides describe. */
 export const DOCS_CORE_VERSION = "0.1.9";
 
+/**
+ * Declared @draeven/core pin the site claims to match.
+ * Keep equal to DOCS_CORE_VERSION unless you are mid-upgrade.
+ */
+export const DOCS_PACKAGE_PIN = "0.1.9";
+
 /** Learning-path pages that get a sticky next-step CTA (uses DocExtras.nextStep). */
 export const PATH_NEXT_SLUGS = new Set([
   "welcome",

@@ -4,7 +4,7 @@ description: De statusregel van de bot bij start en daarna.
 order: 62
 ---
 
-Aanwezigheid is de status en activiteit onder de naam van de bot in de ledenlijst. Zet hem op `Start`, en wijzig hem later met `bot.setPresence`. Dit werkt alleen voor **het botaccount**. Het zet niet de status van een lid.
+Aanwezigheid is de status en activiteit onder de naam van de bot in de ledenlijst. Zet hem op `Start`, en wijzig hem later met `bot.setPresence` op de [bot-handle](/docs/bot-handle). Dit werkt alleen voor **het botaccount**. Het zet niet de status van een lid.
 
 ```js
 import { Start } from "@draeven/core";
@@ -71,4 +71,4 @@ Activiteitstekst moet 1–128 tekens zijn. `kind: "streaming"` heeft een `https:
 
 ## Verder
 
-- [Snelstart](/docs/quickstart) · [Events en intents](/docs/events-intents)
+- [Snelstart](/docs/quickstart) · [Bot-handle](/docs/bot-handle) · [Events en intents](/docs/events-intents)

@@ -29,7 +29,7 @@ One \`Start()\` owns the process. Slash commands take the left branch. Gateway e
 
 ## loadCommands / loadEvents
 
-\`loadCommands()\` imports compiled \`.js\` from the commands folder (or uses the array you passed). \`loadEvents()\` imports a folder whose export names are event names, and every \`use()\` in those files. \`watch: true\` with an in-memory array throws. There is no folder ([Commands](/docs/commands), [Events & intents](/docs/events-intents)).
+\`loadCommands()\` imports compiled \`.js\` from the commands folder (or uses the array you passed). \`loadEvents()\` imports a folder whose export names are event names, and every \`use()\` in those files. \`watch: true\` with an in-memory array throws — there is then no events folder to watch ([Commands](/docs/commands), [Events & intents](/docs/events-intents)).
 
 ## Discord registers slash
 
@@ -74,7 +74,7 @@ Eén \`Start()\` bezit het proces. Slash-commando's nemen de linker tak. Gateway
 
 | Stap | Wat het doorgeeft |
 |------|-------------------|
-| \`Start()\` | Geladen commando's, de gateway en het lopende handvat |
+| \`Start()\` | Geladen commando's, de gateway en de lopende bot-handle |
 | \`loadCommands\` / \`loadEvents\` | Gecompileerde \`.js\` als commando's en eventhandlers |
 | Discord registreert slash | De applicatiecommando's voor die guild, of globaal |
 | Interactie komt binnen | Eén \`ctx\` voor dit slash-commando of menu |
@@ -90,7 +90,7 @@ Eén \`Start()\` bezit het proces. Slash-commando's nemen de linker tak. Gateway
 
 ## loadCommands / loadEvents
 
-\`loadCommands()\` importeert gecompileerde \`.js\` uit de commandomap (of gebruikt de array die je meegaf). \`loadEvents()\` importeert een map waarvan de exportnamen eventnamen zijn, en elke \`use()\` in die bestanden. \`watch: true\` met een array in het geheugen geeft een foutmelding. Er is geen map ([Commando's](/docs/commands), [Events en intents](/docs/events-intents)).
+\`loadCommands()\` importeert gecompileerde \`.js\` uit de commandomap (of gebruikt de array die je meegaf). \`loadEvents()\` importeert een map waarvan de exportnamen eventnamen zijn, en elke \`use()\` in die bestanden. \`watch: true\` met een array in het geheugen geeft een foutmelding — er is dan geen events-map om te watchen ([Commando's](/docs/commands), [Events en intents](/docs/events-intents)).
 
 ## Discord registreert slash
 
@@ -110,11 +110,11 @@ De functie op \`command()\`, \`userMenu()\` of \`messageMenu()\` draait hier. Hi
 
 ## reply, edit, wait, collect
 
-Een tweede \`reply()\` faalt alleen als er al een antwoord is opgeslagen en je noch hebt gewacht, noch een collect hebt geflusht. \`wait\` defert. Daarna vult \`edit()\` of een nieuwe \`reply()\` het bericht. \`collect\` blijft in dit commando tot een knop, menu of formulier binnenkomt, of tot de wachttijd afloopt ([Antwoorden](/docs/replies), [Verzamelaars](/docs/collectors)).
+Een tweede \`reply()\` faalt alleen als er al een antwoord is opgeslagen en je noch hebt gewacht, noch een collect hebt geflusht. \`wait\` stelt het antwoord uit (defer). Daarna vult \`edit()\` of een nieuwe \`reply()\` het bericht. \`collect\` blijft in dit commando tot een knop, menu of formulier binnenkomt, of tot de wachttijd afloopt ([Antwoorden](/docs/replies), [Verzamelaars](/docs/collectors)).
 
 ## press / submit
 
-Een passende \`collect\` draait eerst. Anders gebruikt Draeven de inline \`press\` of \`submit\` die op die id is onthouden, dan een \`use()\` uit de events-map, dan de tekst \`Received.\`. De handler antwoordt op een eigen context ([Press & submit](/docs/press-handlers)).
+Een passende \`collect\` draait eerst. Anders gebruikt Draeven de inline \`press\` of \`submit\` die op die id is onthouden, dan een \`use()\` uit de events-map, dan de tekst \`Received.\` (framework-Engels — letterlijke fallback). De handler antwoordt op een eigen context ([Press & submit](/docs/press-handlers)).
 
 ## Gateway-events
 
@@ -241,9 +241,24 @@ Vormen voor de rechterkolom: [Embeds en layout](/docs/embeds-layout) · [Knoppen
       title: "Troubleshooting",
       description: "Symptom, likely cause, and the guide that fixes it.",
       body: `
-Read the \`[Draeven]\` message first. It names the rule. The living symptom map is [Why is this failing?](/docs/why-failing). Throw-text detail is [Errors & debugging](/docs/debugging). Bounds that are deliberate are [Known limits](/docs/known-limits).
+Read the \`[Draeven]\` message first. It names the rule.
+
+**How to use this page**
+
+1. Match the symptom in the table (unknown interaction, wrong intent, form after \`wait\`, …).
+2. Open the linked guide and apply the fix there.
+3. If the log line is more specific than the table, open [Errors & debugging](/docs/debugging).
+4. If the behavior is intentional for beta, check [Known limits](/docs/known-limits).
+
+The interactive paste-and-match tool lives on [Why is this failing?](/docs/why-failing#symptom-map). Use that when you have a full log line and want the same matrix with a search box.
+
+## Symptom map
 
 <ErrorMapTable />
+
+## Worked walkthrough
+
+Example: Discord shows **Unknown interaction**, and the log has no \`[Draeven]\` line. The table points at a late reply or a missing \`wait\` / auto-defer. Open [Replies](/docs/replies), confirm the handler returned within about three seconds or called \`wait()\`, then re-test with [Simulate](/docs/simulate) if the failure is in a command handler.
 
 Ask in Discord **#help** when the invite is live, or send [Feedback](/docs/feedback) with the log line.
 `,
@@ -252,9 +267,24 @@ Ask in Discord **#help** when the invite is live, or send [Feedback](/docs/feedb
       title: "Problemen oplossen",
       description: "Symptoom, waarschijnlijke oorzaak, en de gids die het oplost.",
       body: `
-Lees eerst het \`[Draeven]\`-bericht. Het noemt de regel. De levende symptoomkaart is [Waarom faalt dit?](/docs/why-failing). Detail over throw-tekst staat bij [Fouten & debuggen](/docs/debugging). Grenzen die bewust zijn staan bij [Bekende limieten](/docs/known-limits).
+Lees eerst het \`[Draeven]\`-bericht. Het noemt de regel.
+
+**Zo gebruik je deze pagina**
+
+1. Zoek het symptoom in de tabel (unknown interaction, verkeerde intent, formulier na \`wait\`, …).
+2. Open de gekoppelde gids en pas de fix daar toe.
+3. Is de logregel preciezer dan de tabel, open [Fouten & debuggen](/docs/debugging).
+4. Is het gedrag bewust voor de beta, check [Bekende limieten](/docs/known-limits).
+
+De interactieve plak-en-zoektool staat op [Waarom faalt dit?](/docs/why-failing#symptom-map). Gebruik die als je een volledige logregel hebt en dezelfde matrix met zoekveld wilt.
+
+## Symptoomkaart
 
 <ErrorMapTable />
+
+## Uitgewerkt voorbeeld
+
+Voorbeeld: Discord toont **Unknown interaction**, en de log heeft geen \`[Draeven]\`-regel. De tabel wijst naar een te laat antwoord of een ontbrekende \`wait\` / auto-defer. Open [Antwoorden](/docs/replies), controleer of de handler binnen ongeveer drie seconden terugkwam of \`wait()\` aanriep, en test daarna opnieuw met [Simuleren](/docs/simulate) als de fout in een command-handler zit.
 
 Vraag in Discord **#help** zodra de invite live is, of stuur [Terugkoppeling](/docs/feedback) met de logregel.
 `,

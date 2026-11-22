@@ -66,9 +66,9 @@ De teruggegeven `Reply` kan ook `embed`, `poll`, `rows`, `layout` of `private` d
 |-----------------------|--------------------------|
 | `reply()` | Geeft de `Reply` terug |
 | `followup()` | Zet hem in de wachtrij op het antwoord |
-| `wait`, `edit`, `remove`, `collect` | Gooit — geen interactietoken |
-| `send`, `timeout`, `kick`, `ban` | Gooit — geen REST-verbinding |
-| `transcript()` | Gooit — geen kanaaltranscript |
+| `wait`, `edit`, `remove`, `collect` | Geeft een foutmelding — geen interactietoken |
+| `send`, `timeout`, `kick`, `ban` | Geeft een foutmelding — geen REST-verbinding |
+| `transcript()` | Geeft een foutmelding — geen kanaaltranscript |
 
 <Tip>
 Test de keuze in de handler (welke string, welke embed). `simulate` drukt de gate-tekst voor de servereigenaar niet af. Die tekst komt van `frame("owner", locale)` op het live pad.
@@ -82,4 +82,4 @@ Test de keuze in de handler (welke string, welke embed). `simulate` drukt de gat
 
 ## Verder
 
-- [Commando's](/docs/commands) · [Taalvarianten](/docs/locales) · [Wachttijden](/docs/cooldowns)
+- [Commando's](/docs/commands) · [Taalvarianten](/docs/locales) · [Wachttijden](/docs/cooldowns) · [Fouten & debuggen](/docs/debugging)

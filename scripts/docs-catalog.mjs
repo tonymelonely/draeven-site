@@ -19,7 +19,7 @@ Use it when you want a small, typed command layer. It is not discord.js: there i
 
 Examples across the docs reuse the same shapes: \`/ping\` → \`pong\`, and \`/greet\` when options appear. Starter bots (mod, ticket, welcome) live on [Starter bots](/docs/starters).
 
-The path from \`Start()\` to a reply is [How it fits](/docs/architecture). Names you already know from discord.js are on [From discord.js](/docs/from-discordjs). When a command or event misbehaves, open [Why is this failing?](/docs/why-failing) or [Troubleshooting](/docs/troubleshooting). Words like \`ctx\`, \`wait()\`, and \`leaf\` are in the [Glossary](/docs/glossary).
+The path from \`Start()\` to a reply is [How it fits](/docs/architecture). Names you already know from discord.js are on [From discord.js](/docs/from-discordjs). Buttons that must survive a restart use \`use()\` in the events folder — [Press & submit](/docs/press-handlers#use). When a command or event misbehaves, open [Why is this failing?](/docs/why-failing) or [Troubleshooting](/docs/troubleshooting). Words like \`ctx\`, \`wait()\`, and \`leaf\` are in the [Glossary](/docs/glossary).
 
 ## What you get
 
@@ -77,7 +77,7 @@ Gebruik het als je een kleine, getypeerde commandolaag wilt. Het is geen discord
 
 Voorbeelden in de docs hergebruiken dezelfde vormen: \`/ping\` → \`pong\`, en \`/greet\` als er opties zijn. Starter-bots (mod, ticket, welkom) staan op [Starter-bots](/docs/starters).
 
-Het pad van \`Start()\` naar een antwoord is [Hoe het in elkaar zit](/docs/architecture). Namen die je al kent uit discord.js staan op [Vanuit discord.js](/docs/from-discordjs). Als een commando of event dwarszit, open [Waarom faalt dit?](/docs/why-failing) of [Problemen oplossen](/docs/troubleshooting). Woorden als \`ctx\`, \`wait()\` en \`leaf\` staan in het [Glossarium](/docs/glossary).
+Het pad van \`Start()\` naar een antwoord is [Hoe het in elkaar zit](/docs/architecture). Namen die je al kent uit discord.js staan op [Vanuit discord.js](/docs/from-discordjs). Knoppen die een herstart moeten overleven gebruiken \`use()\` in de events-map — [Press & submit](/docs/press-handlers#use). Als een commando of event dwarszit, open [Waarom faalt dit?](/docs/why-failing) of [Problemen oplossen](/docs/troubleshooting). Woorden als \`ctx\`, \`wait()\` en \`leaf\` staan in het [Glossarium](/docs/glossary).
 
 ## Wat je krijgt
 
@@ -331,7 +331,7 @@ Enable a privileged intent in the **Bot** tab only when a handler needs it. Port
 | Message Content Intent | \`messageContent\` | \`message\`, \`messageEdit\` (with \`content\`) |
 | Presence Intent | \`guildPresences\` | \`presenceUpdate\` |
 
-\`intentsFor("memberJoin", "message")\` turns on \`guildMembers\`, \`guildMessages\`, \`directMessages\`, and \`messageContent\` for you. Prefer that over hand-written bitfields ([Events & intents](/docs/events-intents)).
+\`intentsFor("memberJoin", "message")\` turns on \`guildMembers\`, \`guildMessages\`, \`directMessages\`, and \`messageContent\` for you. Prefer that over hand-written bitfields ([Events & intents](/docs/events-intents#intents)).
 
 <Tip>
 Keep the first bot private to a test guild. You can decide public install contexts (\`install\` / \`places\` on a command) after the happy path works.
@@ -881,7 +881,7 @@ Guild sync shows new commands in that server within seconds. A global sync (no \
 
 ## Intents and events
 
-\`intentsFor("memberJoin", "message")\` unions the bits those events need, including privileged intents Discord requires. \`intentBits("guilds", "guildMessages")\` ORs named flags when you already know the mask. Event handlers still need the bits their names list ([Events & intents](/docs/events-intents)).
+\`intentsFor("memberJoin", "message")\` unions the bits those events need, including privileged intents Discord requires. \`intentBits("guilds", "guildMessages")\` ORs named flags when you already know the mask. Event handlers still need the bits their names list ([Events & intents](/docs/events-intents#intents)).
 
 \`events\` as an object is fixed for the process. That object does not load \`use()\`. \`events: "./dist/events"\` loads modules whose export names are the event names, plus \`use()\` handlers in those files. Omit \`events\` and Draeven uses the \`events\` path from \`draeven.config.js\` when the file sets one. \`watch: true\` reloads that folder when the files change.
 
@@ -935,7 +935,7 @@ const bot = await Start({
 });
 \`\`\`
 
-\`commands\` staat hier niet, dus Draeven leest \`draeven.config.js\` ([Config](/docs/config)). \`events\` staat hier als map, dus het \`events\`-veld uit de config wordt niet gebruikt. Laat \`events\` ook weg als het bestand al naar \`./dist/events\` wijst. \`bot\` is het [lopende handvat](/docs/bot-handle): \`setPresence\`, \`send\`, \`stop\` en \`syncState\`.
+\`commands\` staat hier niet, dus Draeven leest \`draeven.config.js\` ([Config](/docs/config)). \`events\` staat hier als map, dus het \`events\`-veld uit de config wordt niet gebruikt. Laat \`events\` ook weg als het bestand al naar \`./dist/events\` wijst. \`bot\` is de [lopende bot-handle](/docs/bot-handle): \`setPresence\`, \`send\`, \`stop\` en \`syncState\`.
 
 ## Velden
 
@@ -977,7 +977,7 @@ Guild-sync toont nieuwe commando's binnen seconden in die server. Een globale sy
 
 ## Auto-defer
 
-Discord geeft de handler ongeveer 3 seconden. De standaard <Explain topic="auto-defer">auto-defer</Explain> vuurt na 2 seconden, zodat een trage \`await\` alsnog bevestigt. \`autoDefer: 800\` defert eerder. Waarden onder 500 worden 500. Waarden boven 2500 worden 2500. \`autoDefer: false\` op \`Start\` zet het uit voor elk commando. Eén commando kan nog \`autoDefer: false\` in zijn eigen metadata zetten ([Antwoorden](/docs/replies)).
+Discord geeft de handler ongeveer 3 seconden. De standaard <Explain topic="auto-defer">auto-defer</Explain> vuurt na 2 seconden, zodat een trage \`await\` alsnog bevestigt. \`autoDefer: 800\` stelt eerder uit. Waarden onder 500 worden 500. Waarden boven 2500 worden 2500. \`autoDefer: false\` op \`Start\` zet het uit voor elk commando. Eén commando kan nog \`autoDefer: false\` in zijn eigen metadata zetten ([Antwoorden](/docs/replies)).
 
 <Note>
 \`timeZone\` verandert \`time()\`-stempels in een embed niet. Die renderen in de zone van de lezer. De startzone is alleen de terugval voor een transcript.
@@ -1579,18 +1579,18 @@ import {
   thumb,
 } from "@draeven/core";
 
-export const panel = command("panel", "Shows a Components V2 layout", async (ctx) => {
+export const panel = command("panel", "Toont een Components V2-layout", async (ctx) => {
   const { reply } = ctx;
 
   return reply(
     layout(
-      show("**Draeven** layout"),
+      show("**Draeven**-layout"),
       divide({ line: true }),
       pack(
         { color: colors.blurple },
-        show("Containers group related parts."),
+        show("Containers groeperen gerelateerde delen."),
         beside({
-          text: "Thumbnails sit beside text.",
+          text: "Miniaturen staan naast tekst.",
           with: thumb("https://cdn.discordapp.com/embed/avatars/0.png"),
         })
       ),
@@ -1645,12 +1645,12 @@ export const ping = command(
 \`\`\`js
 import { button, command, row } from "@draeven/core";
 
-export const choose = command("choose", "Asks yes or no and waits for a press", async (ctx) => {
+export const choose = command("choose", "Vraagt ja of nee en wacht op een druk", async (ctx) => {
   const { wait, edit, collect, reply } = ctx;
 
   await wait();
   await edit({
-    text: "Pick one.",
+    text: "Kies er één.",
     rows: [
       row(
         button({ id: "choose-yes", label: "Ja", color: "green" }),
@@ -1665,7 +1665,7 @@ export const choose = command("choose", "Asks yes or no and waits for a press", 
     return reply("Timeout.");
   }
 
-  return reply(pick.id === "choose-yes" ? "You chose yes." : "You chose no.");
+  return reply(pick.id === "choose-yes" ? "Je koos ja." : "Je koos nee.");
 });
 \`\`\`
 
@@ -1678,17 +1678,17 @@ Het formulier is het eerste antwoord. \`kind: "submit"\` wacht op die modal. \`f
 \`\`\`js
 import { command, form, fieldStyles } from "@draeven/core";
 
-export const ask = command("ask", "Opens a short form and waits for the answer", async (ctx) => {
+export const ask = command("ask", "Opent een kort formulier en wacht op het antwoord", async (ctx) => {
   const { reply, collect } = ctx;
 
   reply(
     form({
       id: "ask-form",
-      title: "Quick ask",
+      title: "Korte vraag",
       fields: [
         {
           id: "note",
-          label: "Your note",
+          label: "Je notitie",
           style: fieldStyles.short,
           required: true,
         },
@@ -1702,7 +1702,7 @@ export const ask = command("ask", "Opens a short form and waits for the answer",
     return reply("Timeout.");
   }
 
-  return reply(\`Got it: \${submitted.fields.note ?? ""}\`);
+  return reply(\`Genoteerd: \${submitted.fields.note ?? ""}\`);
 });
 \`\`\`
 
@@ -1860,7 +1860,7 @@ await Start({
 | Absoluut pad | Gebruikt zoals het er staat |
 | Ontbrekend bestand | \`./commands\` onder de map waar je begon. Geen events-map |
 | \`events\` ontbreekt | Geen events-map. Commando's laden nog wel |
-| Leeg pad | Gooit |
+| Leeg pad | Geeft een foutmelding |
 | Wat laadt | Alleen \`.js\`. \`.ts\` wordt overgeslagen |
 | Watch | \`watch: true\` herlaadt de commandomap, en de events-map als \`events\` gezet is |
 
@@ -3437,15 +3437,15 @@ Een optie \`user()\`, \`channel()\`, \`role()\` of \`file()\` is al het object. 
 
 | Aanroep | Resultaat |
 |---------|-----------|
-| \`getUser(ref)\` | \`User\`. Gooit als de id ontbreekt of onbekend is. |
-| <Explain topic="lookup-member">\`getMember(ref)\`</Explain> | \`Member\` in deze guild. \`undefined\` in een DM. Gooit nog steeds als die gebruiker onbekend is. |
-| \`getBot()\` | De bot als \`User\`. Gooit als deze run geen bot heeft. |
+| \`getUser(ref)\` | \`User\`. Geeft een foutmelding als de id ontbreekt of onbekend is. |
+| <Explain topic="lookup-member">\`getMember(ref)\`</Explain> | \`Member\` in deze guild. \`undefined\` in een DM. Geeft nog steeds een foutmelding als die gebruiker onbekend is. |
+| \`getBot()\` | De bot als \`User\`. Geeft een foutmelding als deze run geen bot heeft. |
 | \`getGuild()\` | \`Guild\`, of \`undefined\` in een privébericht. |
 | \`getChannel()\` | Het kanaal van deze interactie, of \`undefined\`. |
-| \`getChannel(ref)\` | Dat kanaal. Gooit als het onbekend is. |
-| \`getRole(ref)\` | \`Role\`. Gooit als die onbekend is. |
-| \`getRoles(ref)\` | De rollen van die persoon, of \`[]\`. Gooit als de gebruiker onbekend is. |
-| \`getFile(ref)\` | \`File\`. Gooit als die onbekend is. |
+| \`getChannel(ref)\` | Dat kanaal. Geeft een foutmelding als het onbekend is. |
+| \`getRole(ref)\` | \`Role\`. Geeft een foutmelding als die onbekend is. |
+| \`getRoles(ref)\` | De rollen van die persoon, of \`[]\`. Geeft een foutmelding als de gebruiker onbekend is. |
+| \`getFile(ref)\` | \`File\`. Geeft een foutmelding als die onbekend is. |
 
 \`ref\` is \`{ id }\`. \`ctx.author\` heeft die vorm al.
 
@@ -3489,7 +3489,7 @@ Een gekozen \`user()\`-optie is al de \`User\`. Roep \`getMember\` en \`getRoles
       body: `
 \`formatDate(date, country)\` writes one calendar day as a plain string. The day is **UTC**. The country chooses the order, the separators, and the digits. It does not shift the instant into the reader's clock, and it does not include a time of day.
 
-Use it when every reader must see the same characters: a log line, a plain \`reply\`, or an embed field that should not retick. A Discord timestamp that each person sees in their own zone is <Explain topic="format-vs-time">\`time()\`</Explain> inside an embed. \`formatDate\` does not take a style such as \`"relative"\` or \`"long date"\`.
+Use it when every reader must see the same characters: a log line, a plain \`reply\`, or an embed field that should not retick. A Discord timestamp that each person sees in their own zone is <Explain topic="format-vs-time">\`time()\`</Explain> inside an embed ([Embeds & layout](/docs/embeds-layout)). \`formatDate\` does not take a style such as \`"relative"\` or \`"long date"\`. User and member timestamps often come from [Lookups](/docs/lookups); registration locale strings are separate on [Locales](/docs/locales).
 
 ## Worked example
 
@@ -3551,7 +3551,7 @@ Every value in \`countries\` is accepted. The named exports (\`Netherlands\`, \`
       body: `
 \`formatDate(date, country)\` schrijft één kalenderdag als gewone string. De dag is **UTC**. Het land kiest de volgorde, de scheidingstekens en de cijfers. Het schuift het tijdstip niet naar de klok van de lezer, en het zet er geen tijd van de dag bij.
 
-Gebruik het als elke lezer dezelfde tekens moet zien: een logregel, een gewone \`reply\`, of een embedveld dat niet mag verspringen. Een Discord-tijdstempel die iedereen in de eigen zone ziet is <Explain topic="format-vs-time">\`time()\`</Explain> in een embed. \`formatDate\` neemt geen stijl zoals \`"relative"\` of \`"long date"\`.
+Gebruik het als elke lezer dezelfde tekens moet zien: een logregel, een gewone \`reply\`, of een embedveld dat niet mag verspringen. Een Discord-tijdstempel die iedereen in de eigen zone ziet is <Explain topic="format-vs-time">\`time()\`</Explain> in een embed ([Embeds en layout](/docs/embeds-layout)). \`formatDate\` neemt geen stijl zoals \`"relative"\` of \`"long date"\`. User- en member-tijdstempels komen vaak uit [Lookups](/docs/lookups); registratieteksten per locale staan apart op [Taalvarianten](/docs/locales).
 
 ## Uitgewerkt voorbeeld
 
@@ -3903,7 +3903,7 @@ A submit answers on the modal. A timeout is \`undefined\`, and that reply edits 
 
 Do not \`wait()\` or set metadata \`defer\` first (<Explain topic="form-first">the form is the first reply</Explain>). Discord will not open a modal after an acknowledgement.
 
-## press and collect
+## Press and collect
 
 The collector wins only when the custom id, the kind, and the user all match. A wrong user, or the wrong kind, still runs \`press\` or \`submit\`. <Explain topic="collect-vs-press">Use collect when the same command should continue. Use press when the control should answer on its own later.</Explain>
 
@@ -3996,7 +3996,7 @@ Er zijn **vier** kleuren: \`blurple\` (standaard), \`grey\`, \`green\`, \`red\`.
 - **TypeScript:** typ \`color: "\` en de union toont de vier namen (zoals IntelliSense na een punt).
 - **JS of TS:** importeer \`buttonColors\` en gebruik \`buttonColors.green\` — een echte property-lijst na \`.\`, ook in plain JavaScript.
 
-\`color\` mappt naar Discord’s button-styles. Er is geen \`ButtonStyle.Primary\`; schrijf \`color: "blurple"\` of \`buttonColors.blurple\`.
+\`color\` wijst toe naar Discord’s button-styles. Er is geen \`ButtonStyle.Primary\`; schrijf \`color: "blurple"\` of \`buttonColors.blurple\`.
 
 ## Knoppen, links en SKU's
 
@@ -4073,7 +4073,7 @@ Een submit beantwoordt de modal. Een timeout is \`undefined\`, en dat antwoord b
 
 Roep niet eerst \`wait()\` aan en zet geen metadata-\`defer\` (<Explain topic="form-first">het formulier is het eerste antwoord</Explain>). Discord opent geen modal na een bevestiging.
 
-## press en collect
+## Press en collect
 
 De verzamelaar wint alleen als de custom id, de soort en de gebruiker alle drie kloppen. Een verkeerde gebruiker, of de verkeerde soort, draait \`press\` of \`submit\` nog steeds. <Explain topic="collect-vs-press">Gebruik collect als hetzelfde commando moet doorgaan. Gebruik press als het element later zelf moet antwoorden.</Explain>
 
@@ -4111,11 +4111,11 @@ Een formulier kan niet volgen op \`wait()\` of een \`defer\` in metadata. Antwoo
       title: "SKU buttons",
       description: "A Discord premium purchase button.",
       body: `
-<Explain topic="sku-button">\`sku({ id })\`</Explain> is a purchase button for a Discord SKU. You put it on a reply. Discord opens the checkout when someone clicks it. Your handler does not run for that click, and \`ctx.collect\` never sees it. There is no \`press\`.
+<Explain topic="sku-button">\`sku({ id })\`</Explain> is a purchase button for a Discord SKU. You put it on a reply with \`row()\`, beside \`button()\` and \`link()\` — same layout rules as [Buttons, menus & forms](/docs/pieces). Discord opens the checkout when someone clicks it. Your handler does not run for that click, and \`ctx.collect\` never sees it. There is no \`press\`.
 
 \`id\` is the SKU id from the Developer Portal, not a custom component id. Draeven checks the shape of that id while the row is built. It does not create the product, and it does not talk to monetization. The application needs a real SKU or the button has nothing to sell.
 
-The button sits in \`row()\` beside \`button()\` and \`link()\`. That row holds at most five of those pieces. A menu or a picker still takes the row alone.
+That row holds at most five of those pieces. A menu or a picker still takes the row alone.
 
 ## Worked example
 
@@ -4162,11 +4162,11 @@ A \`button({ id: "later", label: "Not now" })\` can sit in that same row. That b
       title: "SKU-knoppen",
       description: "Een Discord-koopknop voor een premium-SKU.",
       body: `
-<Explain topic="sku-button">\`sku({ id })\`</Explain> is een koopknop voor een Discord-SKU. Je zet hem op een antwoord. Discord opent de checkout als iemand klikt. Je handler draait niet voor die klik, en \`ctx.collect\` ziet hem nooit. Er is geen \`press\`.
+<Explain topic="sku-button">\`sku({ id })\`</Explain> is een koopknop voor een Discord-SKU. Je zet hem op een antwoord met \`row()\`, naast \`button()\` en \`link()\` — dezelfde layoutregels als [Knoppen, menu's & formulieren](/docs/pieces). Discord opent de checkout als iemand klikt. Je handler draait niet voor die klik, en \`ctx.collect\` ziet hem nooit. Er is geen \`press\`.
 
 \`id\` is de SKU-id uit het Developer Portal, geen eigen component-id. Draeven controleert de vorm van die id terwijl de rij wordt gebouwd. Het maakt het product niet aan, en het praat niet met monetization. De applicatie heeft een echte SKU nodig, anders heeft de knop niets te verkopen.
 
-De knop staat in \`row()\` naast \`button()\` en \`link()\`. Die rij houdt hoogstens vijf van die componenten. Een menu of een kiezer neemt de rij nog steeds alleen.
+Die rij houdt hoogstens vijf van die componenten. Een menu of een kiezer neemt de rij nog steeds alleen.
 
 ## Uitgewerkt voorbeeld
 
@@ -4218,6 +4218,8 @@ Een \`button({ id: "later", label: "Niet nu" })\` mag in diezelfde rij. Die knop
       description: "Wait for a button, menu, or form on ctx.",
       body: `
 \`ctx.collect\` waits for a click or form submit on what you just showed. Method on \`ctx\`, not an import.
+
+Pick the right path: **collect** continues this command; inline **press** / **submit** answers later in this process; **\`use()\`** in the events folder survives a restart ([Press & submit](/docs/press-handlers#use), [Events & intents](/docs/events-intents)).
 
 <InteractChoice />
 <WhenToUse topic="collectors" />
@@ -4340,6 +4342,8 @@ A submit answers on the modal. A timeout edits the original interaction. Do not 
       body: `
 \`ctx.collect\` wacht op een klik of formulier op wat je net toonde. Methode op \`ctx\`, geen import.
 
+Kies het juiste pad: **collect** laat dit commando doorgaan; inline **press** / **submit** antwoordt later in dit proces; **\`use()\`** in de events-map overleeft een herstart ([Press & submit](/docs/press-handlers#use), [Events en intents](/docs/events-intents)).
+
 <InteractChoice />
 <WhenToUse topic="collectors" />
 <DocTour id="collect" />
@@ -4380,7 +4384,7 @@ import { command, menu, row } from "@draeven/core";
 
 export const pick = command("pick", "Kies een tool", async (ctx) => {
   await ctx.reply({
-    text: "Tool?",
+    text: "Welke tool?",
     rows: [
       row(
         menu({
@@ -5366,7 +5370,7 @@ export const save = command("save", "Sla dit kanaal op", async (ctx) => {
 });
 \`\`\`
 
-De aanroep defert de interactie als je dat nog niet deed, en haalt daarna de geschiedenis op. De notitie wordt het bericht, bijvoorbeeld \`12 messages from #general.\` De bestandsnaam volgt het kanaal, zoals \`general.html\`.
+De aanroep stelt de interactie uit als je dat nog niet deed, en haalt daarna de geschiedenis op. De notitie wordt het bericht, bijvoorbeeld \`12 messages from #general.\` (framework-Engels — Discord-notitie). De bestandsnaam volgt het kanaal, zoals \`general.html\`.
 
 ## Opties
 
@@ -5398,7 +5402,7 @@ await Start({
 
 - Het commando heeft het kanaal nodig dat Discord met de interactie meestuurde. Een context zonder kanaal kan geen pagina bouwen.
 - \`link\` zonder schema geeft een foutmelding. \`https://archive.example/{guild}/{channel}/{message}\` is de vorm. \`{guild}\` wordt \`@me\` als het kanaal geen guild heeft.
-- Geschiedenis ophalen defert eerst. Open later in hetzelfde commando geen \`form()\`.
+- Geschiedenis ophalen stelt eerst uit. Open later in hetzelfde commando geen \`form()\`.
 - De HTML is een bestand op het antwoord, geen embed. Stuur een follow-up met een embed als je ook een samenvatting wilt.
 
 ## Verder
@@ -5415,6 +5419,8 @@ await Start({
       description: "Gateway events, intentsFor(), and use() — with a discord.js name map.",
       body: `
 Discord pushes things at your bot — a member joined, a message arrived, someone reacted. Those are **gateway events**. They are not slash commands. You register them on \`Start({ events })\` or later with \`bot.onEvent\`. Names are camelCase (\`memberJoin\`, not \`guildMemberAdd\`).
+
+**Slash-only vs need events.** A bot that only answers slash commands can keep \`intents: intentsFor("ready")\` (\`0\`) and skip an events folder. Add gateway handlers when you need joins, messages, reactions, or other Discord pushes — and turn on the matching intents (portal + code). Privileged toggles: [Creating an app](/docs/creating-app#privileged-intents).
 
 **Intents** are Discord’s “may we send you this?” switches. Without the matching bits (and portal toggles for privileged ones), the handler never runs — you do not get an empty payload.
 
@@ -5556,6 +5562,8 @@ Shapes for each name: [Gateway event payloads](/docs/gateway-events#payloads).
       description: "Gateway-events, intentsFor() en use() — met een discord.js-namenkaart.",
       body: `
 Discord stuurt je bot dingen toe — iemand joint, er komt een bericht, iemand reageert. Dat zijn **gateway-events**. Het zijn geen slash-commando’s. Je zet ze op \`Start({ events })\` of later met \`bot.onEvent\`. Namen zijn camelCase (\`memberJoin\`, niet \`guildMemberAdd\`).
+
+**Alleen slash vs events nodig.** Een bot die alleen slash-commando’s beantwoordt kan \`intents: intentsFor("ready")\` (\`0\`) houden en een events-map overslaan. Voeg gateway-handlers toe als je joins, berichten, reacties of andere Discord-pushes nodig hebt — en zet de bijpassende intents aan (portaal + code). Geprivilegieerde schakelaars: [App aanmaken](/docs/creating-app#privileged-intents).
 
 **Intents** zijn de schakelaars van Discord: “mogen we je dit sturen?” Zonder de juiste bits (én portal-schakelaars voor geprivilegieerde intents) draait je handler nooit — je krijgt geen lege payload.
 
@@ -5701,7 +5709,7 @@ Vormen per naam: [Gateway event-payloads](/docs/gateway-events#payloads).
       title: "Presence",
       description: "The bot status line at startup and later.",
       body: `
-Presence is the status and activity under the bot's name in the member list. Set it on \`Start\`, and change it later with \`bot.setPresence\`. This only updates **the bot account**. It does not set a member's status.
+Presence is the status and activity under the bot's name in the member list. Set it on \`Start\`, and change it later with \`bot.setPresence\` on the [bot handle](/docs/bot-handle). This only updates **the bot account**. It does not set a member's status.
 
 \`\`\`js
 import { Start } from "@draeven/core";
@@ -5768,14 +5776,14 @@ Activity text must be 1–128 characters. \`kind: "streaming"\` needs an \`https
 
 ## Related
 
-- [Quickstart](/docs/quickstart) · [Events & intents](/docs/events-intents)
+- [Quickstart](/docs/quickstart) · [Bot handle](/docs/bot-handle) · [Events & intents](/docs/events-intents)
 `,
     },
     nl: {
       title: "Aanwezigheid",
       description: "De statusregel van de bot bij start en daarna.",
       body: `
-Aanwezigheid is de status en activiteit onder de naam van de bot in de ledenlijst. Zet hem op \`Start\`, en wijzig hem later met \`bot.setPresence\`. Dit werkt alleen voor **het botaccount**. Het zet niet de status van een lid.
+Aanwezigheid is de status en activiteit onder de naam van de bot in de ledenlijst. Zet hem op \`Start\`, en wijzig hem later met \`bot.setPresence\` op de [bot-handle](/docs/bot-handle). Dit werkt alleen voor **het botaccount**. Het zet niet de status van een lid.
 
 \`\`\`js
 import { Start } from "@draeven/core";
@@ -5842,7 +5850,7 @@ Activiteitstekst moet 1–128 tekens zijn. \`kind: "streaming"\` heeft een \`htt
 
 ## Verder
 
-- [Snelstart](/docs/quickstart) · [Events en intents](/docs/events-intents)
+- [Snelstart](/docs/quickstart) · [Bot-handle](/docs/bot-handle) · [Events en intents](/docs/events-intents)
 `,
     },
   },
@@ -6457,7 +6465,7 @@ Test the decision in the handler (which string, which embed). \`simulate\` will 
 
 ## Related
 
-- [Commands](/docs/commands) · [Locales](/docs/locales) · [Cooldowns](/docs/cooldowns)
+- [Commands](/docs/commands) · [Locales](/docs/locales) · [Cooldowns](/docs/cooldowns) · [Errors & debugging](/docs/debugging)
 `,
     },
     nl: {
@@ -6526,9 +6534,9 @@ De teruggegeven \`Reply\` kan ook \`embed\`, \`poll\`, \`rows\`, \`layout\` of \
 |-----------------------|--------------------------|
 | \`reply()\` | Geeft de \`Reply\` terug |
 | \`followup()\` | Zet hem in de wachtrij op het antwoord |
-| \`wait\`, \`edit\`, \`remove\`, \`collect\` | Gooit — geen interactietoken |
-| \`send\`, \`timeout\`, \`kick\`, \`ban\` | Gooit — geen REST-verbinding |
-| \`transcript()\` | Gooit — geen kanaaltranscript |
+| \`wait\`, \`edit\`, \`remove\`, \`collect\` | Geeft een foutmelding — geen interactietoken |
+| \`send\`, \`timeout\`, \`kick\`, \`ban\` | Geeft een foutmelding — geen REST-verbinding |
+| \`transcript()\` | Geeft een foutmelding — geen kanaaltranscript |
 
 <Tip>
 Test de keuze in de handler (welke string, welke embed). \`simulate\` drukt de gate-tekst voor de servereigenaar niet af. Die tekst komt van \`frame("owner", locale)\` op het live pad.
@@ -6542,7 +6550,7 @@ Test de keuze in de handler (welke string, welke embed). \`simulate\` drukt de g
 
 ## Verder
 
-- [Commando's](/docs/commands) · [Taalvarianten](/docs/locales) · [Wachttijden](/docs/cooldowns)
+- [Commando's](/docs/commands) · [Taalvarianten](/docs/locales) · [Wachttijden](/docs/cooldowns) · [Fouten & debuggen](/docs/debugging)
 `,
     },
   },
@@ -6599,7 +6607,7 @@ Set \`alone: false\` only when a supervisor already guarantees one process. Set 
 
 ## Related
 
-- [Install](/docs/install) · [Hot-reload & guard](/docs/hot-reload-guard)
+- [Install](/docs/install) · [Deploy](/docs/deploy) · [Hot-reload & guard](/docs/hot-reload-guard)
 `,
     },
     nl: {
@@ -6652,7 +6660,7 @@ Zet \`alone: false\` alleen als een supervisor al garandeert dat er één proces
 
 ## Verder
 
-- [Installatie](/docs/install) · [Hot-reload en guard](/docs/hot-reload-guard)
+- [Installatie](/docs/install) · [Deployen](/docs/deploy) · [Hot-reload en guard](/docs/hot-reload-guard)
 `,
     },
   },

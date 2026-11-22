@@ -6,7 +6,7 @@ order: 30
 
 `formatDate(date, country)` schrijft één kalenderdag als gewone string. De dag is **UTC**. Het land kiest de volgorde, de scheidingstekens en de cijfers. Het schuift het tijdstip niet naar de klok van de lezer, en het zet er geen tijd van de dag bij.
 
-Gebruik het als elke lezer dezelfde tekens moet zien: een logregel, een gewone `reply`, of een embedveld dat niet mag verspringen. Een Discord-tijdstempel die iedereen in de eigen zone ziet is <Explain topic="format-vs-time">`time()`</Explain> in een embed. `formatDate` neemt geen stijl zoals `"relative"` of `"long date"`.
+Gebruik het als elke lezer dezelfde tekens moet zien: een logregel, een gewone `reply`, of een embedveld dat niet mag verspringen. Een Discord-tijdstempel die iedereen in de eigen zone ziet is <Explain topic="format-vs-time">`time()`</Explain> in een embed ([Embeds en layout](/docs/embeds-layout)). `formatDate` neemt geen stijl zoals `"relative"` of `"long date"`. User- en member-tijdstempels komen vaak uit [Lookups](/docs/lookups); registratieteksten per locale staan apart op [Taalvarianten](/docs/locales).
 
 ## Uitgewerkt voorbeeld
 

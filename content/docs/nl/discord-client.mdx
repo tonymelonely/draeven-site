@@ -4,9 +4,9 @@ description: De low-level client onder Start, en wanneer je hem importeert.
 order: 65
 ---
 
-`@draeven/discord` is de gateway- en REST-client waar `@draeven/core` al van afhangt. Een applicatiebot installeert `@draeven/core` en roept `Start()` aan. Je opent dit pakket als je payload-types leest, `version` controleert, of een host bouwt die geen `Start` gebruikt. De bot-handle die je normaal bewaart is de return van `Start` ([Bot-handle](/docs/bot-handle)).
+`@draeven/discord` is de gateway- en REST-client waar `@draeven/core` al van afhangt. Een applicatiebot installeert `@draeven/core` en roept `Start()` aan. Je opent dit pakket als je payload-types leest, `version` controleert, of een host bouwt die geen `Start` gebruikt. De bot-handle die je normaal bewaart is de return van `Start` ([Bot-handle](/docs/bot-handle)). Hoe dat onder `Start` zit, staat bij [Hoe het in elkaar zit](/docs/architecture).
 
-Core exporteert ook `intents`, `intentBits`, `intentsFor`, `eventIntents` en de `Gateway*`-types. Importeer die in app-code, zodat een commandobestand niet aan het clientpakket hangt.
+Pakketversies staan los van elkaar: dit pakket publiceert `"0.1.5"`, terwijl deze gidsen core **0.1.9** pinnen ([Changelog](/docs/changelog)). Core exporteert ook `intents`, `intentBits`, `intentsFor`, `eventIntents` en de `Gateway*`-types. Importeer die in app-code, zodat een commandobestand niet aan het clientpakket hangt.
 
 ## Exports
 

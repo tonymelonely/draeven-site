@@ -6,6 +6,8 @@ order: 60
 
 Discord pushes things at your bot — a member joined, a message arrived, someone reacted. Those are **gateway events**. They are not slash commands. You register them on `Start({ events })` or later with `bot.onEvent`. Names are camelCase (`memberJoin`, not `guildMemberAdd`).
 
+**Slash-only vs need events.** A bot that only answers slash commands can keep `intents: intentsFor("ready")` (`0`) and skip an events folder. Add gateway handlers when you need joins, messages, reactions, or other Discord pushes — and turn on the matching intents (portal + code). Privileged toggles: [Creating an app](/docs/creating-app#privileged-intents).
+
 **Intents** are Discord’s “may we send you this?” switches. Without the matching bits (and portal toggles for privileged ones), the handler never runs — you do not get an empty payload.
 
 Durable button handlers live here too: export <Explain topic="collect-vs-press">`use()`</Explain> from the events folder so a panel still works after a restart. One-off clicks stay on [Press & submit](/docs/press-handlers#use). Waiting inside the same command is [Collectors](/docs/collectors).

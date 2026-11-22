@@ -26,7 +26,7 @@ One `Start()` owns the process. Slash commands take the left branch. Gateway eve
 
 ## loadCommands / loadEvents
 
-`loadCommands()` imports compiled `.js` from the commands folder (or uses the array you passed). `loadEvents()` imports a folder whose export names are event names, and every `use()` in those files. `watch: true` with an in-memory array throws. There is no folder ([Commands](/docs/commands), [Events & intents](/docs/events-intents)).
+`loadCommands()` imports compiled `.js` from the commands folder (or uses the array you passed). `loadEvents()` imports a folder whose export names are event names, and every `use()` in those files. `watch: true` with an in-memory array throws — there is then no events folder to watch ([Commands](/docs/commands), [Events & intents](/docs/events-intents)).
 
 ## Discord registers slash
 

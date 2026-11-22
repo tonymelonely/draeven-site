@@ -6,6 +6,8 @@ order: 43
 
 `ctx.collect` wacht op een klik of formulier op wat je net toonde. Methode op `ctx`, geen import.
 
+Kies het juiste pad: **collect** laat dit commando doorgaan; inline **press** / **submit** antwoordt later in dit proces; **`use()`** in de events-map overleeft een herstart ([Press & submit](/docs/press-handlers#use), [Events en intents](/docs/events-intents)).
+
 <InteractChoice />
 <WhenToUse topic="collectors" />
 <DocTour id="collect" />
@@ -46,7 +48,7 @@ import { command, menu, row } from "@draeven/core";
 
 export const pick = command("pick", "Kies een tool", async (ctx) => {
   await ctx.reply({
-    text: "Tool?",
+    text: "Welke tool?",
     rows: [
       row(
         menu({

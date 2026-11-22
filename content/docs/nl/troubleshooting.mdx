@@ -4,8 +4,23 @@ description: Symptoom, waarschijnlijke oorzaak, en de gids die het oplost.
 order: 78
 ---
 
-Lees eerst het `[Draeven]`-bericht. Het noemt de regel. De levende symptoomkaart is [Waarom faalt dit?](/docs/why-failing). Detail over throw-tekst staat bij [Fouten & debuggen](/docs/debugging). Grenzen die bewust zijn staan bij [Bekende limieten](/docs/known-limits).
+Lees eerst het `[Draeven]`-bericht. Het noemt de regel.
+
+**Zo gebruik je deze pagina**
+
+1. Zoek het symptoom in de tabel (unknown interaction, verkeerde intent, formulier na `wait`, …).
+2. Open de gekoppelde gids en pas de fix daar toe.
+3. Is de logregel preciezer dan de tabel, open [Fouten & debuggen](/docs/debugging).
+4. Is het gedrag bewust voor de beta, check [Bekende limieten](/docs/known-limits).
+
+De interactieve plak-en-zoektool staat op [Waarom faalt dit?](/docs/why-failing#symptom-map). Gebruik die als je een volledige logregel hebt en dezelfde matrix met zoekveld wilt.
+
+## Symptoomkaart
 
 <ErrorMapTable />
+
+## Uitgewerkt voorbeeld
+
+Voorbeeld: Discord toont **Unknown interaction**, en de log heeft geen `[Draeven]`-regel. De tabel wijst naar een te laat antwoord of een ontbrekende `wait` / auto-defer. Open [Antwoorden](/docs/replies), controleer of de handler binnen ongeveer drie seconden terugkwam of `wait()` aanriep, en test daarna opnieuw met [Simuleren](/docs/simulate) als de fout in een command-handler zit.
 
 Vraag in Discord **#help** zodra de invite live is, of stuur [Terugkoppeling](/docs/feedback) met de logregel.

@@ -219,18 +219,18 @@ import {
   thumb,
 } from "@draeven/core";
 
-export const panel = command("panel", "Shows a Components V2 layout", async (ctx) => {
+export const panel = command("panel", "Toont een Components V2-layout", async (ctx) => {
   const { reply } = ctx;
 
   return reply(
     layout(
-      show("**Draeven** layout"),
+      show("**Draeven**-layout"),
       divide({ line: true }),
       pack(
         { color: colors.blurple },
-        show("Containers group related parts."),
+        show("Containers groeperen gerelateerde delen."),
         beside({
-          text: "Thumbnails sit beside text.",
+          text: "Miniaturen staan naast tekst.",
           with: thumb("https://cdn.discordapp.com/embed/avatars/0.png"),
         })
       ),
@@ -285,12 +285,12 @@ export const ping = command(
 ```js
 import { button, command, row } from "@draeven/core";
 
-export const choose = command("choose", "Asks yes or no and waits for a press", async (ctx) => {
+export const choose = command("choose", "Vraagt ja of nee en wacht op een druk", async (ctx) => {
   const { wait, edit, collect, reply } = ctx;
 
   await wait();
   await edit({
-    text: "Pick one.",
+    text: "Kies er één.",
     rows: [
       row(
         button({ id: "choose-yes", label: "Ja", color: "green" }),
@@ -305,7 +305,7 @@ export const choose = command("choose", "Asks yes or no and waits for a press", 
     return reply("Timeout.");
   }
 
-  return reply(pick.id === "choose-yes" ? "You chose yes." : "You chose no.");
+  return reply(pick.id === "choose-yes" ? "Je koos ja." : "Je koos nee.");
 });
 ```
 
@@ -318,17 +318,17 @@ Het formulier is het eerste antwoord. `kind: "submit"` wacht op die modal. `fiel
 ```js
 import { command, form, fieldStyles } from "@draeven/core";
 
-export const ask = command("ask", "Opens a short form and waits for the answer", async (ctx) => {
+export const ask = command("ask", "Opent een kort formulier en wacht op het antwoord", async (ctx) => {
   const { reply, collect } = ctx;
 
   reply(
     form({
       id: "ask-form",
-      title: "Quick ask",
+      title: "Korte vraag",
       fields: [
         {
           id: "note",
-          label: "Your note",
+          label: "Je notitie",
           style: fieldStyles.short,
           required: true,
         },
@@ -342,7 +342,7 @@ export const ask = command("ask", "Opens a short form and waits for the answer",
     return reply("Timeout.");
   }
 
-  return reply(`Got it: ${submitted.fields.note ?? ""}`);
+  return reply(`Genoteerd: ${submitted.fields.note ?? ""}`);
 });
 ```
 

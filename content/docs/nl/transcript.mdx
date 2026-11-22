@@ -20,7 +20,7 @@ export const save = command("save", "Sla dit kanaal op", async (ctx) => {
 });
 ```
 
-De aanroep defert de interactie als je dat nog niet deed, en haalt daarna de geschiedenis op. De notitie wordt het bericht, bijvoorbeeld `12 messages from #general.` De bestandsnaam volgt het kanaal, zoals `general.html`.
+De aanroep stelt de interactie uit als je dat nog niet deed, en haalt daarna de geschiedenis op. De notitie wordt het bericht, bijvoorbeeld `12 messages from #general.` (framework-Engels — Discord-notitie). De bestandsnaam volgt het kanaal, zoals `general.html`.
 
 ## Opties
 
@@ -52,7 +52,7 @@ await Start({
 
 - Het commando heeft het kanaal nodig dat Discord met de interactie meestuurde. Een context zonder kanaal kan geen pagina bouwen.
 - `link` zonder schema geeft een foutmelding. `https://archive.example/{guild}/{channel}/{message}` is de vorm. `{guild}` wordt `@me` als het kanaal geen guild heeft.
-- Geschiedenis ophalen defert eerst. Open later in hetzelfde commando geen `form()`.
+- Geschiedenis ophalen stelt eerst uit. Open later in hetzelfde commando geen `form()`.
 - De HTML is een bestand op het antwoord, geen embed. Stuur een follow-up met een embed als je ook een samenvatting wilt.
 
 ## Verder

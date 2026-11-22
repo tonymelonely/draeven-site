@@ -32,7 +32,7 @@ Put \`press\` on buttons/menus/pickers, \`submit\` on forms. \`link()\` / \`sku(
 
 \`id\` is that custom id. \`messageId\` is set when Discord sent the message. Call \`reply\` exactly once. A second reply throws \`[Draeven] A command can only reply once.\` Returning without \`reply\` throws \`[Draeven] The command did not reply.\`
 
-## press and collect
+## Press and collect
 
 \`\`\`js
 import { command, button, row, menu, form } from "@draeven/core";
@@ -216,9 +216,9 @@ Zet \`press\` op knoppen/menu’s/kiezers, \`submit\` op formulieren. \`link()\`
 | lookups | \`getUser\`, \`getMember\`, \`getGuild\`, \`getChannel\` en de rest uit [Lookups](/docs/lookups). |
 | \`reply\` | Eén keer. Een string, een \`embed()\`, beide, een rij, een formulier, een peiling, een layout, een canvas, of \`{ text, rows }\`. |
 
-\`id\` is die custom id. \`messageId\` staat er als Discord het bericht meestuurde. Roep \`reply\` precies één keer aan. Een tweede reply geeft de fout \`[Draeven] A command can only reply once.\` Terugkeren zonder \`reply\` geeft de fout \`[Draeven] The command did not reply.\`
+\`id\` is die custom id. \`messageId\` staat er als Discord het bericht meestuurde. Roep \`reply\` precies één keer aan. Een tweede reply geeft de fout \`[Draeven] A command can only reply once.\` (framework-Engels — letterlijke fouttekst). Terugkeren zonder \`reply\` geeft de fout \`[Draeven] The command did not reply.\` (zelfde: letterlijke frameworktekst).
 
-## press en collect
+## Press en collect
 
 \`\`\`js
 import { command, button, row, menu, form } from "@draeven/core";
@@ -357,7 +357,7 @@ Als er niets wacht, kiest Draeven de volgende match in deze volgorde:
 
 1. De inline \`press\` of \`submit\` die op die custom id is onthouden.
 2. Een \`use()\` uit de events-map.
-3. De tekst \`Received.\`
+3. De tekst \`Received.\` (framework-Engels — letterlijke fallback)
 
 De onthouden functie wint van \`use()\` als beide kloppen. Dat geheugen duurt tot het proces stopt. \`use()\` wordt bij de volgende start opnieuw geladen.
 
@@ -573,9 +573,9 @@ await Start({
       title: "@draeven/discord",
       description: "The low-level client under Start, and when you would import it.",
       body: `
-\`@draeven/discord\` is the gateway and REST client that \`@draeven/core\` already depends on. An application bot installs \`@draeven/core\` and calls \`Start()\`. You open this package when you are reading payload types, checking \`version\`, or building a host that does not use \`Start\`. The bot handle you normally keep is the return value of \`Start\` ([Bot handle](/docs/bot-handle)).
+\`@draeven/discord\` is the gateway and REST client that \`@draeven/core\` already depends on. An application bot installs \`@draeven/core\` and calls \`Start()\`. You open this package when you are reading payload types, checking \`version\`, or building a host that does not use \`Start\`. The bot handle you normally keep is the return value of \`Start\` ([Bot handle](/docs/bot-handle)). How that sits under \`Start\` is [How it fits](/docs/architecture).
 
-Core re-exports \`intents\`, \`intentBits\`, \`intentsFor\`, \`eventIntents\`, and the \`Gateway*\` types. Prefer those imports in app code so a command file does not take a dependency on the client package.
+Package versions are independent: this package publishes \`"0.1.5"\` while these guides pin core **0.1.9** ([Changelog](/docs/changelog)). Core re-exports \`intents\`, \`intentBits\`, \`intentsFor\`, \`eventIntents\`, and the \`Gateway*\` types. Prefer those imports in app code so a command file does not take a dependency on the client package.
 
 ## Exports
 
@@ -620,9 +620,9 @@ Do not mix this client with discord.js in the same process. There is no \`Client
       title: "@draeven/discord",
       description: "De low-level client onder Start, en wanneer je hem importeert.",
       body: `
-\`@draeven/discord\` is de gateway- en REST-client waar \`@draeven/core\` al van afhangt. Een applicatiebot installeert \`@draeven/core\` en roept \`Start()\` aan. Je opent dit pakket als je payload-types leest, \`version\` controleert, of een host bouwt die geen \`Start\` gebruikt. De bot-handle die je normaal bewaart is de return van \`Start\` ([Bot-handle](/docs/bot-handle)).
+\`@draeven/discord\` is de gateway- en REST-client waar \`@draeven/core\` al van afhangt. Een applicatiebot installeert \`@draeven/core\` en roept \`Start()\` aan. Je opent dit pakket als je payload-types leest, \`version\` controleert, of een host bouwt die geen \`Start\` gebruikt. De bot-handle die je normaal bewaart is de return van \`Start\` ([Bot-handle](/docs/bot-handle)). Hoe dat onder \`Start\` zit, staat bij [Hoe het in elkaar zit](/docs/architecture).
 
-Core exporteert ook \`intents\`, \`intentBits\`, \`intentsFor\`, \`eventIntents\` en de \`Gateway*\`-types. Importeer die in app-code, zodat een commandobestand niet aan het clientpakket hangt.
+Pakketversies staan los van elkaar: dit pakket publiceert \`"0.1.5"\`, terwijl deze gidsen core **0.1.9** pinnen ([Changelog](/docs/changelog)). Core exporteert ook \`intents\`, \`intentBits\`, \`intentsFor\`, \`eventIntents\` en de \`Gateway*\`-types. Importeer die in app-code, zodat een commandobestand niet aan het clientpakket hangt.
 
 ## Exports
 

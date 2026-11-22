@@ -50,7 +50,7 @@ export const DOC_EXTRAS: Record<string, DocExtras> = {
     aliases: ["intro", "overview", "getting started", "welkom", "introductie", "5 minutes"],
   },
   install: {
-    related: ["create-cli", "creating-app", "quickstart", "config"],
+    related: ["create-cli", "creating-app", "quickstart", "project-layout", "config"],
     nextStep: "create-cli",
     api: [core("", "@draeven/core")],
     aliases: ["npm", "pnpm", "create-draeven", "node 20"],
@@ -61,7 +61,7 @@ export const DOC_EXTRAS: Record<string, DocExtras> = {
     aliases: ["draeven init", "create-draeven", "--with-dashboard", "--events", "scaffold", "use"],
   },
   "creating-app": {
-    related: ["quickstart", "events-intents", "start-options"],
+    related: ["quickstart", "events-intents", "start-options", "permissions", "known-limits"],
     nextStep: "quickstart",
     aliases: ["portal", "token", "invite", "guild id", "intents"],
   },
@@ -88,13 +88,13 @@ export const DOC_EXTRAS: Record<string, DocExtras> = {
     aliases: ["examples", "cookbook", "copy paste"],
   },
   config: {
-    related: ["project-layout", "start-options", "deploy"],
+    related: ["project-layout", "start-options", "events-intents", "press-handlers", "deploy"],
     nextStep: "commands",
     api: [core("", "readConfig")],
     aliases: ["draeven.config", "commands folder", "events folder", "readConfig", "use"],
   },
   rules: {
-    related: ["replies", "pieces", "collectors", "embeds-layout", "debugging"],
+    related: ["replies", "pieces", "collectors", "press-handlers", "embeds-layout", "debugging"],
     nextStep: "debugging",
     aliases: ["pitfalls", "gotchas", "constraints", "must"],
   },
@@ -116,7 +116,7 @@ export const DOC_EXTRAS: Record<string, DocExtras> = {
     aliases: ["text()", "user()", "number()", "choice"],
   },
   subcommands: {
-    related: ["commands", "options", "permissions"],
+    related: ["commands", "options", "permissions", "mod-actions"],
     nextStep: "context-menus",
     api: [core("", "sub"), core("", "group")],
     aliases: ["sub()", "group()", "nested"],
@@ -171,24 +171,24 @@ export const DOC_EXTRAS: Record<string, DocExtras> = {
     aliases: ["reply", "wait", "edit", "followup", "defer", "ephemeral"],
   },
   pieces: {
-    related: ["collectors", "sku", "replies", "rules"],
+    related: ["collectors", "press-handlers", "sku", "replies", "rules"],
     nextStep: "collectors",
     api: [core("", "button"), core("", "row"), core("", "form")],
     aliases: ["button", "menu", "form", "row", "people", "roles", "channels"],
   },
   sku: {
-    related: ["pieces", "replies"],
+    related: ["pieces", "replies", "collectors"],
     nextStep: "collectors",
     api: [core("", "sku")],
     aliases: ["sku", "premium", "purchase", "monetization"],
   },
   collectors: {
-    related: ["pieces", "press-handlers", "replies", "rules"],
+    related: ["pieces", "press-handlers", "events-intents", "replies", "rules"],
     nextStep: "press-handlers",
     aliases: ["collect", "ctx.collect", "press", "submit", "verzamelaar", "wacht op knop"],
   },
   "press-handlers": {
-    related: ["collectors", "pieces", "replies", "rules"],
+    related: ["collectors", "pieces", "events-intents", "replies", "rules"],
     nextStep: "embeds-layout",
     aliases: ["press", "submit", "PressContext", "button press", "use", "use()", "indrukken", "formulier"],
   },
@@ -277,7 +277,7 @@ export const DOC_EXTRAS: Record<string, DocExtras> = {
     aliases: ["bot", "stop", "syncState", "onSync", "onEvent"],
   },
   "discord-client": {
-    related: ["bot-handle", "gateway-events", "events-intents", "advanced-api"],
+    related: ["architecture", "bot-handle", "gateway-events", "events-intents", "advanced-api", "changelog"],
     nextStep: "debugging",
     api: [{ label: "@draeven/discord", href: "/reference/discord" }],
     aliases: ["GatewaySession", "DiscordRestClient", "intents", "low-level"],
@@ -322,7 +322,7 @@ export const DOC_EXTRAS: Record<string, DocExtras> = {
     aliases: ["pm2", "systemd", "production", "deploy"],
   },
   "advanced-api": {
-    related: ["simulate", "discord-client", "cooldowns", "debugging"],
+    related: ["simulate", "discord-client", "collectors", "press-handlers", "cooldowns", "debugging"],
     nextStep: "known-limits",
     api: [core("", "CooldownBook"), core("", "CollectorBook")],
     aliases: [
@@ -406,9 +406,9 @@ export const DOC_EXTRAS: Record<string, DocExtras> = {
     ],
   },
   glossary: {
-    related: ["welcome", "commands", "replies", "command-meta", "architecture"],
+    related: ["welcome", "commands", "replies", "command-meta", "architecture", "press-handlers", "events-intents"],
     nextStep: "welcome",
-    aliases: ["dictionary", "terms", "definitions", "glossarium", "ctx", "defer", "leaf"],
+    aliases: ["dictionary", "terms", "definitions", "glossarium", "ctx", "defer", "leaf", "use()"],
   },
 };
 
@@ -433,7 +433,7 @@ export const LEARNING_PATHS = [
     nl: "Volgende laag",
     steps: [
       { slug: "embeds-layout", en: "Embeds", nl: "Embeds" },
-      { slug: "collectors", en: "Collectors", nl: "Collectors" },
+      { slug: "collectors", en: "Collectors", nl: "Verzamelaars" },
       { slug: "architecture", en: "How it fits", nl: "Hoe het in elkaar zit" },
       { slug: "why-failing", en: "Why failing?", nl: "Waarom faalt?" },
     ] as const satisfies readonly LearningStep[],

@@ -195,6 +195,15 @@ Vast? Vraag in Discord **#help** zodra de invite live is, of open [Waarom faalt 
       body: `
 Use this after the [From discord.js](/docs/from-discordjs) cheat sheet. Tick items in this browser as you finish them.
 
+Suggested order while you migrate:
+
+1. Portal token, guild id, intents — [Creating an app](/docs/creating-app)
+2. Slash commands and options — [Commands](/docs/commands), [Options](/docs/options)
+3. Replies, buttons, forms — [Replies](/docs/replies), [Buttons, menus & forms](/docs/pieces)
+4. Collect vs press vs \`use()\` — [Collectors](/docs/collectors), [Press & submit](/docs/press-handlers#use)
+5. Gateway events — [Events & intents](/docs/events-intents)
+6. Production — [Deploy](/docs/deploy), [Known limits](/docs/known-limits)
+
 <Checklist id="migration" />
 
 Side-by-side shapes stay on the cheat sheet. When something breaks mid-migrate, open [Why is this failing?](/docs/why-failing).
@@ -205,6 +214,15 @@ Side-by-side shapes stay on the cheat sheet. When something breaks mid-migrate, 
       description: "Afvinkbaar pad van discord.js naar Draeven.",
       body: `
 Gebruik dit na de [Vanuit discord.js](/docs/from-discordjs)-spiekbrief. Vink items af in deze browser naarmate je klaar bent.
+
+Voorgestelde volgorde tijdens de migratie:
+
+1. Portaal-token, guild-id, intents — [App aanmaken](/docs/creating-app)
+2. Slash-commando's en opties — [Commando's](/docs/commands), [Opties](/docs/options)
+3. Antwoorden, knoppen, formulieren — [Antwoorden](/docs/replies), [Knoppen, menu's & formulieren](/docs/pieces)
+4. Collect vs press vs \`use()\` — [Verzamelaars](/docs/collectors), [Press & submit](/docs/press-handlers#use)
+5. Gateway-events — [Events en intents](/docs/events-intents)
+6. Productie — [Deploy](/docs/deploy), [Bekende limieten](/docs/known-limits)
 
 <Checklist id="migration" />
 
@@ -219,11 +237,11 @@ Vormen naast elkaar blijven op de spiekbrief. Als iets breekt tijdens de migrati
       title: "Why is this failing?",
       description: "Symptom → cause → the guide that fixes it.",
       body: `
-Start from the \`[Draeven]\` log line when you have one. Otherwise match the symptom below. Short matrix also lives on [Troubleshooting](/docs/troubleshooting); throw-text detail is [Errors & debugging](/docs/debugging).
+**Start here** when you have a concrete failure and want the shortest path to a fix. Paste a \`[Draeven]\` line into the box, or skim the symptom map. [Troubleshooting](/docs/troubleshooting) is the same matrix with a short how-to. Throw-text detail (exact messages, what they mean) is [Errors & debugging](/docs/debugging).
 
 <ErrorPaste />
 
-## Symptom map
+<h2 id="symptom-map">Symptom map</h2>
 
 <ErrorMapTable />
 
@@ -238,11 +256,11 @@ Start from the \`[Draeven]\` log line when you have one. Otherwise match the sym
       title: "Waarom faalt dit?",
       description: "Symptoom → oorzaak → de gids die het oplost.",
       body: `
-Begin bij de \`[Draeven]\`-logregel als je die hebt. Zo niet, match het symptoom hieronder. De korte matrix staat ook op [Problemen oplossen](/docs/troubleshooting); detail over throw-tekst bij [Fouten & debuggen](/docs/debugging).
+**Begin hier** als je een concrete fout hebt en het kortste pad naar een fix wilt. Plak een \`[Draeven]\`-regel in het vak, of scan de symptoomkaart. [Problemen oplossen](/docs/troubleshooting) is dezelfde matrix met een korte handleiding. Detail over throw-tekst (exacte berichten, wat ze betekenen) staat bij [Fouten & debuggen](/docs/debugging).
 
 <ErrorPaste />
 
-## Symptoomkaart
+<h2 id="symptom-map">Symptoomkaart</h2>
 
 <ErrorMapTable />
 
@@ -263,6 +281,12 @@ Begin bij de \`[Draeven]\`-logregel als je die hebt. Zo niet, match het symptoom
       body: `
 Short definitions with a deep-link into the guide that owns the concept.
 
+Group the terms by path while you browse:
+
+- **Command path** — \`ctx\`, leaf, gates, cooldown, \`reply\` / \`wait\` / \`edit\`
+- **Interaction path** — collect, press, submit, \`use()\`, \`PressContext\`
+- **Gateway path** — intents, \`intentsFor\`, events folder, bot handle
+
 <GlossaryList />
 `,
     },
@@ -271,6 +295,12 @@ Short definitions with a deep-link into the guide that owns the concept.
       description: "ctx, wait, leaf, use() en andere Draeven-woorden.",
       body: `
 Korte definities met een deep-link naar de gids die het concept bezit.
+
+Groepeer de termen per pad terwijl je bladert:
+
+- **Commandopad** — \`ctx\`, leaf, gates, wachttijd, \`reply\` / \`wait\` / \`edit\`
+- **Interactiepad** — collect, press, submit, \`use()\`, \`PressContext\`
+- **Gateway-pad** — intents, \`intentsFor\`, events-map, bot-handle
 
 <GlossaryList />
 `,

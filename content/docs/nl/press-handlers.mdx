@@ -27,9 +27,9 @@ Zet `press` op knoppen/menu’s/kiezers, `submit` op formulieren. `link()` / `sk
 | lookups | `getUser`, `getMember`, `getGuild`, `getChannel` en de rest uit [Lookups](/docs/lookups). |
 | `reply` | Eén keer. Een string, een `embed()`, beide, een rij, een formulier, een peiling, een layout, een canvas, of `{ text, rows }`. |
 
-`id` is die custom id. `messageId` staat er als Discord het bericht meestuurde. Roep `reply` precies één keer aan. Een tweede reply geeft de fout `[Draeven] A command can only reply once.` Terugkeren zonder `reply` geeft de fout `[Draeven] The command did not reply.`
+`id` is die custom id. `messageId` staat er als Discord het bericht meestuurde. Roep `reply` precies één keer aan. Een tweede reply geeft de fout `[Draeven] A command can only reply once.` (framework-Engels — letterlijke fouttekst). Terugkeren zonder `reply` geeft de fout `[Draeven] The command did not reply.` (zelfde: letterlijke frameworktekst).
 
-## press en collect
+## Press en collect
 
 ```js
 import { command, button, row, menu, form } from "@draeven/core";
@@ -168,7 +168,7 @@ Als er niets wacht, kiest Draeven de volgende match in deze volgorde:
 
 1. De inline `press` of `submit` die op die custom id is onthouden.
 2. Een `use()` uit de events-map.
-3. De tekst `Received.`
+3. De tekst `Received.` (framework-Engels — letterlijke fallback)
 
 De onthouden functie wint van `use()` als beide kloppen. Dat geheugen duurt tot het proces stopt. `use()` wordt bij de volgende start opnieuw geladen.
 

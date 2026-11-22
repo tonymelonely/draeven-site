@@ -4,11 +4,11 @@ description: A Discord premium purchase button.
 order: 42
 ---
 
-<Explain topic="sku-button">`sku({ id })`</Explain> is a purchase button for a Discord SKU. You put it on a reply. Discord opens the checkout when someone clicks it. Your handler does not run for that click, and `ctx.collect` never sees it. There is no `press`.
+<Explain topic="sku-button">`sku({ id })`</Explain> is a purchase button for a Discord SKU. You put it on a reply with `row()`, beside `button()` and `link()` — same layout rules as [Buttons, menus & forms](/docs/pieces). Discord opens the checkout when someone clicks it. Your handler does not run for that click, and `ctx.collect` never sees it. There is no `press`.
 
 `id` is the SKU id from the Developer Portal, not a custom component id. Draeven checks the shape of that id while the row is built. It does not create the product, and it does not talk to monetization. The application needs a real SKU or the button has nothing to sell.
 
-The button sits in `row()` beside `button()` and `link()`. That row holds at most five of those pieces. A menu or a picker still takes the row alone.
+That row holds at most five of those pieces. A menu or a picker still takes the row alone.
 
 ## Worked example
 

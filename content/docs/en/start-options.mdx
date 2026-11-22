@@ -66,7 +66,7 @@ Guild sync shows new commands in that server within seconds. A global sync (no `
 
 ## Intents and events
 
-`intentsFor("memberJoin", "message")` unions the bits those events need, including privileged intents Discord requires. `intentBits("guilds", "guildMessages")` ORs named flags when you already know the mask. Event handlers still need the bits their names list ([Events & intents](/docs/events-intents)).
+`intentsFor("memberJoin", "message")` unions the bits those events need, including privileged intents Discord requires. `intentBits("guilds", "guildMessages")` ORs named flags when you already know the mask. Event handlers still need the bits their names list ([Events & intents](/docs/events-intents#intents)).
 
 `events` as an object is fixed for the process. That object does not load `use()`. `events: "./dist/events"` loads modules whose export names are the event names, plus `use()` handlers in those files. Omit `events` and Draeven uses the `events` path from `draeven.config.js` when the file sets one. `watch: true` reloads that folder when the files change.
 

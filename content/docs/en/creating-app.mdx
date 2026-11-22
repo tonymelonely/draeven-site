@@ -58,7 +58,7 @@ Enable a privileged intent in the **Bot** tab only when a handler needs it. Port
 | Message Content Intent | `messageContent` | `message`, `messageEdit` (with `content`) |
 | Presence Intent | `guildPresences` | `presenceUpdate` |
 
-`intentsFor("memberJoin", "message")` turns on `guildMembers`, `guildMessages`, `directMessages`, and `messageContent` for you. Prefer that over hand-written bitfields ([Events & intents](/docs/events-intents)).
+`intentsFor("memberJoin", "message")` turns on `guildMembers`, `guildMessages`, `directMessages`, and `messageContent` for you. Prefer that over hand-written bitfields ([Events & intents](/docs/events-intents#intents)).
 
 <Tip>
 Keep the first bot private to a test guild. You can decide public install contexts (`install` / `places` on a command) after the happy path works.

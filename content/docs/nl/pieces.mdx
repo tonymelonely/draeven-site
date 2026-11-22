@@ -63,7 +63,7 @@ Er zijn **vier** kleuren: `blurple` (standaard), `grey`, `green`, `red`.
 - **TypeScript:** typ `color: "` en de union toont de vier namen (zoals IntelliSense na een punt).
 - **JS of TS:** importeer `buttonColors` en gebruik `buttonColors.green` — een echte property-lijst na `.`, ook in plain JavaScript.
 
-`color` mappt naar Discord’s button-styles. Er is geen `ButtonStyle.Primary`; schrijf `color: "blurple"` of `buttonColors.blurple`.
+`color` wijst toe naar Discord’s button-styles. Er is geen `ButtonStyle.Primary`; schrijf `color: "blurple"` of `buttonColors.blurple`.
 
 ## Knoppen, links en SKU's
 
@@ -140,7 +140,7 @@ Een submit beantwoordt de modal. Een timeout is `undefined`, en dat antwoord bew
 
 Roep niet eerst `wait()` aan en zet geen metadata-`defer` (<Explain topic="form-first">het formulier is het eerste antwoord</Explain>). Discord opent geen modal na een bevestiging.
 
-## press en collect
+## Press en collect
 
 De verzamelaar wint alleen als de custom id, de soort en de gebruiker alle drie kloppen. Een verkeerde gebruiker, of de verkeerde soort, draait `press` of `submit` nog steeds. <Explain topic="collect-vs-press">Gebruik collect als hetzelfde commando moet doorgaan. Gebruik press als het element later zelf moet antwoorden.</Explain>
 

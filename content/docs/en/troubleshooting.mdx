@@ -4,8 +4,23 @@ description: Symptom, likely cause, and the guide that fixes it.
 order: 78
 ---
 
-Read the `[Draeven]` message first. It names the rule. The living symptom map is [Why is this failing?](/docs/why-failing). Throw-text detail is [Errors & debugging](/docs/debugging). Bounds that are deliberate are [Known limits](/docs/known-limits).
+Read the `[Draeven]` message first. It names the rule.
+
+**How to use this page**
+
+1. Match the symptom in the table (unknown interaction, wrong intent, form after `wait`, …).
+2. Open the linked guide and apply the fix there.
+3. If the log line is more specific than the table, open [Errors & debugging](/docs/debugging).
+4. If the behavior is intentional for beta, check [Known limits](/docs/known-limits).
+
+The interactive paste-and-match tool lives on [Why is this failing?](/docs/why-failing#symptom-map). Use that when you have a full log line and want the same matrix with a search box.
+
+## Symptom map
 
 <ErrorMapTable />
+
+## Worked walkthrough
+
+Example: Discord shows **Unknown interaction**, and the log has no `[Draeven]` line. The table points at a late reply or a missing `wait` / auto-defer. Open [Replies](/docs/replies), confirm the handler returned within about three seconds or called `wait()`, then re-test with [Simulate](/docs/simulate) if the failure is in a command handler.
 
 Ask in Discord **#help** when the invite is live, or send [Feedback](/docs/feedback) with the log line.

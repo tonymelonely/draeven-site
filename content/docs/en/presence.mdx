@@ -4,7 +4,7 @@ description: The bot status line at startup and later.
 order: 62
 ---
 
-Presence is the status and activity under the bot's name in the member list. Set it on `Start`, and change it later with `bot.setPresence`. This only updates **the bot account**. It does not set a member's status.
+Presence is the status and activity under the bot's name in the member list. Set it on `Start`, and change it later with `bot.setPresence` on the [bot handle](/docs/bot-handle). This only updates **the bot account**. It does not set a member's status.
 
 ```js
 import { Start } from "@draeven/core";
@@ -71,4 +71,4 @@ Activity text must be 1–128 characters. `kind: "streaming"` needs an `https://
 
 ## Related
 
-- [Quickstart](/docs/quickstart) · [Events & intents](/docs/events-intents)
+- [Quickstart](/docs/quickstart) · [Bot handle](/docs/bot-handle) · [Events & intents](/docs/events-intents)

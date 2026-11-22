@@ -4,9 +4,9 @@ description: The low-level client under Start, and when you would import it.
 order: 65
 ---
 
-`@draeven/discord` is the gateway and REST client that `@draeven/core` already depends on. An application bot installs `@draeven/core` and calls `Start()`. You open this package when you are reading payload types, checking `version`, or building a host that does not use `Start`. The bot handle you normally keep is the return value of `Start` ([Bot handle](/docs/bot-handle)).
+`@draeven/discord` is the gateway and REST client that `@draeven/core` already depends on. An application bot installs `@draeven/core` and calls `Start()`. You open this package when you are reading payload types, checking `version`, or building a host that does not use `Start`. The bot handle you normally keep is the return value of `Start` ([Bot handle](/docs/bot-handle)). How that sits under `Start` is [How it fits](/docs/architecture).
 
-Core re-exports `intents`, `intentBits`, `intentsFor`, `eventIntents`, and the `Gateway*` types. Prefer those imports in app code so a command file does not take a dependency on the client package.
+Package versions are independent: this package publishes `"0.1.5"` while these guides pin core **0.1.9** ([Changelog](/docs/changelog)). Core re-exports `intents`, `intentBits`, `intentsFor`, `eventIntents`, and the `Gateway*` types. Prefer those imports in app code so a command file does not take a dependency on the client package.
 
 ## Exports
 

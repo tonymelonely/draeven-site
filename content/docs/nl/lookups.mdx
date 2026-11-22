@@ -21,15 +21,15 @@ Een optie `user()`, `channel()`, `role()` of `file()` is al het object. Lookups 
 
 | Aanroep | Resultaat |
 |---------|-----------|
-| `getUser(ref)` | `User`. Gooit als de id ontbreekt of onbekend is. |
-| <Explain topic="lookup-member">`getMember(ref)`</Explain> | `Member` in deze guild. `undefined` in een DM. Gooit nog steeds als die gebruiker onbekend is. |
-| `getBot()` | De bot als `User`. Gooit als deze run geen bot heeft. |
+| `getUser(ref)` | `User`. Geeft een foutmelding als de id ontbreekt of onbekend is. |
+| <Explain topic="lookup-member">`getMember(ref)`</Explain> | `Member` in deze guild. `undefined` in een DM. Geeft nog steeds een foutmelding als die gebruiker onbekend is. |
+| `getBot()` | De bot als `User`. Geeft een foutmelding als deze run geen bot heeft. |
 | `getGuild()` | `Guild`, of `undefined` in een privébericht. |
 | `getChannel()` | Het kanaal van deze interactie, of `undefined`. |
-| `getChannel(ref)` | Dat kanaal. Gooit als het onbekend is. |
-| `getRole(ref)` | `Role`. Gooit als die onbekend is. |
-| `getRoles(ref)` | De rollen van die persoon, of `[]`. Gooit als de gebruiker onbekend is. |
-| `getFile(ref)` | `File`. Gooit als die onbekend is. |
+| `getChannel(ref)` | Dat kanaal. Geeft een foutmelding als het onbekend is. |
+| `getRole(ref)` | `Role`. Geeft een foutmelding als die onbekend is. |
+| `getRoles(ref)` | De rollen van die persoon, of `[]`. Geeft een foutmelding als de gebruiker onbekend is. |
+| `getFile(ref)` | `File`. Geeft een foutmelding als die onbekend is. |
 
 `ref` is `{ id }`. `ctx.author` heeft die vorm al.
 

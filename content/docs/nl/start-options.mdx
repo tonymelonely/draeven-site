@@ -30,7 +30,7 @@ const bot = await Start({
 });
 ```
 
-`commands` staat hier niet, dus Draeven leest `draeven.config.js` ([Config](/docs/config)). `events` staat hier als map, dus het `events`-veld uit de config wordt niet gebruikt. Laat `events` ook weg als het bestand al naar `./dist/events` wijst. `bot` is het [lopende handvat](/docs/bot-handle): `setPresence`, `send`, `stop` en `syncState`.
+`commands` staat hier niet, dus Draeven leest `draeven.config.js` ([Config](/docs/config)). `events` staat hier als map, dus het `events`-veld uit de config wordt niet gebruikt. Laat `events` ook weg als het bestand al naar `./dist/events` wijst. `bot` is de [lopende bot-handle](/docs/bot-handle): `setPresence`, `send`, `stop` en `syncState`.
 
 ## Velden
 
@@ -72,7 +72,7 @@ Guild-sync toont nieuwe commando's binnen seconden in die server. Een globale sy
 
 ## Auto-defer
 
-Discord geeft de handler ongeveer 3 seconden. De standaard <Explain topic="auto-defer">auto-defer</Explain> vuurt na 2 seconden, zodat een trage `await` alsnog bevestigt. `autoDefer: 800` defert eerder. Waarden onder 500 worden 500. Waarden boven 2500 worden 2500. `autoDefer: false` op `Start` zet het uit voor elk commando. Eén commando kan nog `autoDefer: false` in zijn eigen metadata zetten ([Antwoorden](/docs/replies)).
+Discord geeft de handler ongeveer 3 seconden. De standaard <Explain topic="auto-defer">auto-defer</Explain> vuurt na 2 seconden, zodat een trage `await` alsnog bevestigt. `autoDefer: 800` stelt eerder uit. Waarden onder 500 worden 500. Waarden boven 2500 worden 2500. `autoDefer: false` op `Start` zet het uit voor elk commando. Eén commando kan nog `autoDefer: false` in zijn eigen metadata zetten ([Antwoorden](/docs/replies)).
 
 <Note>
 `timeZone` verandert `time()`-stempels in een embed niet. Die renderen in de zone van de lezer. De startzone is alleen de terugval voor een transcript.

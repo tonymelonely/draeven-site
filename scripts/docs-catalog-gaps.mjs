@@ -363,21 +363,21 @@ import { command } from "@draeven/core";
 export const guildOnly = command(
   "guild-only",
   "Alleen servers",
-  async (ctx) => ctx.reply("guild"),
+  async (ctx) => ctx.reply("alleen-server"),
   { places: ["guild"], install: ["guild"] }
 );
 
 export const anywhere = command(
   "anywhere",
   "Guilds, de bot-DM en andere privécontexten",
-  async (ctx) => ctx.reply("ok"),
+  async (ctx) => ctx.reply("oké"),
   { places: ["guild", "bot dm", "private"], install: ["guild", "user"] }
 );
 
 export const ageGated = command(
   "age-gated",
   "Alleen leeftijdsbegrensde kanalen",
-  async (ctx) => ctx.reply("ok"),
+  async (ctx) => ctx.reply("oké"),
   { nsfw: true, places: ["guild"] }
 );
 \`\`\`

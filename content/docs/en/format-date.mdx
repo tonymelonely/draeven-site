@@ -6,7 +6,7 @@ order: 30
 
 `formatDate(date, country)` writes one calendar day as a plain string. The day is **UTC**. The country chooses the order, the separators, and the digits. It does not shift the instant into the reader's clock, and it does not include a time of day.
 
-Use it when every reader must see the same characters: a log line, a plain `reply`, or an embed field that should not retick. A Discord timestamp that each person sees in their own zone is <Explain topic="format-vs-time">`time()`</Explain> inside an embed. `formatDate` does not take a style such as `"relative"` or `"long date"`.
+Use it when every reader must see the same characters: a log line, a plain `reply`, or an embed field that should not retick. A Discord timestamp that each person sees in their own zone is <Explain topic="format-vs-time">`time()`</Explain> inside an embed ([Embeds & layout](/docs/embeds-layout)). `formatDate` does not take a style such as `"relative"` or `"long date"`. User and member timestamps often come from [Lookups](/docs/lookups); registration locale strings are separate on [Locales](/docs/locales).
 
 ## Worked example
 

@@ -6,6 +6,8 @@ order: 60
 
 Discord stuurt je bot dingen toe — iemand joint, er komt een bericht, iemand reageert. Dat zijn **gateway-events**. Het zijn geen slash-commando’s. Je zet ze op `Start({ events })` of later met `bot.onEvent`. Namen zijn camelCase (`memberJoin`, niet `guildMemberAdd`).
 
+**Alleen slash vs events nodig.** Een bot die alleen slash-commando’s beantwoordt kan `intents: intentsFor("ready")` (`0`) houden en een events-map overslaan. Voeg gateway-handlers toe als je joins, berichten, reacties of andere Discord-pushes nodig hebt — en zet de bijpassende intents aan (portaal + code). Geprivilegieerde schakelaars: [App aanmaken](/docs/creating-app#privileged-intents).
+
 **Intents** zijn de schakelaars van Discord: “mogen we je dit sturen?” Zonder de juiste bits (én portal-schakelaars voor geprivilegieerde intents) draait je handler nooit — je krijgt geen lege payload.
 
 Knoppen die een herstart moeten overleven horen hier ook: exporteer <Explain topic="collect-vs-press">`use()`</Explain> uit de events-map. Een eenmalige klik blijft bij [Press & submit](/docs/press-handlers#use). Wachten in hetzelfde commando is [Verzamelaars](/docs/collectors).

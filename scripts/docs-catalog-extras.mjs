@@ -118,14 +118,14 @@ import { Start, command, sub, user } from "@draeven/core";
 
 export const mod = command(
   "mod",
-  "Moderation tools",
+  "Moderatietools",
   {
     timeout: sub(
-      "Timeout a member",
-      { who: user("Who?").required() },
+      "Timeout voor een lid",
+      { who: user("Wie?").required() },
       async (ctx) => {
         await ctx.timeout(ctx.who, 600, "Via /mod timeout");
-        return ctx.reply(\`Timed out \${ctx.who.name}.\`);
+        return ctx.reply(\`Timeout voor \${ctx.who.name}.\`);
       }
     ),
   },

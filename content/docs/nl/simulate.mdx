@@ -60,7 +60,7 @@ assert.equal(reply.text, "Hoi B");
 
 De teruggegeven `Reply` kan ook `embed`, `poll`, `rows`, `layout` of `private` dragen.
 
-## Wat gooit
+## Wat faalt
 
 | Aanroep in de handler | Resultaat onder simulate |
 |-----------------------|--------------------------|
@@ -77,7 +77,7 @@ Test de keuze in de handler (welke string, welke embed). `simulate` drukt de gat
 ## Valkuilen
 
 - `simulate` roept `entry.run` aan. Een menu met `run` is ook een doel. De context blijft een commando-`ctx`. Discord vult `ctx.target` niet.
-- Een commando met alleen subs heeft geen top-level `run`, dus `simulate` gooit. Deel de bladlogica via een functie die de test kan aanroepen.
+- Een commando met alleen subs heeft geen top-level `run`, dus `simulate` geeft een foutmelding. Deel de bladlogica via een functie die de test kan aanroepen.
 - `opt` wordt runtime niet gecontroleerd. Een ontbrekende `who` is `undefined`, net als een optionele optie die de gebruiker oversloeg.
 
 ## Verder

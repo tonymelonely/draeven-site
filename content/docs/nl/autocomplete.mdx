@@ -18,7 +18,7 @@ De handler krijgt lookups plus:
 | `focused` | Optienaam die Discord bewerkt. |
 | `author` | Aanroeper `{ id }`. |
 
-Geef maximaal **25** items terug. De rest valt weg. Elk item is een string of `{ label, value }`. Stringwaarden zijn 1–100 tekens. Een getalsuggestie is een string zoals `"5"`, of `{ label, value }` met een numerieke `value`. Een kaal getal gooit.
+Geef maximaal **25** items terug. De rest valt weg. Elk item is een string of `{ label, value }`. Stringwaarden zijn 1–100 tekens. Een getalsuggestie is een string zoals `"5"`, of `{ label, value }` met een numerieke `value`. Een kaal getal geeft een foutmelding.
 
 ## Voorbeeld
 
@@ -66,7 +66,7 @@ export const qty = command(
 );
 ```
 
-Vaste `choices` op `number()` of `decimal()` kunnen niet samen met `.suggest()`. Draeven gooit bij het bouwen van die optie.
+Vaste `choices` op `number()` of `decimal()` kunnen niet samen met `.suggest()`. Draeven faalt bij het bouwen van die optie.
 
 <Warn>
 De handler valideert niet. Iemand kan tekst insturen die nooit in de lijst stond. Controleer `ctx.query` opnieuw in het commando als alleen bekende ids geldig zijn.

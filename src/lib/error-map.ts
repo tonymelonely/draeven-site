@@ -86,7 +86,7 @@ export const ERROR_MAP: ErrorMapRow[] = [
     },
     cause: {
       en: "`Start` throws when `watch` is true and `commands` is an in-memory array",
-      nl: "`Start` gooit als `watch` aan staat en `commands` een array in het geheugen is",
+      nl: "`Start` faalt als `watch` aan staat en `commands` een array in het geheugen is",
     },
     fix: {
       en: "Pass a folder path or `draeven.config.js`.",
@@ -116,7 +116,7 @@ export const ERROR_MAP: ErrorMapRow[] = [
     id: "layout-text",
     symptom: {
       en: "Layout plus text throws",
-      nl: "Layout plus tekst gooit",
+      nl: "Layout plus tekst geeft een foutmelding",
     },
     cause: {
       en: "A `layout()` is the whole reply",

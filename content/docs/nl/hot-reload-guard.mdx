@@ -66,7 +66,7 @@ await Start({
 `of: "process"` luistert naar `uncaughtException` en `unhandledRejection`. `of: "commands"` meldt throws uit slash-handlers. `of: "events"` meldt throws uit gateway-handlers.
 
 <Warn fix="Geef channel als snowflake-string als via channel is." href="/docs/why-failing">
-`via: "channel"` zonder `channel` gooit al bij `guard()`. De kanaal-id is een snowflake-string waarin de bot mag plaatsen.
+`via: "channel"` zonder `channel` faalt al bij `guard()`. De kanaal-id is een snowflake-string waarin de bot mag plaatsen.
 </Warn>
 
 ## Valkuilen

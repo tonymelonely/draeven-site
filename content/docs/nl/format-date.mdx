@@ -45,8 +45,8 @@ Voor 5 maart 2020, 00:00 UTC, geeft `formatDate` terug:
 
 | Grens | Wat er gebeurt |
 |-------|----------------|
-| Invoer | Een echte `Date`. Al het andere, ook een ongeldige datum, gooit `A date is required.` |
-| Land | Een code uit `countries`. `Netherlands` is `"NL"`. Al het andere gooit `Unknown country.` |
+| Invoer | Een echte `Date`. Al het andere, ook een ongeldige datum, geeft de fout `A date is required.` |
+| Land | Een code uit `countries`. `Netherlands` is `"NL"`. Al het andere geeft de fout `Unknown country.` |
 | Kalenderdag | UTC. Het land kiest alleen volgorde, scheidingstekens en cijfers. |
 | Klok | Geen uren of minuten. De string is één dag. |
 | Zone | De zone van de lezer wordt niet toegepast. Dat doet `time()`. |
@@ -56,7 +56,7 @@ Elke waarde in `countries` is geldig. De benoemde exports (`Netherlands`, `Japan
 
 ## Valkuilen
 
-- De Engelse naam `"Netherlands"` is geen code. Geef de constante `Netherlands` of `"NL"` mee. `"ZZ"` gooit `Unknown country.`
-- Een string zoals `"2020-03-05"` is geen `Date`. Wikkel die eerst in `new Date(...)`. `new Date(NaN)` gooit `A date is required.`
+- De Engelse naam `"Netherlands"` is geen code. Geef de constante `Netherlands` of `"NL"` mee. `"ZZ"` geeft de fout `Unknown country.`
+- Een string zoals `"2020-03-05"` is geen `Date`. Wikkel die eerst in `new Date(...)`. `new Date(NaN)` geeft de fout `A date is required.`
 - Rond middernacht UTC kan de kalenderdag afwijken van de datum die de lezer lokaal nog ziet. Gebruik `time()` als elke lezer de eigen dag moet zien.
 - `formatDate` heeft geen stijlargument. `"relative"` en `"long date"` horen bij `time()`.

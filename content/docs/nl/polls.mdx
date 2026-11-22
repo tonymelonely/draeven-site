@@ -64,9 +64,9 @@ Discord eist nog steeds dat de bot peilingen in dat kanaal mag sturen. Gate het 
 ## Valkuilen
 
 - Een peiling is het hele antwoord. Geef niet ook tekst, een embed, rijen, een afbeelding of een `layout()` aan dezelfde `reply`.
-- `{ private: true }` op een peiling gooit `A poll cannot be private.`
-- `hours: 24.5` gooit. Geef een geheel getal.
-- Eén antwoord, of elf, gooit al bij `poll()` — niet later vanuit Discord.
+- `{ private: true }` op een peiling geeft de fout `A poll cannot be private.`
+- `hours: 24.5` geeft een foutmelding. Geef een geheel getal.
+- Eén antwoord, of elf, faalt al bij `poll()` — niet later vanuit Discord.
 
 ## Verder
 

@@ -36,14 +36,14 @@ const bot = await Start({
 
 | Veld | Wat het doet |
 |------|----------------|
-| <Explain topic="start-token">`token`</Explain> | Bot-token. Een lege token gooit al vóór de gateway opent. |
+| <Explain topic="start-token">`token`</Explain> | Bot-token. Een lege token faalt al vóór de gateway opent. |
 | <Explain topic="start-commands">`commands`</Explain> | Een array van commando's en menu's, een mappad of `URL`, of weglaten voor `draeven.config`. |
 | <Explain topic="start-guildId">`guildId`</Explain> | Snowflake (1–20 cijfers). Commando's synchroniseren naar die guild. Weglaten maakt de volgende sync globaal. Guild-commando's die al staan, blijven in die server. |
 | `timeZone` | IANA-naam, zoals `Europe/Amsterdam`. Gebruikt als `ctx.transcript()` er zelf geen meegeeft. |
 | `presence` | Beginstatus en activiteit. Zie [Presence](/docs/presence). |
 | <Explain topic="start-intents">`intents`</Explain> | Bitmask voor de gateway. Weggelaten is `0`. `intentsFor(...events)` vanuit eventnamen, of `intentBits(...names)` vanuit `intents.*`. |
 | `events` | Een handlers-object, een map met gecompileerde modules, of weglaten om `events` uit `draeven.config` te gebruiken als dat veld er staat. `watch` herlaadt een map. Een inline object laadt geen `use()`. |
-| <Explain topic="start-watch">`watch`</Explain> | Standaard `false`. `true` herlaadt de commandomap en een events-map. Een array in het geheugen gooit. |
+| <Explain topic="start-watch">`watch`</Explain> | Standaard `false`. `true` herlaadt de commandomap en een events-map. Een array in het geheugen geeft een foutmelding. |
 | `guard` | Het object dat `guard({...})` teruggeeft. Houdt het proces in leven en logt fouten. |
 | <Explain topic="start-alone">`alone`</Explain> | Standaard `"ask"`. Ook `true` of `false`. Zie [Eén proces](/docs/alone). |
 | <Explain topic="start-autoDefer">`autoDefer`</Explain> | Standaard **2000 ms**. `false` zet het uit. Een getal wordt geklemd op **500–2500** ms. |
@@ -60,9 +60,9 @@ await Start({
 });
 ```
 
-Een string of `URL` is een map, net als het `commands`-pad in de config. Een array (`commands: [ping]`) is de lijst in het geheugen. Handig in een test. `watch: true` met die array gooit. Er is geen map.
+Een string of `URL` is een map, net als het `commands`-pad in de config. Een array (`commands: [ping]`) is de lijst in het geheugen. Handig in een test. `watch: true` met die array geeft een foutmelding. Er is geen map.
 
-Guild-sync toont nieuwe commando's binnen seconden in die server. Een globale sync (geen `guildId`) kan een uur duren. Geef de guild-id mee terwijl je bewerkt. Laat je hem later weg, dan registreert Draeven de globale lijst. Commando's die al op de guild staan, blijven daar. Discord verwijdert ze niet. Een id die geen snowflake is gooit bij het opstarten.
+Guild-sync toont nieuwe commando's binnen seconden in die server. Een globale sync (geen `guildId`) kan een uur duren. Geef de guild-id mee terwijl je bewerkt. Laat je hem later weg, dan registreert Draeven de globale lijst. Commando's die al op de guild staan, blijven daar. Discord verwijdert ze niet. Een id die geen snowflake is faalt bij het opstarten.
 
 ## Intents en events
 
@@ -80,10 +80,10 @@ Discord geeft de handler ongeveer 3 seconden. De standaard <Explain topic="auto-
 
 ## Valkuilen
 
-- `watch: true` met `commands: [ping]` gooit. Er is geen map om te bekijken.
-- `guard` moet de waarde zijn die `guard()` teruggeeft. Een kaal `{ via, of }` gooit.
-- `alone: "ask"` vraagt niets als stdin geen TTY is. Een levende tweede instantie gooit dan, tenzij je `alone: true` meegeeft.
-- Een foute zonenaam (`"Amsterdam"`) gooit bij het opstarten. Gebruik `Europe/Amsterdam`.
+- `watch: true` met `commands: [ping]` geeft een foutmelding. Er is geen map om te bekijken.
+- `guard` moet de waarde zijn die `guard()` teruggeeft. Een kaal `{ via, of }` geeft een foutmelding.
+- `alone: "ask"` vraagt niets als stdin geen TTY is. Een levende tweede instantie faalt dan, tenzij je `alone: true` meegeeft.
+- Een foute zonenaam (`"Amsterdam"`) faalt bij het opstarten. Gebruik `Europe/Amsterdam`.
 
 ## Verder
 

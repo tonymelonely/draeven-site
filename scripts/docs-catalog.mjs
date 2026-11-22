@@ -555,7 +555,7 @@ const bot = await Start({
 console.log(\`Klaar — \${bot.commands.length} commando('s) geladen.\`);
 \`\`\`
 
-\`watch: true\` herlaadt de commando-map als \`dist/\` verandert. \`watch: true\` met een array \`commands: [...]\` in het geheugen gooit \`[Draeven] watch: true needs commands from a folder path or draeven.config.\`
+\`watch: true\` herlaadt de commando-map als \`dist/\` verandert. \`watch: true\` met een array \`commands: [...]\` in het geheugen geeft de fout \`[Draeven] watch: true needs commands from a folder path or draeven.config.\`
 
 ## Ontwikkel-loop
 
@@ -762,7 +762,7 @@ Een string of \`URL\` is een mappad, net als de config.
 
 \`loadCommands()\` importeert elk \`.js\`-bestand, slaat tests (\`.test.js\`), namen die eindigen op \`old.js\` (dus ook \`fold.js\`, niet alleen \`file.old.js\`) en dotfiles over, en houdt elke export waarvoor \`isCommand()\` of \`isMenu()\` waar is. Een default export wordt geladen als het een commando of menu is. Named exports blijven overzichtelijker.
 
-Dubbele slash-namen gooien bij het opstarten. Twee user-menu's met dezelfde naam ook, en twee berichtmenu's met dezelfde naam ook.
+Dubbele slash-namen geven een foutmelding bij het opstarten. Twee user-menu's met dezelfde naam ook, en twee berichtmenu's met dezelfde naam ook.
 
 ## src/main.ts
 
@@ -804,7 +804,7 @@ Dezelfde \`watch: true\` herlaadt die map ([Events en intents](/docs/events-inte
 ## Valkuilen
 
 - \`src/commands/ping.ts\` bewerken doet niets tot \`tsc\` \`dist/commands/ping.js\` schrijft.
-- \`watch: true\` met \`commands: [ping]\` gooit \`[Draeven] watch: true needs commands from a folder path or draeven.config.\` Er is geen map om te bekijken.
+- \`watch: true\` met \`commands: [ping]\` geeft de fout \`[Draeven] watch: true needs commands from a folder path or draeven.config.\` Er is geen map om te bekijken.
 
 ## Verder
 
@@ -941,14 +941,14 @@ const bot = await Start({
 
 | Veld | Wat het doet |
 |------|----------------|
-| <Explain topic="start-token">\`token\`</Explain> | Bot-token. Een lege token gooit al vóór de gateway opent. |
+| <Explain topic="start-token">\`token\`</Explain> | Bot-token. Een lege token faalt al vóór de gateway opent. |
 | <Explain topic="start-commands">\`commands\`</Explain> | Een array van commando's en menu's, een mappad of \`URL\`, of weglaten voor \`draeven.config\`. |
 | <Explain topic="start-guildId">\`guildId\`</Explain> | Snowflake (1–20 cijfers). Commando's synchroniseren naar die guild. Weglaten maakt de volgende sync globaal. Guild-commando's die al staan, blijven in die server. |
 | \`timeZone\` | IANA-naam, zoals \`Europe/Amsterdam\`. Gebruikt als \`ctx.transcript()\` er zelf geen meegeeft. |
 | \`presence\` | Beginstatus en activiteit. Zie [Presence](/docs/presence). |
 | <Explain topic="start-intents">\`intents\`</Explain> | Bitmask voor de gateway. Weggelaten is \`0\`. \`intentsFor(...events)\` vanuit eventnamen, of \`intentBits(...names)\` vanuit \`intents.*\`. |
 | \`events\` | Een handlers-object, een map met gecompileerde modules, of weglaten om \`events\` uit \`draeven.config\` te gebruiken als dat veld er staat. \`watch\` herlaadt een map. Een inline object laadt geen \`use()\`. |
-| <Explain topic="start-watch">\`watch\`</Explain> | Standaard \`false\`. \`true\` herlaadt de commandomap en een events-map. Een array in het geheugen gooit. |
+| <Explain topic="start-watch">\`watch\`</Explain> | Standaard \`false\`. \`true\` herlaadt de commandomap en een events-map. Een array in het geheugen geeft een foutmelding. |
 | \`guard\` | Het object dat \`guard({...})\` teruggeeft. Houdt het proces in leven en logt fouten. |
 | <Explain topic="start-alone">\`alone\`</Explain> | Standaard \`"ask"\`. Ook \`true\` of \`false\`. Zie [Eén proces](/docs/alone). |
 | <Explain topic="start-autoDefer">\`autoDefer\`</Explain> | Standaard **2000 ms**. \`false\` zet het uit. Een getal wordt geklemd op **500–2500** ms. |
@@ -965,9 +965,9 @@ await Start({
 });
 \`\`\`
 
-Een string of \`URL\` is een map, net als het \`commands\`-pad in de config. Een array (\`commands: [ping]\`) is de lijst in het geheugen. Handig in een test. \`watch: true\` met die array gooit. Er is geen map.
+Een string of \`URL\` is een map, net als het \`commands\`-pad in de config. Een array (\`commands: [ping]\`) is de lijst in het geheugen. Handig in een test. \`watch: true\` met die array geeft een foutmelding. Er is geen map.
 
-Guild-sync toont nieuwe commando's binnen seconden in die server. Een globale sync (geen \`guildId\`) kan een uur duren. Geef de guild-id mee terwijl je bewerkt. Laat je hem later weg, dan registreert Draeven de globale lijst. Commando's die al op de guild staan, blijven daar. Discord verwijdert ze niet. Een id die geen snowflake is gooit bij het opstarten.
+Guild-sync toont nieuwe commando's binnen seconden in die server. Een globale sync (geen \`guildId\`) kan een uur duren. Geef de guild-id mee terwijl je bewerkt. Laat je hem later weg, dan registreert Draeven de globale lijst. Commando's die al op de guild staan, blijven daar. Discord verwijdert ze niet. Een id die geen snowflake is faalt bij het opstarten.
 
 ## Intents en events
 
@@ -985,10 +985,10 @@ Discord geeft de handler ongeveer 3 seconden. De standaard <Explain topic="auto-
 
 ## Valkuilen
 
-- \`watch: true\` met \`commands: [ping]\` gooit. Er is geen map om te bekijken.
-- \`guard\` moet de waarde zijn die \`guard()\` teruggeeft. Een kaal \`{ via, of }\` gooit.
-- \`alone: "ask"\` vraagt niets als stdin geen TTY is. Een levende tweede instantie gooit dan, tenzij je \`alone: true\` meegeeft.
-- Een foute zonenaam (\`"Amsterdam"\`) gooit bij het opstarten. Gebruik \`Europe/Amsterdam\`.
+- \`watch: true\` met \`commands: [ping]\` geeft een foutmelding. Er is geen map om te bekijken.
+- \`guard\` moet de waarde zijn die \`guard()\` teruggeeft. Een kaal \`{ via, of }\` geeft een foutmelding.
+- \`alone: "ask"\` vraagt niets als stdin geen TTY is. Een levende tweede instantie faalt dan, tenzij je \`alone: true\` meegeeft.
+- Een foute zonenaam (\`"Amsterdam"\`) faalt bij het opstarten. Gebruik \`Europe/Amsterdam\`.
 
 ## Verder
 
@@ -1441,9 +1441,9 @@ Commando plaatst knoppen. \`use()\` in de events-map beantwoordt \`hangman_*\`, 
 \`\`\`js
 import { button, command, row } from "@draeven/core";
 
-export const letters = command("letters", "Posts letter buttons", async (ctx) =>
+export const letters = command("letters", "Plaatst letterknoppen", async (ctx) =>
   ctx.reply({
-    text: "Pick a letter.",
+    text: "Kies een letter.",
     rows: [
       row(
         button({ id: "hangman_A", label: "A" }),
@@ -1465,7 +1465,7 @@ export const letters = use({
   run(ctx) {
     const letter = ctx.id.slice("hangman_".length);
     return ctx.reply({
-      text: \`You picked **\${letter}**\`,
+      text: \`Je koos **\${letter}**\`,
       rows: [row(button({ id: "hangman_A", label: "A" }))],
     });
   },
@@ -1653,8 +1653,8 @@ export const choose = command("choose", "Asks yes or no and waits for a press", 
     text: "Pick one.",
     rows: [
       row(
-        button({ id: "choose-yes", label: "Yes", color: "green" }),
-        button({ id: "choose-no", label: "No", color: "red" })
+        button({ id: "choose-yes", label: "Ja", color: "green" }),
+        button({ id: "choose-no", label: "Nee", color: "red" })
       ),
     ],
   });
@@ -1662,7 +1662,7 @@ export const choose = command("choose", "Asks yes or no and waits for a press", 
   const pick = await collect({ ids: ["choose-yes", "choose-no"], seconds: 30 });
 
   if (!pick) {
-    return reply("Timed out.");
+    return reply("Timeout.");
   }
 
   return reply(pick.id === "choose-yes" ? "You chose yes." : "You chose no.");
@@ -1699,7 +1699,7 @@ export const ask = command("ask", "Opens a short form and waits for the answer",
   const submitted = await collect({ ids: "ask-form", kind: "submit", seconds: 120 });
 
   if (!submitted) {
-    return reply("Timed out.");
+    return reply("Timeout.");
   }
 
   return reply(\`Got it: \${submitted.fields.note ?? ""}\`);
@@ -1711,8 +1711,8 @@ export const ask = command("ask", "Opens a short form and waits for the answer",
 ## Valkuilen
 
 - Het wachttijdboek zit in het procesgeheugen. Een herstart wist het. \`simulate()\` past wachttijden niet toe.
-- Een tweede \`reply()\` gooit alleen als er al een antwoord is opgeslagen en je noch \`wait()\` hebt gedaan, noch een \`collect\` hebt geflusht. Na \`wait()\` vult \`edit()\` of een nieuwe \`reply()\` de defer. Na een collect-flush vervangt een nieuwe \`reply()\` het opgeslagen antwoord.
-- Een \`form()\` na \`wait()\`, \`defer\` of \`transcript()\` gooit. De modal moet de eerste bevestiging zijn.
+- Een tweede \`reply()\` faalt alleen als er al een antwoord is opgeslagen en je noch \`wait()\` hebt gedaan, noch een \`collect\` hebt geflusht. Na \`wait()\` vult \`edit()\` of een nieuwe \`reply()\` de defer. Na een collect-flush vervangt een nieuwe \`reply()\` het opgeslagen antwoord.
+- Een \`form()\` na \`wait()\`, \`defer\` of \`transcript()\` geeft een foutmelding. De modal moet de eerste bevestiging zijn.
 - \`embed()\` heeft geen titel op de wortel. Zet die in \`header: { title }\`.
 - \`layout()\` deelt het antwoord niet met tekst, een embed, een peiling of een canvas-afbeelding.
 
@@ -1817,7 +1817,7 @@ export default {
 };
 \`\`\`
 
-\`commands\` en \`events\` zijn mappaden. Een relatief pad wordt opgelost **naast het configbestand**, ook als \`process.cwd()\` ergens anders staat. Een absoluut pad wordt gebruikt zoals het er staat. \`resolveCommandsFolder(folder, baseDir)\` doet die regel zonder een bestand te lezen. Een leeg pad gooit \`[Draeven] A folder path cannot be empty.\` Een lege \`events\`-string wordt overgeslagen, dus er laadt geen events-map.
+\`commands\` en \`events\` zijn mappaden. Een relatief pad wordt opgelost **naast het configbestand**, ook als \`process.cwd()\` ergens anders staat. Een absoluut pad wordt gebruikt zoals het er staat. \`resolveCommandsFolder(folder, baseDir)\` doet die regel zonder een bestand te lezen. Een leeg pad geeft de fout \`[Draeven] A folder path cannot be empty.\` Een lege \`events\`-string wordt overgeslagen, dus er laadt geen events-map.
 
 \`readConfig(cwd)\` begint bij \`cwd\` (standaard \`process.cwd()\`) en loopt omhoog door ouder-mappen tot het \`draeven.config.js\` of \`draeven.config.mjs\` vindt. Het importeert die module en leest de default export. Zonder bestand is de commandomap \`./commands\` onder de map waar je begon — niet onder een ouder die toevallig een config bevat. Er is dan nog steeds geen events-map.
 
@@ -1836,7 +1836,7 @@ await Start({
 });
 \`\`\`
 
-\`loadCommands\` importeert daarna elk \`.js\`-bestand in de commandomap. Het slaat \`.ts\`, \`.test.js\`, namen die eindigen op \`old.js\` (dus ook \`fold.js\`), en namen die met een punt beginnen over. Exporteer \`command()\`, \`userMenu()\` of \`messageMenu()\` uit die modules. Andere exports worden genegeerd. Dubbele slash-namen gooien. Twee user-menu's met dezelfde naam ook, en twee berichtmenu's met dezelfde naam ook.
+\`loadCommands\` importeert daarna elk \`.js\`-bestand in de commandomap. Het slaat \`.ts\`, \`.test.js\`, namen die eindigen op \`old.js\` (dus ook \`fold.js\`), en namen die met een punt beginnen over. Exporteer \`command()\`, \`userMenu()\` of \`messageMenu()\` uit die modules. Andere exports worden genegeerd. Dubbele slash-namen geven een foutmelding. Twee user-menu's met dezelfde naam ook, en twee berichtmenu's met dezelfde naam ook.
 
 Als het bestand \`events\` zet, importeert \`loadEvents\` die map op dezelfde manier. Het houdt een functie waarvan de naam een gateway-event is, en elke waarde gebouwd met \`use()\`. Andere exports worden genegeerd ([Events en intents](/docs/events-intents)).
 
@@ -1867,12 +1867,12 @@ await Start({
 ## Valkuilen
 
 - \`draeven.config.ts\` en \`.cjs\` worden genegeerd. De namen zijn \`draeven.config.js\` en \`draeven.config.mjs\`.
-- Een ontbrekende map gooit \`Cannot read commands folder\`. Maak \`dist/commands\` in de build, anders stopt het proces bij het opstarten.
-- Een gezet \`events\`-pad dat ontbreekt gooit \`Cannot read events folder\`. Maak \`dist/events\`, of laat \`events\` uit de config.
+- Een ontbrekende map geeft de fout \`Cannot read commands folder\`. Maak \`dist/commands\` in de build, anders stopt het proces bij het opstarten.
+- Een gezet \`events\`-pad dat ontbreekt geeft de fout \`Cannot read events folder\`. Maak \`dist/events\`, of laat \`events\` uit de config.
 - Een lege map, of een map die alleen nog TypeScript bevat, laadt nul commando's. De volgende sync wist dan de commando's die Discord al had.
 - \`commands\` naar \`./src/commands\` wijzen oogt goed in de editor en laadt niets, omdat die bestanden nog \`.ts\` zijn.
 - \`events\` naar \`./src/events\` wijzen doet hetzelfde. Het configpad is \`./dist/events\`.
-- \`watch: true\` met een array in het geheugen gooit \`[Draeven] watch: true needs commands from a folder path or draeven.config.\` Geef deze map mee, of een \`commands\`-pad ([Hot-reload en guard](/docs/hot-reload-guard)).
+- \`watch: true\` met een array in het geheugen geeft de fout \`[Draeven] watch: true needs commands from a folder path or draeven.config.\` Geef deze map mee, of een \`commands\`-pad ([Hot-reload en guard](/docs/hot-reload-guard)).
 `,
     },
   },
@@ -2005,11 +2005,11 @@ export const slow = command("slow", "Duurt even", async (ctx) => {
 });
 \`\`\`
 
-\`wait()\` na \`reply()\` gooit. \`edit()\` vóór \`wait()\` of \`reply()\` gooit. Het hele oppervlak: [Antwoorden](/docs/replies).
+\`wait()\` na \`reply()\` geeft een foutmelding. \`edit()\` vóór \`wait()\` of \`reply()\` geeft een foutmelding. Het hele oppervlak: [Antwoorden](/docs/replies).
 
 ## Het formulier is het eerste antwoord
 
-Een modal moet de eerste bevestiging zijn. <Explain topic="form-first">Een form() kan niet na een defer</Explain>. Roep geen \`wait()\` aan, zet geen \`defer\` in metadata, en roep geen \`transcript()\` aan vóór \`form()\`. Een auto-defer die al is afgegaan telt ook: het token is dan al verbruikt. Discord opent daarna geen modal, en flush gooit \`A form cannot follow wait()\`.
+Een modal moet de eerste bevestiging zijn. <Explain topic="form-first">Een form() kan niet na een defer</Explain>. Roep geen \`wait()\` aan, zet geen \`defer\` in metadata, en roep geen \`transcript()\` aan vóór \`form()\`. Een auto-defer die al is afgegaan telt ook: het token is dan al verbruikt. Discord opent daarna geen modal, en flush geeft de fout \`A form cannot follow wait()\`.
 
 \`\`\`js
 import { command, fieldStyles, form } from "@draeven/core";
@@ -2035,23 +2035,23 @@ Een formulier kan niet \`{ private: true }\` zijn, en \`ctx.send\` kan er geen d
 
 ## layout() mengt niet
 
-<Explain topic="layout-mix">Een layout() is het hele antwoord</Explain>. Het deelt dat bericht niet met tekst, een \`embed()\`, een \`poll()\` of een \`canvas()\`-afbeelding. \`reply("tekst", layout(...))\` gooit \`A reply takes text, an embed, or text and an embed.\` De mix-fout \`A layout cannot mix with text, embeds, or polls.\` is voor een object zoals \`{ text, layout }\`.
+<Explain topic="layout-mix">Een layout() is het hele antwoord</Explain>. Het deelt dat bericht niet met tekst, een \`embed()\`, een \`poll()\` of een \`canvas()\`-afbeelding. \`reply("tekst", layout(...))\` geeft de fout \`A reply takes text, an embed, or text and an embed.\` De mix-fout \`A layout cannot mix with text, embeds, or polls.\` is voor een object zoals \`{ text, layout }\`.
 
 Je mag de layout wel privé maken met \`{ private: true }\`, en extra \`row()\`-waarden aan hetzelfde antwoord hangen. Die actierijen gaan ná de layout-onderdelen mee. Een peiling is ook een eigen antwoord, en een formulier ook. [Embeds en layout](/docs/embeds-layout).
 
 ## Eén antwoordtoken
 
-De interactie heeft één antwoordtoken. Een tweede \`reply()\` gooit \`A command can only reply once.\` alleen als er al een antwoord is opgeslagen en je noch \`wait()\` hebt gedaan, noch een \`collect\` hebt geflusht. Na \`wait()\` vult \`edit()\` of een nieuwe \`reply()\` de defer. \`followup()\` voegt een extra bericht toe.
+De interactie heeft één antwoordtoken. Een tweede \`reply()\` geeft de fout \`A command can only reply once.\` alleen als er al een antwoord is opgeslagen en je noch \`wait()\` hebt gedaan, noch een \`collect\` hebt geflusht. Na \`wait()\` vult \`edit()\` of een nieuwe \`reply()\` de defer. \`followup()\` voegt een extra bericht toe.
 
-\`collect()\` flusht het openstaande antwoord vóór het wacht. Na die flush vervangt een nieuwe \`reply()\` het opgeslagen antwoord. Dat gooit niet. Een formulier-submit wordt op de modal beantwoord. Een knop of menu, en een timeout, bewerken de oorspronkelijke interactie. Een vervanging die alleen tekst is, haalt de knoppenrij niet weg.
+\`collect()\` flusht het openstaande antwoord vóór het wacht. Na die flush vervangt een nieuwe \`reply()\` het opgeslagen antwoord. Dat faalt niet. Een formulier-submit wordt op de modal beantwoord. Een knop of menu, en een timeout, bewerken de oorspronkelijke interactie. Een vervanging die alleen tekst is, haalt de knoppenrij niet weg.
 
-Een tweede \`reply()\` vóór \`wait()\` en vóór die flush gooit nog steeds. [Antwoorden](/docs/replies) · [Verzamelaars](/docs/collectors).
+Een tweede \`reply()\` vóór \`wait()\` en vóór die flush faalt nog steeds. [Antwoorden](/docs/replies) · [Verzamelaars](/docs/collectors).
 
 ## ctx.collect tegenover press
 
 <Explain topic="collect-vs-press">ctx.collect laat dit commando doorgaan. press antwoordt later, op zichzelf.</Explain> De verzamelaar wint alleen als de custom id, de soort en de gebruiker alle drie kloppen.
 
-Doet hij dat niet, dan probeert Draeven de volgende treffer in deze volgorde: de inline \`press\` of \`submit\` die op die id is onthouden, dan een \`use()\` uit de events-map, dan de tekst \`Received.\`. De onthouden functie wint van \`use()\` zolang dit proces draait. \`use()\` is wat na een herstart nog draait.
+Doet hij dat niet, dan probeert Draeven de volgende match in deze volgorde: de inline \`press\` of \`submit\` die op die id is onthouden, dan een \`use()\` uit de events-map, dan de tekst \`Received.\`. De onthouden functie wint van \`use()\` zolang dit proces draait. \`use()\` is wat na een herstart nog draait.
 
 Gebruik \`collect\` als hetzelfde commando moet doorgaan. Gebruik inline \`press\` of \`submit\` voor een eenmalige knop in dit proces. Gebruik \`use()\` als de handler een herstart moet overleven. \`link()\` en \`sku()\` hebben geen \`press\` en komen nooit aan in \`collect\`. [Verzamelaars](/docs/collectors) · [Press & submit](/docs/press-handlers).
 
@@ -2080,7 +2080,7 @@ embed({
 
 \`loadCommands\` importeert \`.js\` uit de commandomap. Het slaat \`.ts\`, \`.test.js\`, namen die eindigen op \`old.js\` (dus ook \`fold.js\`), en namen die met een punt beginnen over. Wijs \`draeven.config.js\` na \`tsc\` naar \`./dist/commands\`, niet naar \`./src/commands\`.
 
-Een ontbrekende map gooit \`Cannot read commands folder\`. Een map die alleen TypeScript bevat laadt nul commando's, en de volgende sync wist de commando's die Discord al had. [Configbestand](/docs/config) · [Deployen](/docs/deploy).
+Een ontbrekende map geeft de fout \`Cannot read commands folder\`. Een map die alleen TypeScript bevat laadt nul commando's, en de volgende sync wist de commando's die Discord al had. [Configbestand](/docs/config) · [Deployen](/docs/deploy).
 `,
     },
   },
@@ -2233,7 +2233,7 @@ Optienamen volgen hetzelfde patroon als commandonamen, en deze sleutels zijn ger
 ## Valkuilen
 
 - De \`Reply\` van \`ctx.reply()\` teruggeven is genoeg. Je hoeft niet nog een keer te versturen.
-- \`reply()\` gooit \`A command can only reply once.\` alleen als er al een antwoord is opgeslagen en je noch \`wait()\` hebt gedaan, noch een \`collect\` hebt geflusht. Na \`wait()\` vul je met \`edit()\` of een nieuwe \`reply()\`. Na een collect-flush vervangt een nieuwe \`reply()\` het opgeslagen antwoord. Gebruik \`followup()\` voor een extra bericht.
+- \`reply()\` geeft de fout \`A command can only reply once.\` alleen als er al een antwoord is opgeslagen en je noch \`wait()\` hebt gedaan, noch een \`collect\` hebt geflusht. Na \`wait()\` vul je met \`edit()\` of een nieuwe \`reply()\`. Na een collect-flush vervangt een nieuwe \`reply()\` het opgeslagen antwoord. Gebruik \`followup()\` voor een extra bericht.
 - Traag werk hoort \`await ctx.wait()\` en daarna \`ctx.edit(...)\`, of leunt op de standaard auto-defer na 2 seconden ([Antwoorden](/docs/replies)).
 
 ## Verder
@@ -2537,7 +2537,7 @@ Geef niet \`group({ kick: sub(...) })\` met één object. \`group\` wil eerst ee
 ## Valkuilen
 
 - Opties op de parent \`command()\` mogen niet als het derde argument een sub-map is.
-- Een groep zonder subs gooit. Een groep die weer een groep bevat gooit.
+- Een groep zonder subs geeft een foutmelding. Een groep die weer een groep bevat geeft een foutmelding.
 - \`cooldown: 10\` op de parent geldt voor de hele naam \`/mod\`, niet per blad.
 
 ## Verder
@@ -2705,7 +2705,7 @@ Menu's synchroniseren met dezelfde guild- of globale regels als slash-commando's
 ## Valkuilen
 
 - \`ctx.target\` bij een berichtmenu is geen volledig bericht. Je krijgt alleen \`id\`, \`content\` en \`authorId\`.
-- Twee user-menu's met dezelfde naam gooien bij het laden van de map. Twee berichtmenu's met dezelfde naam gooien ook.
+- Twee user-menu's met dezelfde naam geven een foutmelding bij het laden van de map. Twee berichtmenu's met dezelfde naam geven ook een foutmelding.
 - Verzin geen slash-opties op een menu. Discord toont ze niet.
 
 ## Verder
@@ -2822,7 +2822,7 @@ De handler krijgt lookups plus:
 | \`focused\` | Optienaam die Discord bewerkt. |
 | \`author\` | Aanroeper \`{ id }\`. |
 
-Geef maximaal **25** items terug. De rest valt weg. Elk item is een string of \`{ label, value }\`. Stringwaarden zijn 1–100 tekens. Een getalsuggestie is een string zoals \`"5"\`, of \`{ label, value }\` met een numerieke \`value\`. Een kaal getal gooit.
+Geef maximaal **25** items terug. De rest valt weg. Elk item is een string of \`{ label, value }\`. Stringwaarden zijn 1–100 tekens. Een getalsuggestie is een string zoals \`"5"\`, of \`{ label, value }\` met een numerieke \`value\`. Een kaal getal geeft een foutmelding.
 
 ## Voorbeeld
 
@@ -2870,7 +2870,7 @@ export const qty = command(
 );
 \`\`\`
 
-Vaste \`choices\` op \`number()\` of \`decimal()\` kunnen niet samen met \`.suggest()\`. Draeven gooit bij het bouwen van die optie.
+Vaste \`choices\` op \`number()\` of \`decimal()\` kunnen niet samen met \`.suggest()\`. Draeven faalt bij het bouwen van die optie.
 
 <Warn>
 De handler valideert niet. Iemand kan tekst insturen die nooit in de lijst stond. Controleer \`ctx.query\` opnieuw in het commando als alleen bekende ids geldig zijn.
@@ -3141,7 +3141,7 @@ export const ping = command(
 );
 \`\`\`
 
-\`0\`, negatieve getallen en niet-eindige waarden gooien als het commando draait, niet als \`command()\` wordt gebouwd. \`readCooldown\` draait in de dispatcher. Breuken mogen.
+\`0\`, negatieve getallen en niet-eindige waarden geven een foutmelding als het commando draait, niet als \`command()\` wordt gebouwd. \`readCooldown\` draait in de dispatcher. Breuken mogen.
 
 ## Scope
 
@@ -3287,7 +3287,7 @@ Gebruik dit als hetzelfde commando in meer dan één taal verschijnt. Gatetekste
 | Optie of sub | \`withLocales()\` of \`sub(..., { locales })\` | Naam en beschrijving van dat veld |
 | Jouw antwoord | \`say(map, ctx.locale)\` | Het bericht nadat ze het uitvoeren |
 
-Locale-sleutels moeten \`nl\` of \`nl-NL\` lijken (\`xx\` of \`xx-YY\`). Lege strings gooien.
+Locale-sleutels moeten \`nl\` of \`nl-NL\` lijken (\`xx\` of \`xx-YY\`). Lege strings geven een foutmelding.
 
 ## Voorbeeld
 
@@ -3318,7 +3318,7 @@ De JavaScript-sleutel blijft \`who\`. Je leest nog steeds \`ctx.who\`. \`name: "
 3. \`en\`, daarna \`en-US\`.
 4. De eerste string in het object.
 
-\`say()\` gooit als de map leeg is of een waarde blanco is. Het doet geen netwerkoproep.
+\`say()\` faalt als de map leeg is of een waarde blanco is. Het doet geen netwerkoproep.
 
 ## Frameworkteksten
 
@@ -3470,9 +3470,9 @@ Een gekozen \`user()\`-optie is al de \`User\`. Roep \`getMember\` en \`getRoles
 
 ## Valkuilen
 
-- \`getUser\` kent alleen gebruikers die Discord aan deze interactie hing. Een id die je zelf verzon gooit \`Unknown user …\`.
+- \`getUser\` kent alleen gebruikers die Discord aan deze interactie hing. Een id die je zelf verzon geeft de fout \`Unknown user …\`.
 - \`getMember\` is geen mislukte lookup van het account. In een DM bestaat de gebruiker wel en het lid niet, dus het resultaat is \`undefined\`.
-- \`getRoles\` in een DM is \`[]\` als de gebruiker bekend is. Het gooit niet omdat er geen rollen zijn.
+- \`getRoles\` in een DM is \`[]\` als de gebruiker bekend is. Het faalt niet omdat er geen rollen zijn.
 
 ## Verder
 
@@ -3590,8 +3590,8 @@ Voor 5 maart 2020, 00:00 UTC, geeft \`formatDate\` terug:
 
 | Grens | Wat er gebeurt |
 |-------|----------------|
-| Invoer | Een echte \`Date\`. Al het andere, ook een ongeldige datum, gooit \`A date is required.\` |
-| Land | Een code uit \`countries\`. \`Netherlands\` is \`"NL"\`. Al het andere gooit \`Unknown country.\` |
+| Invoer | Een echte \`Date\`. Al het andere, ook een ongeldige datum, geeft de fout \`A date is required.\` |
+| Land | Een code uit \`countries\`. \`Netherlands\` is \`"NL"\`. Al het andere geeft de fout \`Unknown country.\` |
 | Kalenderdag | UTC. Het land kiest alleen volgorde, scheidingstekens en cijfers. |
 | Klok | Geen uren of minuten. De string is één dag. |
 | Zone | De zone van de lezer wordt niet toegepast. Dat doet \`time()\`. |
@@ -3601,8 +3601,8 @@ Elke waarde in \`countries\` is geldig. De benoemde exports (\`Netherlands\`, \`
 
 ## Valkuilen
 
-- De Engelse naam \`"Netherlands"\` is geen code. Geef de constante \`Netherlands\` of \`"NL"\` mee. \`"ZZ"\` gooit \`Unknown country.\`
-- Een string zoals \`"2020-03-05"\` is geen \`Date\`. Wikkel die eerst in \`new Date(...)\`. \`new Date(NaN)\` gooit \`A date is required.\`
+- De Engelse naam \`"Netherlands"\` is geen code. Geef de constante \`Netherlands\` of \`"NL"\` mee. \`"ZZ"\` geeft de fout \`Unknown country.\`
+- Een string zoals \`"2020-03-05"\` is geen \`Date\`. Wikkel die eerst in \`new Date(...)\`. \`new Date(NaN)\` geeft de fout \`A date is required.\`
 - Rond middernacht UTC kan de kalenderdag afwijken van de datum die de lezer lokaal nog ziet. Gebruik \`time()\` als elke lezer de eigen dag moet zien.
 - \`formatDate\` heeft geen stijlargument. \`"relative"\` en \`"long date"\` horen bij \`time()\`.
 `,
@@ -3697,7 +3697,7 @@ Bevestig binnen ongeveer **3 seconden**. Daarna zo’n 15 minuten voor follow-up
 
 | Methode | Wanneer |
 |---------|---------|
-| \`reply(...)\` | Slaat het antwoord op. Een tweede aanroep gooit alleen als er al een antwoord is opgeslagen en je noch hebt gewacht, noch een collect hebt geflusht. Na \`wait()\` vult \`edit()\` of een nieuwe \`reply()\` het. Na een collect-flush vervangt een nieuwe \`reply()\` het. |
+| \`reply(...)\` | Slaat het antwoord op. Een tweede aanroep faalt alleen als er al een antwoord is opgeslagen en je noch hebt gewacht, noch een collect hebt geflusht. Na \`wait()\` vult \`edit()\` of een nieuwe \`reply()\` het. Na een collect-flush vervangt een nieuwe \`reply()\` het. |
 | \`wait({ private? })\` | Bevestigen zonder inhoud. Nodig vóór \`edit\` als je nog niet hebt geantwoord. |
 | \`edit(...)\` | Het uitgestelde of al verstuurde antwoord vervangen. |
 | \`followup(...)\` | Nog een bericht na het eerste antwoord. Geeft een promise terug. |
@@ -3731,7 +3731,7 @@ export const slow = command("slow", "Duurt even", async (ctx) => {
 });
 \`\`\`
 
-\`wait()\` gooit als je al \`reply()\` aanriep. \`edit()\` gooit als je noch wachtte noch antwoordde. \`remove()\` heeft dezelfde voorwaarde.
+\`wait()\` faalt als je al \`reply()\` aanriep. \`edit()\` faalt als je noch wachtte noch antwoordde. \`remove()\` heeft dezelfde voorwaarde.
 
 ## Follow-up
 
@@ -3742,7 +3742,7 @@ export const two = command("two", "Twee berichten", async (ctx) => {
 });
 \`\`\`
 
-Was het eerste antwoord privé, geef latere tekst zelf privé mee als je opties doorgeeft. \`followup\` vóór een \`reply\` gooit.
+Was het eerste antwoord privé, geef latere tekst zelf privé mee als je opties doorgeeft. \`followup\` vóór een \`reply\` geeft een foutmelding.
 
 <Note>
 \`ctx.send(channel, ...)\` plaatst een gewoon kanaalbericht. Het kan niet privé zijn en geen \`form()\` dragen. Dat staat los van het interactie-antwoord ([Berichten sturen](/docs/sending-messages)).
@@ -3750,8 +3750,8 @@ Was het eerste antwoord privé, geef latere tekst zelf privé mee als je opties 
 
 ## Valkuilen
 
-- Een tweede \`reply()\` gooit "A command can only reply once." alleen als er een antwoord is opgeslagen en je noch \`wait()\` hebt gedaan, noch een collect hebt geflusht. Na \`wait()\` vult \`edit()\` of een nieuwe \`reply()\` de defer. Na een collect-flush vervangt een nieuwe \`reply()\` het opgeslagen antwoord.
-- \`simulate()\` heeft geen interactietoken, dus \`wait()\`, \`edit()\`, \`remove()\` en \`collect()\` gooien. \`reply()\` geeft nog steeds het \`Reply\`-object terug.
+- Een tweede \`reply()\` geeft de fout "A command can only reply once." alleen als er een antwoord is opgeslagen en je noch \`wait()\` hebt gedaan, noch een collect hebt geflusht. Na \`wait()\` vult \`edit()\` of een nieuwe \`reply()\` de defer. Na een collect-flush vervangt een nieuwe \`reply()\` het opgeslagen antwoord.
+- \`simulate()\` heeft geen interactietoken, dus \`wait()\`, \`edit()\`, \`remove()\` en \`collect()\` geven een foutmelding. \`reply()\` geeft nog steeds het \`Reply\`-object terug.
 - \`ctx.reply(...)\` teruggeven uit de handler is de gewone vorm. Er is geen aparte helper om de interactie te versturen.
 
 ## Verder
@@ -4000,7 +4000,7 @@ De tour hierboven leert het oppervlak. Open de cheatsheet voor veldlimieten.
 
 <CollapsibleCheatsheet title="Velden voor button / link / SKU">
 
-| Stuk | Verplicht | Optioneel / notities |
+| Element | Verplicht | Optioneel / notities |
 |------|-----------|----------------------|
 | \`button\` | \`id\` (jouw string, 1–100 tekens), \`label\` (1–80) | \`color\` (vier namen), \`emoji\`, \`disabled\`, \`press\` |
 | \`link\` | \`url\` (\`http\`/\`https\`, ≤512 tekens), \`label\` (1–80) | \`emoji\`, \`disabled\`. Geen custom id → \`collect\` ziet hem nooit |
@@ -4076,7 +4076,7 @@ De verzamelaar wint alleen als de custom id, de soort en de gebruiker alle drie 
 Een eenmalige knop mag \`press\` dragen:
 
 \`\`\`js
-button({ id: "yes", label: "Yes", press: (ctx) => ctx.reply("Yes.") })
+button({ id: "yes", label: "Ja", press: (ctx) => ctx.reply("Ja.") })
 \`\`\`
 
 Voor knoppen die na een herstart nog moeten werken, laat je \`press\` weg en exporteer je \`use()\` uit de events-map. Het commando plaatst alleen de knoppen. \`use()\` bezit de ids ([Press & submit](/docs/press-handlers)).
@@ -4089,9 +4089,9 @@ Een formulier kan niet volgen op \`wait()\` of een \`defer\` in metadata. Antwoo
 
 ## Valkuilen
 
-- Een herhaalde id gooit terwijl de rij wordt gebouwd.
+- Een herhaalde id faalt terwijl de rij wordt gebouwd.
 - \`link()\` komt nooit aan in \`collect\`. Zet een link niet in \`ids\`.
-- Een menu of kiezer naast een knop gooit: "A menu takes the whole row."
+- Een menu of kiezer naast een knop geeft de fout: "A menu takes the whole row."
 - Na een timeout blijven de elementen staan. Een bewerking die alleen tekst is, houdt de rij, want \`components\` wordt weggelaten. \`rows: []\` valt ook weg. \`remove()\` verwijdert het antwoord.
 
 ## Verder
@@ -4162,7 +4162,7 @@ A \`button({ id: "later", label: "Not now" })\` can sit in that same row. That b
 
 \`id\` is de SKU-id uit het Developer Portal, geen eigen component-id. Draeven controleert de vorm van die id terwijl de rij wordt gebouwd. Het maakt het product niet aan, en het praat niet met monetization. De applicatie heeft een echte SKU nodig, anders heeft de knop niets te verkopen.
 
-De knop staat in \`row()\` naast \`button()\` en \`link()\`. Die rij houdt hoogstens vijf van die stukken. Een menu of een kiezer neemt de rij nog steeds alleen.
+De knop staat in \`row()\` naast \`button()\` en \`link()\`. Die rij houdt hoogstens vijf van die componenten. Een menu of een kiezer neemt de rij nog steeds alleen.
 
 ## Uitgewerkt voorbeeld
 
@@ -4190,16 +4190,16 @@ Een \`button({ id: "later", label: "Niet nu" })\` mag in diezelfde rij. Die knop
 
 | Grens | Detail |
 |-------|--------|
-| \`id\` | 1–20 cijfers na trim. Leeg, letters, of 21 cijfers gooit \`A SKU id is a number of 1-20 digits.\` |
-| Rijgrootte | Hoogstens vijf stukken \`button()\`, \`link()\` of \`sku()\` |
-| Menu of kiezer | Neemt de rij alleen. \`sku()\` naast \`menu()\` gooit |
+| \`id\` | 1–20 cijfers na trim. Leeg, letters, of 21 cijfers geeft de fout \`A SKU id is a number of 1-20 digits.\` |
+| Rijgrootte | Hoogstens vijf componenten \`button()\`, \`link()\` of \`sku()\` |
+| Menu of kiezer | Neemt de rij alleen. \`sku()\` naast \`menu()\` faalt |
 | Velden | \`label\`, \`color\` en \`press\` zijn geen velden op \`sku()\` |
 | Verzamelaar | \`ctx.collect\` ziet de klik nooit. Er is geen \`press\` |
 | Product | De SKU moet al op de applicatie bestaan. Draeven maakt hem niet aan |
 
 ## Valkuilen
 
-- Een lege id, letters, of meer dan 20 cijfers gooit terwijl de rij wordt gebouwd, vóór Discord het bericht ziet.
+- Een lege id, letters, of meer dan 20 cijfers faalt terwijl de rij wordt gebouwd, vóór Discord het bericht ziet.
 - Het is geen eigen knop. \`label\` of \`color\` overnemen van \`button()\` hoort niet bij \`sku()\`.
 - \`sku()\` in de \`ids\`-lijst van \`ctx.collect\` zetten doet niets nuttigs. De klik komt nooit aan. Hetzelfde geldt voor \`link()\`.
 - Een test-id die alleen uit cijfers bestaat komt door Draeven en faalt in Discord als die SKU niet op deze applicatie staat.
@@ -4367,7 +4367,7 @@ export const confirm = command("confirm", "Ja of nee", async (ctx) => {
 });
 \`\`\`
 
-Knopkleuren zijn \`blurple\` (standaard), \`grey\`, \`green\` en \`red\`. \`row()\` houdt hoogstens vijf \`button()\`, \`link()\` of \`sku()\`-stukken. Een selectie-\`menu()\`, en de kiezers \`people()\`, \`roles()\`, \`channels()\` en \`mentions()\`, nemen elk de rij alleen.
+Knopkleuren zijn \`blurple\` (standaard), \`grey\`, \`green\` en \`red\`. \`row()\` houdt hoogstens vijf \`button()\`, \`link()\` of \`sku()\`-componenten. Een selectie-\`menu()\`, en de kiezers \`people()\`, \`roles()\`, \`channels()\` en \`mentions()\`, nemen elk de rij alleen.
 
 ## Keuzemenu
 
@@ -4431,18 +4431,18 @@ Een submit beantwoordt de modal. Een timeout bewerkt de oorspronkelijke interact
 | Veld | Betekenis |
 |------|-----------|
 | \`ids\` | Custom id of lijst. Verplicht. Minstens één. |
-| \`seconds\` | Timeout in seconden. Standaard **60**. \`0\`, een negatief getal of een niet-eindige waarde gooit. |
+| \`seconds\` | Timeout in seconden. Standaard **60**. \`0\`, een negatief getal of een niet-eindige waarde geeft een foutmelding. |
 | \`who\` | Wie mag antwoorden. Standaard de auteur van het commando. \`false\` laat iedereen toe. Een user-id of \`{ id }\` beperkt tot die gebruiker. |
 | \`kind\` | \`"press"\`, \`"submit"\` of \`"any"\` (standaard). |
 
 <Warn fix="Roep reply() of wait() aan vóór collect()." href="/docs/why-failing">
-\`collect\` gooit als je nog niet hebt geantwoord of gewacht, en als de verbinding niet kan verzamelen (ook \`simulate()\`).
+\`collect\` faalt als je nog niet hebt geantwoord of gewacht, en als de verbinding niet kan verzamelen (ook \`simulate()\`).
 </Warn>
 
 ## Valkuilen
 
-- Rond één \`collect\` af of laat hem timen voordat je een volgende start in dezelfde flow. Overlappende wachters zijn lastig te matchen.
-- Custom ids op één bericht moeten uniek zijn. Draeven gooit bij het bouwen van de rij als een knop-id terugkomt.
+- Rond één \`collect\` af of laat hem timen voordat je een volgende start in dezelfde flow. Overlappende verzamelaars zijn lastig te matchen.
+- Custom ids op één bericht moeten uniek zijn. Draeven faalt bij het bouwen van de rij als een knop-id terugkomt.
 - De verzamelaar wint alleen als id, soort en wie alle drie kloppen. Een andere gebruiker of een andere soort draait \`press\` nog steeds.
 - Na een timeout blijven de knoppen staan. Een bewerking die alleen tekst is, houdt de rij. \`rows: []\` valt weg. \`remove()\` verwijdert het antwoord.
 
@@ -4757,9 +4757,9 @@ return ctx.reply(
 
 \`layout()\` bouwt Discord **Components V2**-berichten (vlag \`IS_COMPONENTS_V2\`). Dat is Discords naam voor dit UI-systeem — in Draeven begin je met \`layout()\`, er is geen aparte \`section()\`-export.
 
-Discord zelf heeft wel een stuk genaamd **Section** (tekst + één accessory). In Draeven is dat \`beside()\`. De andere helpers zijn de weergavestukken van Discord: tekst, scheiding, container, galerij, bestand, thumbnail en actierij.
+Discord zelf heeft wel een element genaamd **Section** (tekst + één accessory). In Draeven is dat \`beside()\`. De andere helpers zijn de weergave-elementen van Discord: tekst, scheiding, container, galerij, bestand, thumbnail en actierij.
 
-Op één antwoord mag een layout <Explain topic="layout-mix">niet mengen</Explain> met berichttekst, \`embed()\`, \`poll()\` of een \`canvas()\`-afbeelding. \`reply("tekst", layout(...))\` gooit \`A reply takes text, an embed, or text and an embed.\` De mix-fout \`A layout cannot mix with text, embeds, or polls.\` is voor \`{ text, layout }\`. Een \`form()\` is ook een eigen antwoord. Je mag de layout wel privé maken met \`{ private: true }\`, en extra \`row()\`-waarden aan hetzelfde antwoord hangen — die actierijen gaan ná de layout-onderdelen mee.
+Op één antwoord mag een layout <Explain topic="layout-mix">niet mengen</Explain> met berichttekst, \`embed()\`, \`poll()\` of een \`canvas()\`-afbeelding. \`reply("tekst", layout(...))\` geeft de fout \`A reply takes text, an embed, or text and an embed.\` De mix-fout \`A layout cannot mix with text, embeds, or polls.\` is voor \`{ text, layout }\`. Een \`form()\` is ook een eigen antwoord. Je mag de layout wel privé maken met \`{ private: true }\`, en extra \`row()\`-waarden aan hetzelfde antwoord hangen — die actierijen gaan ná de layout-onderdelen mee.
 
 \`layout(...parts)\` houdt **1–40** onderdelen. Elk onderdeel komt van \`show\`, \`divide\`, \`pack\`, \`beside\`, \`album\`, \`showFile\` of \`row\`. \`thumb()\` is zelf geen layout-onderdeel. Het is alleen de afbeelding-accessory die je aan \`beside({ with })\` geeft.
 
@@ -4947,7 +4947,7 @@ Tekst gebruikt een ingebouwd **5×7**-lettertype voor ASCII, van spatie tot en m
 | \`ctx.reply(embed({ header: { title: "Bordje" }, picture }))\` | De PNG op die embed, via \`picture\`. |
 | \`ctx.send(channelId, picture)\` of \`bot.send(channelId, picture)\` | Een gewoon kanaalbericht. |
 
-\`followup\` neemt dezelfde vormen. \`ctx.reply("Bordje", picture)\` is geen overload. Die gooit. Zet het bijschrift in \`{ text, picture }\`.
+\`followup\` neemt dezelfde vormen. \`ctx.reply("Bordje", picture)\` is geen overload. Die geeft een foutmelding. Zet het bijschrift in \`{ text, picture }\`.
 
 <Note>
 Een canvas-afbeelding deelt een antwoord niet met \`layout()\`. \`layout()\` is Components V2. De afbeelding is een bestand op een klassiek bericht. Verstuur één van de twee.
@@ -4964,11 +4964,11 @@ Een canvas-afbeelding deelt een antwoord niet met \`layout()\`. \`layout()\` is 
 | \`pixel(x, y)\` | Lees één pixel. |
 | \`png()\` | PNG-bytes. |
 
-Coördinaten en maten zijn gehele getallen. Een gebroken breedte gooit voordat er iets getekend is.
+Coördinaten en maten zijn gehele getallen. Een gebroken breedte faalt voordat er iets getekend is.
 
 ## Valkuilen
 
-- Eén antwoord draagt één afbeelding. Een embed-\`picture\` plus een bericht-\`picture\` gooit.
+- Eén antwoord draagt één afbeelding. Een embed-\`picture\` plus een bericht-\`picture\` geeft een foutmelding.
 - Het lettertype heeft geen emoji en geen letters voorbij \`~\`. Teken die als vormen, of zet ze in de embedtekst.
 - Een canvas van 1024×1024 is een grote PNG. Gebruik de maat die het bordje echt nodig heeft.
 - \`fill\` dekt eerdere verf. Teken eerst de achtergrond, dan de balk, dan de letters.
@@ -5119,9 +5119,9 @@ Discord eist nog steeds dat de bot peilingen in dat kanaal mag sturen. Gate het 
 ## Valkuilen
 
 - Een peiling is het hele antwoord. Geef niet ook tekst, een embed, rijen, een afbeelding of een \`layout()\` aan dezelfde \`reply\`.
-- \`{ private: true }\` op een peiling gooit \`A poll cannot be private.\`
-- \`hours: 24.5\` gooit. Geef een geheel getal.
-- Eén antwoord, of elf, gooit al bij \`poll()\` — niet later vanuit Discord.
+- \`{ private: true }\` op een peiling geeft de fout \`A poll cannot be private.\`
+- \`hours: 24.5\` geeft een foutmelding. Geef een geheel getal.
+- Eén antwoord, of elf, faalt al bij \`poll()\` — niet later vanuit Discord.
 
 ## Verder
 
@@ -5209,7 +5209,7 @@ await ctx.reply(\`Removed \${removed}.\`, { private: true });
       title: "Mod-acties",
       description: "timeout, kick, ban, purge en berichthulp op ctx.",
       body: `
-Moderatiehelpers zitten op de commando-\`ctx\`. Ze roepen Discord-REST aan via de gatewayverbinding die \`Start()\` opende. Gebruik ze in een guild-commando. Ze gooien in een DM of als die verbinding de actie niet kan uitvoeren.
+Moderatiehelpers zitten op de commando-\`ctx\`. Ze roepen Discord-REST aan via de gatewayverbinding die \`Start()\` opende. Gebruik ze in een guild-commando. Ze geven een foutmelding in een DM of als die verbinding de actie niet kan uitvoeren.
 
 Koppel ze altijd aan \`need\`, zodat de aanroeper wordt gecontroleerd vóór de REST-aanroep ([Rechten](/docs/permissions)).
 
@@ -5371,9 +5371,9 @@ De aanroep defert de interactie als je dat nog niet deed, en haalt daarna de ges
 | \`timeZone\` | IANA-zone voor de klokken op de pagina. Overschrijft \`Start({ timeZone })\`. Zijn beide weggelaten, dan gebruikt de pagina \`UTC\`. |
 | \`link\` | Sjabloon voor het adres van elk bericht. \`{guild}\`, \`{channel}\` en \`{message}\` worden ingevuld. Moet beginnen met \`http://\` of \`https://\`, en binnen 500 tekens blijven. Weglaten linkt elke regel naar het bericht op Discord. |
 
-Discord stuurt berichten nieuwste eerst. De pagina toont ze **oudste eerst**, met tekst, bestanden, embeds, reacties, stickers, peilingen, knoppen en systeemregels. Een pagina boven 10 MB gooit. Eerdere transcriptbestanden van deze bot blijven buiten de pagina, zodat een nieuwe pagina zichzelf niet meeneemt.
+Discord stuurt berichten nieuwste eerst. De pagina toont ze **oudste eerst**, met tekst, bestanden, embeds, reacties, stickers, peilingen, knoppen en systeemregels. Een pagina boven 10 MB geeft een foutmelding. Eerdere transcriptbestanden van deze bot blijven buiten de pagina, zodat een nieuwe pagina zichzelf niet meeneemt.
 
-Een kanaal is verplicht. In een guild komen de servernaam en rolkleuren erbij. Zonder kanaal gooit de aanroep \`[Draeven] This command has no channel.\`
+Een kanaal is verplicht. In een guild komen de servernaam en rolkleuren erbij. Zonder kanaal geeft de aanroep de fout \`[Draeven] This command has no channel.\`
 
 ## Waar de zone vandaan komt
 
@@ -5384,16 +5384,16 @@ await Start({
 });
 \`\`\`
 
-\`ctx.transcript()\` zonder opties gebruikt dan \`Europe/Amsterdam\`. Geef \`timeZone\` mee op de aanroep als deze ene pagina moet afwijken. \`"Amsterdam"\` gooit. De naam moet een IANA-zone zijn. Die zone formatteert de HTML-klokken. Ze verandert \`time()\` in embeds niet ([Start-opties](/docs/start-options)).
+\`ctx.transcript()\` zonder opties gebruikt dan \`Europe/Amsterdam\`. Geef \`timeZone\` mee op de aanroep als deze ene pagina moet afwijken. \`"Amsterdam"\` geeft een foutmelding. De naam moet een IANA-zone zijn. Die zone formatteert de HTML-klokken. Ze verandert \`time()\` in embeds niet ([Start-opties](/docs/start-options)).
 
 <Note>
-\`simulate()\` heeft geen kanaalgeschiedenis, dus \`ctx.transcript()\` gooit. Draai het commando op een live gateway. Roep in een unittest de geëxporteerde \`renderTranscript(history, options)\` aan met een geschiedenis die je zelf bouwde.
+\`simulate()\` heeft geen kanaalgeschiedenis, dus \`ctx.transcript()\` geeft een foutmelding. Draai het commando op een live gateway. Roep in een unittest de geëxporteerde \`renderTranscript(history, options)\` aan met een geschiedenis die je zelf bouwde.
 </Note>
 
 ## Valkuilen
 
 - Het commando heeft het kanaal nodig dat Discord met de interactie meestuurde. Een context zonder kanaal kan geen pagina bouwen.
-- \`link\` zonder schema gooit. \`https://archive.example/{guild}/{channel}/{message}\` is de vorm. \`{guild}\` wordt \`@me\` als het kanaal geen guild heeft.
+- \`link\` zonder schema geeft een foutmelding. \`https://archive.example/{guild}/{channel}/{message}\` is de vorm. \`{guild}\` wordt \`@me\` als het kanaal geen guild heeft.
 - Geschiedenis ophalen defert eerst. Open later in hetzelfde commando geen \`form()\`.
 - De HTML is een bestand op het antwoord, geen embed. Stuur een follow-up met een embed als je ook een samenvatting wilt.
 
@@ -5569,7 +5569,7 @@ const bot = await Start({
 | \`intentsFor("pollVoteAdd")\` | \`guildMessagePolls\`, \`directMessagePolls\` |
 | \`intentBits("guilds", "guildMessages")\` | alleen die bits, op intentnaam |
 
-Onbekende eventnamen gooien. \`intentBits\` gooit bij een onbekende intentnaam.
+Onbekende eventnamen geven een foutmelding. \`intentBits\` faalt bij een onbekende intentnaam.
 
 Privileged intents hebben nog steeds de portaalschakelaar nodig ([App aanmaken](/docs/creating-app)): **Server Members**, **Message Content**, **Presence**.
 
@@ -5607,7 +5607,7 @@ export const letters = use({
   run(ctx) {
     const letter = ctx.id.slice("hangman_".length);
     return ctx.reply({
-      text: \`You picked **\${letter}**\`,
+      text: \`Je koos **\${letter}**\`,
       rows: [row(button({ id: "hangman_A", label: "A" }))],
     });
   },
@@ -5616,7 +5616,7 @@ export const letters = use({
 
 \`ids\` kan een exacte string zijn (\`"hangman_A"\`), een prefix met \`*\` alleen aan het eind (\`"hangman_*"\`), een lijst (\`["yes", "no"]\`), of \`(id) => boolean\`. \`kind\` is standaard \`"press"\`. Geef \`"submit"\` mee voor een formulier. Wie wint tussen \`collect\`, inline \`press\` en \`use()\` staat bij [Press & submit](/docs/press-handlers).
 
-Een tweede \`memberJoin\`-export in de map gooit. \`watch: true\` herlaadt deze map zoals commando's (gateway-handlers en \`use()\`). Een inline \`events\`-object is geen map, dus watch wisselt die functies niet, en het laadt geen \`use()\`.
+Een tweede \`memberJoin\`-export in de map geeft een foutmelding. \`watch: true\` herlaadt deze map zoals commando's (gateway-handlers en \`use()\`). Een inline \`events\`-object is geen map, dus watch wisselt die functies niet, en het laadt geen \`use()\`.
 
 ## Namen die je kunt registreren
 
@@ -5632,8 +5632,8 @@ Overig: \`voiceUpdate\`, \`inviteCreate\`, \`inviteDelete\`, \`presenceUpdate\`,
 
 ## Valkuilen
 
-- \`intentsFor()\` zonder namen gooit. Een bot met alleen slash-commando's kan \`intentsFor("ready")\` doorgeven of intents weglaten.
-- Map-handlers moeten functies zijn. Een constante met de naam \`message\` gooit.
+- \`intentsFor()\` zonder namen geeft een foutmelding. Een bot met alleen slash-commando's kan \`intentsFor("ready")\` doorgeven of intents weglaten.
+- Map-handlers moeten functies zijn. Een constante met de naam \`message\` geeft een foutmelding.
 - De portal-intent aanzetten en \`intentsFor\` vergeten levert nog steeds geen events.
 - \`use()\` in de commandomap wordt genegeerd. Zet het in de events-map, naast \`memberJoin\`.
 
@@ -5773,7 +5773,7 @@ Laat \`activity\` weg om de activiteit te wissen. De gateway stuurt dan een lege
 bot.setPresence({ status: "online" });
 \`\`\`
 
-Activiteitstekst moet 1–128 tekens zijn. \`kind: "streaming"\` heeft een \`https://\`-URL op \`twitch.tv\` of \`youtube.com\` nodig. Alles anders gooit \`Streaming activity needs a Twitch or YouTube url.\`
+Activiteitstekst moet 1–128 tekens zijn. \`kind: "streaming"\` heeft een \`https://\`-URL op \`twitch.tv\` of \`youtube.com\` nodig. Alles anders geeft de fout \`Streaming activity needs a Twitch or YouTube url.\`
 
 ## Andermans aanwezigheid horen
 
@@ -5917,17 +5917,17 @@ export const say = command(
 );
 \`\`\`
 
-\`getChannel()\` zonder argument is \`undefined\` alleen als de interactie geen \`channelId\` heeft. Een DM heeft nog steeds een kanaal. \`getGuild()\` en \`getMember()\` ontbreken in een DM. Controleer \`getChannel()\` vóór \`send\` als het kan ontbreken. \`ctx.send\` gooit onder \`simulate()\`, omdat er geen REST-verbinding is.
+\`getChannel()\` zonder argument is \`undefined\` alleen als de interactie geen \`channelId\` heeft. Een DM heeft nog steeds een kanaal. \`getGuild()\` en \`getMember()\` ontbreken in een DM. Controleer \`getChannel()\` vóór \`send\` als het kan ontbreken. \`ctx.send\` faalt onder \`simulate()\`, omdat er geen REST-verbinding is.
 
 <Warn fix="Geef View Channel + Send Messages; private hoort niet op send()." href="/docs/why-failing">
-Kanaalberichten vragen View Channel en Send Messages van de bot. \`send\` accepteert \`{ private: true }\` niet — dat gooit.
+Kanaalberichten vragen View Channel en Send Messages van de bot. \`send\` accepteert \`{ private: true }\` niet — dat geeft een foutmelding.
 </Warn>
 
 ## Valkuilen
 
 - Drukke logs raken de REST-limieten van Discord. \`guard({ via: "channel" })\` is het ondersteunde pad voor foutregels ([Hot-reload en guard](/docs/hot-reload-guard)).
 - \`editMessage\` wijzigt een bestaand botbericht. \`send\` maakt altijd een nieuw bericht.
-- \`undefined\` als kanaal doorgeven gooit. Sla de aanroep over als \`LOG_CHANNEL_ID\` ontbreekt.
+- \`undefined\` als kanaal doorgeven geeft een foutmelding. Sla de aanroep over als \`LOG_CHANNEL_ID\` ontbreekt.
 
 ## Verder
 
@@ -6049,8 +6049,8 @@ process.on("SIGINT", async () => {
 ## Valkuilen
 
 - \`send\` kan niet privé zijn en geen \`form()\` dragen.
-- \`setPresence\` gooit als deze verbinding de presence niet kan bijwerken.
-- \`onEvent\`, \`onMemberJoin\`, \`onMemberLeave\` en \`onMessage\` gooien als de verbinding geen events van dat soort heeft.
+- \`setPresence\` faalt als deze verbinding de presence niet kan bijwerken.
+- \`onEvent\`, \`onMemberJoin\`, \`onMemberLeave\` en \`onMessage\` geven een foutmelding als de verbinding geen events van dat soort heeft.
 - Je kunt de terugkeerwaarde negeren als het proces gewoon doorloopt tot het stopt. Je hebt hem nodig om vanuit een handler in dit bestand te \`send\`-en, of om \`stop()\` aan te roepen.
 
 ## Verder
@@ -6113,7 +6113,7 @@ On the live slash path, an uncaught error becomes a user-visible line: a short \
       title: "Fouten & debuggen",
       description: "Veelvoorkomende [Draeven]-fouten en wat ze betekenen.",
       body: `
-Voor symptoom, oorzaak en oplossing in één tabel, open [Problemen oplossen](/docs/troubleshooting). Als een aanroep gooit, begint het bericht met \`[Draeven]\` en noemt het de regel. Lees die zin vóór je hem inpakt. Deze pagina koppelt de fouten die het eerst opduiken aan de gidsectie die ze oplost. De regels zelf staan uitgeschreven bij [Vuistregels](/docs/rules).
+Voor symptoom, oorzaak en oplossing in één tabel, open [Problemen oplossen](/docs/troubleshooting). Als een aanroep faalt, begint het bericht met \`[Draeven]\` en noemt het de regel. Lees die zin vóór je hem inpakt. Deze pagina koppelt de fouten die het eerst opduiken aan de gidsectie die ze oplost. De regels zelf staan uitgeschreven bij [Vuistregels](/docs/rules).
 
 ## Uitgewerkt voorbeeld
 
@@ -6142,16 +6142,16 @@ export const profile = command("profile", "Laadt een profiel", async (ctx) => {
 | \`Unknown user …\` | \`getUser\` kent alleen gebruikers die Discord op deze interactie meestuurde. | Geef het optie-object of \`author\` mee, niet een id die je zelf verzon. [Lookups](/docs/lookups). |
 | \`watch: true needs commands from a folder path or draeven.config.\` | Een array in het geheugen kan niet worden bekeken. | Geef een mappad of \`draeven.config.js\`. [Configbestand](/docs/config). |
 | \`Another bot is already running\`, en er werd niets gevraagd | \`alone: "ask"\` vraagt alleen op een TTY. | Onder PM2 of systemd geef je \`alone: true\`. [Eén proces](/docs/alone). |
-| \`Missing Discord token\` | \`token\` was leeg. \`Start\` gooit al vóór de gateway opent. | Zet het token in de omgeving die de process manager echt laadt. [Deployen](/docs/deploy). |
+| \`Missing Discord token\` | \`token\` was leeg. \`Start\` faalt al vóór de gateway opent. | Zet het token in de omgeving die de process manager echt laadt. [Deployen](/docs/deploy). |
 | Commando's verdwijnen, of de map laadt niets | \`loadCommands\` leest alleen \`.js\`. | Compileer naar \`dist\` en wijs de config naar die map vóór de productiestart. [Deployen](/docs/deploy). |
 
-## Als de handler gooit
+## Als de handler faalt
 
 Op het live slash-pad wordt een ongecatchte fout een zichtbare regel: een korte \`[Draeven]\`-message (prefix eraf) als die past, anders \`frame("failed", locale)\` (“The command failed.” / “Het command is mislukt.”). Press-handlers buiten \`collect\` antwoorden met de Engelse string \`The command failed.\` — zij roepen \`frame("failed")\` niet aan.
 
 ## Valkuilen
 
-- \`simulate()\` draait de handler zonder interactietoken, dus \`wait\`, \`edit\`, \`collect\` en \`send\` gooien daar. Gebruik het voor de terugkeerwaarde. Bouw gates na op een live guild ([Simuleren](/docs/simulate)).
+- \`simulate()\` draait de handler zonder interactietoken, dus \`wait\`, \`edit\`, \`collect\` en \`send\` geven daar een foutmelding. Gebruik het voor de terugkeerwaarde. Bouw gates na op een live guild ([Simuleren](/docs/simulate)).
 - De fout inpakken en alleen \`error.message\` loggen ná een eigen voorvoegsel verbergt de \`[Draeven]\`-zin. Houd die zin in het log.
 - \`guard({ via: "console", of: "all" })\` houdt het proces overeind en print de \`[Draeven]\`-regel ([Hot-reload en guard](/docs/hot-reload-guard)). Het herstelt de regel die de zin noemt niet.
 `,
@@ -6306,7 +6306,7 @@ await Start({
 \`of: "process"\` luistert naar \`uncaughtException\` en \`unhandledRejection\`. \`of: "commands"\` meldt throws uit slash-handlers. \`of: "events"\` meldt throws uit gateway-handlers.
 
 <Warn fix="Geef channel als snowflake-string als via channel is." href="/docs/why-failing">
-\`via: "channel"\` zonder \`channel\` gooit al bij \`guard()\`. De kanaal-id is een snowflake-string waarin de bot mag plaatsen.
+\`via: "channel"\` zonder \`channel\` faalt al bij \`guard()\`. De kanaal-id is een snowflake-string waarin de bot mag plaatsen.
 </Warn>
 
 ## Valkuilen
@@ -6469,7 +6469,7 @@ assert.equal(reply.text, "Hoi B");
 
 De teruggegeven \`Reply\` kan ook \`embed\`, \`poll\`, \`rows\`, \`layout\` of \`private\` dragen.
 
-## Wat gooit
+## Wat faalt
 
 | Aanroep in de handler | Resultaat onder simulate |
 |-----------------------|--------------------------|
@@ -6486,7 +6486,7 @@ Test de keuze in de handler (welke string, welke embed). \`simulate\` drukt de g
 ## Valkuilen
 
 - \`simulate\` roept \`entry.run\` aan. Een menu met \`run\` is ook een doel. De context blijft een commando-\`ctx\`. Discord vult \`ctx.target\` niet.
-- Een commando met alleen subs heeft geen top-level \`run\`, dus \`simulate\` gooit. Deel de bladlogica via een functie die de test kan aanroepen.
+- Een commando met alleen subs heeft geen top-level \`run\`, dus \`simulate\` geeft een foutmelding. Deel de bladlogica via een functie die de test kan aanroepen.
 - \`opt\` wordt runtime niet gecontroleerd. Een ontbrekende \`who\` is \`undefined\`, net als een optionele optie die de gebruiker oversloeg.
 
 ## Verder
@@ -6572,11 +6572,11 @@ await Start({
 
 | \`alone\` | Gedrag |
 |-----------|--------|
-| \`"ask"\` (standaard) | Als er een levende pid is en stdin een TTY is, vraagt Draeven of die gestopt moet worden. Ja stopt hem en gaat door. Nee gooit. |
+| \`"ask"\` (standaard) | Als er een levende pid is en stdin een TTY is, vraagt Draeven of die gestopt moet worden. Ja stopt hem en gaat door. Nee geeft een foutmelding. |
 | \`true\` | Stop de andere pid en ga door. Geen vraag. |
 | \`false\` | Niet kijken. Twee processen mogen, en ze zullen botsen. |
 
-Op een non-TTY (CI, een servicebeheerder, veel Windows-taakrunners) vraagt \`"ask"\` **niet**. Een levende sibling gooit en zegt dat je hem moet stoppen of \`alone: true\` moet meegeven.
+Op een non-TTY (CI, een servicebeheerder, veel Windows-taakrunners) vraagt \`"ask"\` **niet**. Een levende sibling faalt en zegt dat je hem moet stoppen of \`alone: true\` moet meegeven.
 
 <Warn fix="alone: false alleen met process-supervisor; alone: true om het oude proces te vervangen." href="/docs/why-failing">
 Zet \`alone: false\` alleen als een supervisor al garandeert dat er één proces is. Zet \`alone: true\` als een nieuwe deploy de oude moet vervangen.
@@ -6827,13 +6827,13 @@ De embedded- en desk-UI delen deze loginpoort. Bridge-modus heeft geen pagina; d
 2. Zet de env die de modus nodig heeft: het bot-token, en voor de UI \`DISCORD_CLIENT_ID\`, \`DISCORD_CLIENT_SECRET\`, \`DASHBOARD_OWNER_IDS\` en \`DASHBOARD_SESSION_SECRET\`.
 3. Laat \`DASHBOARD=embedded\`. Niet gezet betekent embedded.
 4. Start de bot en open de URL die \`startDashboard\` print. De desk-UI luistert standaard op **3847** (\`DASHBOARD_PORT\` vervangt dat).
-5. Om ze te splitsen zet je de bot op \`DASHBOARD=bridge\` en draai je \`pnpm desk\` in een tweede proces met \`BRIDGE_URL\` en \`BRIDGE_SECRET\`. De bot-ingang starten met \`DASHBOARD=desk\` gooit. Die waarde hoort op het desk-proces.
+5. Om ze te splitsen zet je de bot op \`DASHBOARD=bridge\` en draai je \`pnpm desk\` in een tweede proces met \`BRIDGE_URL\` en \`BRIDGE_SECRET\`. De bot-ingang starten met \`DASHBOARD=desk\` geeft een foutmelding. Die waarde hoort op het desk-proces.
 
 \`\`\`bash
 npm create draeven@latest -- init my-bot --with-dashboard
 \`\`\`
 
-De scaffold voegt \`pnpm desk\` toe (\`node dist/desk-main.js\`). De bot-ingang starten met \`DASHBOARD=desk\` gooit en zegt dat je \`pnpm desk\` moet draaien.
+De scaffold voegt \`pnpm desk\` toe (\`node dist/desk-main.js\`). De bot-ingang starten met \`DASHBOARD=desk\` faalt en zegt dat je \`pnpm desk\` moet draaien.
 
 Embedded en bridge draaien naast \`Start()\` in het botproces:
 
@@ -6901,7 +6901,7 @@ De redirect-URI in het Developer Portal moet de URL zijn waarop je echt luistert
 | \`BRIDGE_TLS_CERT\`, \`BRIDGE_TLS_KEY\` | Optionele PEM-paden. Zet beide voor HTTPS op bridge of desk. |
 
 <Warn fix="Gebruik een lange BRIDGE_SECRET; houd de desk op localhost zonder TLS." href="/docs/why-failing">
-Een korte \`BRIDGE_SECRET\` gooit bij het opstarten in bridge-modus. Commit het geheim niet. Laat de desk op localhost tenzij je TLS en een IP-allowlist hebt.
+Een korte \`BRIDGE_SECRET\` faalt bij het opstarten in bridge-modus. Commit het geheim niet. Laat de desk op localhost tenzij je TLS en een IP-allowlist hebt.
 </Warn>
 
 ## API-oppervlak
@@ -6935,7 +6935,7 @@ Leden, kanalen, rollen, kick, ban en timeout hebben een gekozen guild nodig. De 
 ## Beveiliging
 
 - **Owners.** Alleen ids in \`DASHBOARD_OWNER_IDS\` kunnen de desk gebruiken na Discord OAuth. Een rol-id in die lijst doet niets.
-- **Geheim.** \`BRIDGE_SECRET\` is het bearer-token tussen desk en bridge. Korter dan 12 tekens gooit.
+- **Geheim.** \`BRIDGE_SECRET\` is het bearer-token tussen desk en bridge. Korter dan 12 tekens geeft een foutmelding.
 - **IP-allowlist.** \`BRIDGE_ALLOW_IPS\` laat andere clients vallen. Staat \`X-Forwarded-For\` erbij, dan wordt die header gecontroleerd. Zet de desk dus achter een proxy die je vertrouwt.
 - **TLS.** Zet \`BRIDGE_TLS_CERT\` en \`BRIDGE_TLS_KEY\` samen vóór de poort buiten de machine bereikbaar is.
 - **Audit.** Acties voegen elk één JSON-regel toe aan \`.draeven/audit.jsonl\` onder \`root\`.
@@ -7096,7 +7096,7 @@ De gateway-verbinding is uitgaand. Met de desk uit open je geen inkomende poort.
 ## Valkuilen
 
 - \`watch: true\` in productie herlaadt bestanden onder het live proces. Laat het uit en herstart bij een deploy.
-- \`alone: "ask"\` onder PM2 of systemd gooit als er al een pid leeft, omdat stdin geen TTY is.
+- \`alone: "ask"\` onder PM2 of systemd faalt als er al een pid leeft, omdat stdin geen TTY is.
 - \`src/main.ts\` starten zonder build ziet de gecompileerde commandomap nooit.
 
 ## Verder
@@ -7204,7 +7204,7 @@ Draeven 0.1.9 is een beta. Deze grenzen zijn bewust. Eraan stoten is geen ontbre
 De owner-desk bestuurt de deployment die jij draait. Hij host geen multi-tenant dashboard voor andere communities ([Bridge en desk](/docs/bridge-desk)).
 
 <Note>
-Als een aanroep gooit, begint het bericht met \`[Draeven]\` en noemt het de regel (poll-uren, optienaam, ontbrekend token). Lees die zin vóór je een wrapper toevoegt.
+Als een aanroep faalt, begint het bericht met \`[Draeven]\` en noemt het de regel (poll-uren, optienaam, ontbrekend token). Lees die zin vóór je een wrapper toevoegt.
 </Note>
 
 ## Als het nog faalt
@@ -7262,7 +7262,7 @@ Deze pagina's beschrijven \`@draeven/core\` **0.1.9**. Het pakket is nog beta. D
 |-----------|----------------|
 | Start | [Start-opties](/docs/start-options), [Configbestand](/docs/config), [Vuistregels](/docs/rules) |
 | Commando's | [Commando's](/docs/commands) tot en met opties, gates, lookups en \`formatDate\` |
-| Stukken | [Knoppen, menu's & formulieren](/docs/pieces), [SKU-knoppen](/docs/sku), [Verzamelaars](/docs/collectors) |
+| Componenten | [Knoppen, menu's & formulieren](/docs/pieces), [SKU-knoppen](/docs/sku), [Verzamelaars](/docs/collectors) |
 | Layout | [Embeds en layout](/docs/embeds-layout), plus canvas en peilingen |
 | Bridge-desk | [Bridge en desk](/docs/bridge-desk) |
 | Simuleren | [Simuleren en tests](/docs/simulate) |
@@ -7273,7 +7273,7 @@ Deze pagina's beschrijven \`@draeven/core\` **0.1.9**. Het pakket is nog beta. D
 
 Pin \`0.1.9\` als je deze pagina's regel voor regel volgt. Een latere beta kan een metadataveld hernoemen. Wat het framework niet dekt — discord.js-builders, duurzame wachttijden, een shard-manager, een gehost multi-tenant dashboard — staat op [Bekende limieten](/docs/known-limits).
 
-Als een aanroep gooit, begint het bericht met \`[Draeven]\`. [Fouten & debuggen](/docs/debugging) zet de veelvoorkomende regels op een rij. Gebruik [Terugkoppeling](/docs/feedback) als een pagina niet klopt met 0.1.9.
+Als een aanroep faalt, begint het bericht met \`[Draeven]\`. [Fouten & debuggen](/docs/debugging) zet de veelvoorkomende regels op een rij. Gebruik [Terugkoppeling](/docs/feedback) als een pagina niet klopt met 0.1.9.
 `,
     },
   },

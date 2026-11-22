@@ -216,7 +216,7 @@ Zet \`press\` op knoppen/menu’s/kiezers, \`submit\` op formulieren. \`link()\`
 | lookups | \`getUser\`, \`getMember\`, \`getGuild\`, \`getChannel\` en de rest uit [Lookups](/docs/lookups). |
 | \`reply\` | Eén keer. Een string, een \`embed()\`, beide, een rij, een formulier, een peiling, een layout, een canvas, of \`{ text, rows }\`. |
 
-\`id\` is die custom id. \`messageId\` staat er als Discord het bericht meestuurde. Roep \`reply\` precies één keer aan. Een tweede reply gooit \`[Draeven] A command can only reply once.\` Terugkeren zonder \`reply\` gooit \`[Draeven] The command did not reply.\`
+\`id\` is die custom id. \`messageId\` staat er als Discord het bericht meestuurde. Roep \`reply\` precies één keer aan. Een tweede reply geeft de fout \`[Draeven] A command can only reply once.\` Terugkeren zonder \`reply\` geeft de fout \`[Draeven] The command did not reply.\`
 
 ## press en collect
 
@@ -225,7 +225,7 @@ import { command, button, row, menu, form } from "@draeven/core";
 
 const again = button({
   id: "ping-again",
-  label: "Ping again",
+  label: "Nog eens ping",
   press: (ctx) => {
     const user = ctx.getUser(ctx.author);
     return ctx.reply(user.name + " drukte opnieuw.");
@@ -300,7 +300,7 @@ Kiezers (\`people\`, \`roles\`, \`channels\`, \`mentions\`) gebruiken \`press\` 
 Houd \`press\` voor een eenvoudige eenmalige knop:
 
 \`\`\`js
-button({ id: "yes", label: "Yes", press: (ctx) => ctx.reply("Yes.") })
+button({ id: "yes", label: "Ja", press: (ctx) => ctx.reply("Ja.") })
 \`\`\`
 
 Een commando kan knoppen plaatsen zonder \`press\`. \`use()\` is dan de eigenaar:
@@ -308,9 +308,9 @@ Een commando kan knoppen plaatsen zonder \`press\`. \`use()\` is dan de eigenaar
 \`\`\`js
 import { button, command, row } from "@draeven/core";
 
-export const letters = command("letters", "Posts letter buttons", async (ctx) =>
+export const letters = command("letters", "Plaatst letterknoppen", async (ctx) =>
   ctx.reply({
-    text: "Pick a letter.",
+    text: "Kies een letter.",
     rows: [row(button({ id: "hangman_A", label: "A" }))],
   })
 );
@@ -326,7 +326,7 @@ export const letters = use({
   run(ctx) {
     const letter = ctx.id.slice("hangman_".length);
     return ctx.reply({
-      text: \`You picked **\${letter}**\`,
+      text: \`Je koos **\${letter}**\`,
       rows: [row(button({ id: "hangman_A", label: "A" }))],
     });
   },
@@ -335,7 +335,7 @@ export const letters = use({
 
 ## ids
 
-| \`ids\` | Treffer |
+| \`ids\` | Match |
 |---------|---------|
 | \`"hangman_A"\` | Precies die id |
 | \`"hangman_*"\` | Prefix. \`*\` alleen aan het eind |
@@ -346,14 +346,14 @@ export const letters = use({
 
 ## Als collect wint
 
-\`CollectorBook.take\` draait eerst. Als een wachter klopt op id, soort en gebruiker, worden \`press\`, \`submit\` en \`use()\` overgeslagen.
+\`CollectorBook.take\` draait eerst. Als een verzamelaar matcht op id, soort en gebruiker, worden \`press\`, \`submit\` en \`use()\` overgeslagen.
 
 | Er wacht iets op | Wat Draeven doet |
 |------------------|------------------|
 | een knop, menu of kiezer | Bevestigt met een component-update en laat het commando doorgaan. |
 | een formulier-submit | Laat de modal onbevestigd zodat het wachtende commando hem kan beantwoorden. |
 
-Als er niets wacht, kiest Draeven de volgende treffer in deze volgorde:
+Als er niets wacht, kiest Draeven de volgende match in deze volgorde:
 
 1. De inline \`press\` of \`submit\` die op die custom id is onthouden.
 2. Een \`use()\` uit de events-map.
@@ -372,7 +372,7 @@ Deel één id niet tussen een lopende \`collect()\` en een \`press\` waarvan je 
 - \`*\` in \`ids\` is alleen een prefix als het het laatste teken is. \`hang*man\` is een exacte id.
 - Als twee \`use()\`-handlers kloppen, draait de eerste die geladen is. Bestanden worden op naam gelezen.
 - Een formulier-\`submit\` moet nog steeds één keer \`reply\` aanroepen. De modal-interactie is dat antwoord.
-- Stukken bouw je met \`button\`, \`menu\` en \`form\` ([Knoppen, menu's & formulieren](/docs/pieces)). \`press\` vervangt \`row()\` niet.
+- Componenten bouw je met \`button\`, \`menu\` en \`form\` ([Knoppen, menu's & formulieren](/docs/pieces)). \`press\` vervangt \`row()\` niet.
 `,
     },
   },
@@ -460,7 +460,7 @@ await Start({
       body: `
 \`Start\` en \`bot.onEvent\` geven je een Draeven-object, niet de ruwe dispatch van Discord. Namen zijn camelCase. De \`t\`-waarde hieronder is het gateway-event dat \`gatewayEventReaders\` koppelt. Geef dezelfde namen aan \`intentsFor\` ([Events en intents](/docs/events-intents)). De types komen uit \`@draeven/core\` en uit [\`@draeven/discord\`](/docs/discord-client).
 
-Een handler die gooit, meldt de guard als \`of\` \`"events"\` bevat. Een payload die Draeven niet kan lezen valt weg, en de handler draait niet.
+Een handler die faalt, meldt de guard als \`of\` \`"events"\` bevat. Een payload die Draeven niet kan lezen valt weg, en de handler draait niet.
 
 <Note>Afgestemd op @draeven/core **0.1.9**. Veldnamen op deze pagina horen bij die release.</Note>
 
@@ -515,7 +515,7 @@ await Start({
 });
 \`\`\`
 
-\`gatewayEventNames\` is de volledige lijst, in dezelfde volgorde als de reader-map. \`intentsFor()\` zonder namen gooit. Een onbekende naam gooit \`[Draeven Discord] Unknown event …\`.
+\`gatewayEventNames\` is de volledige lijst, in dezelfde volgorde als de reader-map. \`intentsFor()\` zonder namen geeft een foutmelding. Een onbekende naam geeft de fout \`[Draeven Discord] Unknown event …\`.
 
 <Note>
 \`ready\` en \`resumed\` hebben geen intent-bits nodig. \`memberJoin\`, \`message\` (inhoud) en \`presenceUpdate\` hebben privileged intents nodig die in het portal aan staan. \`intentsFor\` zet die bits; het portal moet ze nog toestaan.
@@ -730,7 +730,7 @@ await Start({
 
 \`of: "commands"\` is een throw uit een slash- of menu-handler. \`of: "events"\` is een throw uit een gateway-handler. \`of: "process"\` abonneert op \`uncaughtException\` en \`unhandledRejection\`, en \`dispose\` (van \`bot.stop\`) haalt die listeners weg.
 
-Een onbekende \`via\` of \`of\` gooit al bij \`guard()\`. Een lege lijst gooit \`guard() needs at least one via\` of \`at least one of\`.
+Een onbekende \`via\` of \`of\` faalt al bij \`guard()\`. Een lege lijst geeft de fout \`guard() needs at least one via\` of \`at least one of\`.
 
 Console-output gebruikt \`console.error\`. Een bestandsregel is dezelfde tekst plus een lege regel. Een kanaalbericht wordt afgekapt op 1900 tekens. Als de verbinding nog niet kan sturen, print het kanaalpad de tekst naar de console en logt het \`Guard channel log waiting for bot.send.\`
 
@@ -853,10 +853,10 @@ Deze exports zijn voor een eigen host of een test die niet wil dat \`Start\` het
 | \`CollectorBook\` | \`wait\` is wat \`ctx.collect\` gebruikt. \`take\` wint van \`press\` alleen als id, soort en wie kloppen. \`Start\` bezit het boek. |
 | \`checkGates(meta, world)\` | Geeft \`"owner"\`, \`"need"\`, \`"when"\` of \`undefined\` terug. Volgorde is owner, dan need, dan when. |
 | \`hasPermissions(have, need)\` | Waar als elke gevraagde bit gezet is. De Administrator-bit slaagt op zichzelf. |
-| \`permissionBitfield(value)\` | Namen, een lijst, een cijferstring of \`bigint\` worden één \`bigint\`. Onbekende namen gooien. |
+| \`permissionBitfield(value)\` | Namen, een lijst, een cijferstring of \`bigint\` worden één \`bigint\`. Onbekende namen geven een foutmelding. |
 | \`frame(key, locale, vars)\` | Frameworkteksten \`cooldown\`, \`need\`, \`when\`, \`owner\`, \`failed\`. Alleen \`cooldown\` gebruikt \`{name}\` / \`{seconds}\`. |
-| \`loadCommands(folder, { bust? })\` | Importeert \`.js\`-exports van commando's en menu's. Slaat tests, namen die eindigen op \`old.js\` (dus ook \`fold.js\`), dotfiles en reload-kopieën over. Dubbele berichtmenu-namen gooien. |
-| \`loadEvents(folder, { bust? })\` | Importeert \`.js\` waarvan de exportnaam een gateway-event is. Een tweede export met dezelfde naam gooit. |
+| \`loadCommands(folder, { bust? })\` | Importeert \`.js\`-exports van commando's en menu's. Slaat tests, namen die eindigen op \`old.js\` (dus ook \`fold.js\`), dotfiles en reload-kopieën over. Dubbele berichtmenu-namen geven een foutmelding. |
+| \`loadEvents(folder, { bust? })\` | Importeert \`.js\` waarvan de exportnaam een gateway-event is. Een tweede export met dezelfde naam geeft een foutmelding. |
 | \`answerCommand(commands, incoming, bot, ...)\` | Bouwt de commando-\`ctx\` en draait de handler. Wachttijd en gates zitten hier niet. De \`Start\`-dispatcher doet die vóór hij \`answerCommand\` aanroept. Geeft de \`Reply\` terug, of \`undefined\` als de naam niet geladen is. |
 | \`startBot(client, options)\` | Registreert commando's op een \`BotConnection\` en beantwoordt ze. \`Start\` bouwt de Discord-client en roept dit aan. |
 | \`isCommand\`, \`isMenu\` | Herkent een commando of menu in de output van \`loadCommands\`. |
@@ -901,7 +901,7 @@ permissionBitfield(["KickMembers", "BanMembers"]);
 
 ## Valkuilen
 
-- \`CooldownBook\` en \`CollectorBook\` zijn per proces. Een tweede \`startBot\` deelt de vensters of wachters van het eerste boek niet.
+- \`CooldownBook\` en \`CollectorBook\` zijn per proces. Een tweede \`startBot\` deelt de vensters of verzamelaars van het eerste boek niet.
 - \`checkGates\` antwoordt niet. De host moet zelf \`frame(blocked, locale)\` sturen. \`Start\` doet dat al.
 - \`isCommand\` is onwaar voor contextmenu's. Filter ook met \`isMenu\` als je de output van \`loadCommands\` doorloopt.
 - Roep \`answerCommand\` en \`Start\` niet aan voor dezelfde interactie. Eén pad hoort het token te bezitten.

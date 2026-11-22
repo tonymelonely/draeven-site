@@ -64,7 +64,7 @@ const TOURS: Record<"start-options" | "command-meta" | "collect", Slide[]> = {
       },
       nl: {
         title: "watch",
-        lead: "`watch: true` herlaadt gecompileerde command- en eventmappen. Een `commands`-array in geheugen gooit.",
+        lead: "`watch: true` herlaadt gecompileerde command- en eventmappen. Een `commands`-array in geheugen geeft een foutmelding.",
         code: `await Start({
   token: process.env.DISCORD_TOKEN,
   watch: true, // heeft een mappad nodig
@@ -239,9 +239,9 @@ if (!pick) return ctx.reply("Timed out.");`,
       },
       nl: {
         title: "seconds",
-        lead: "Standaard 60. 0, negatief of non-finite gooit. Timeout resolvet undefined.",
+        lead: "Standaard 60. 0, negatief of non-finite geeft een foutmelding. Timeout wordt `undefined`.",
         code: `const pick = await ctx.collect({ ids: "yes", seconds: 20 });
-if (!pick) return ctx.reply("Timed out.");`,
+if (!pick) return ctx.reply("Timeout.");`,
       },
     },
   ],

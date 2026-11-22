@@ -12,7 +12,7 @@ Bevestig binnen ongeveer **3 seconden**. Daarna zo’n 15 minuten voor follow-up
 
 | Methode | Wanneer |
 |---------|---------|
-| `reply(...)` | Slaat het antwoord op. Een tweede aanroep gooit alleen als er al een antwoord is opgeslagen en je noch hebt gewacht, noch een collect hebt geflusht. Na `wait()` vult `edit()` of een nieuwe `reply()` het. Na een collect-flush vervangt een nieuwe `reply()` het. |
+| `reply(...)` | Slaat het antwoord op. Een tweede aanroep faalt alleen als er al een antwoord is opgeslagen en je noch hebt gewacht, noch een collect hebt geflusht. Na `wait()` vult `edit()` of een nieuwe `reply()` het. Na een collect-flush vervangt een nieuwe `reply()` het. |
 | `wait({ private? })` | Bevestigen zonder inhoud. Nodig vóór `edit` als je nog niet hebt geantwoord. |
 | `edit(...)` | Het uitgestelde of al verstuurde antwoord vervangen. |
 | `followup(...)` | Nog een bericht na het eerste antwoord. Geeft een promise terug. |
@@ -46,7 +46,7 @@ export const slow = command("slow", "Duurt even", async (ctx) => {
 });
 ```
 
-`wait()` gooit als je al `reply()` aanriep. `edit()` gooit als je noch wachtte noch antwoordde. `remove()` heeft dezelfde voorwaarde.
+`wait()` faalt als je al `reply()` aanriep. `edit()` faalt als je noch wachtte noch antwoordde. `remove()` heeft dezelfde voorwaarde.
 
 ## Follow-up
 
@@ -57,7 +57,7 @@ export const two = command("two", "Twee berichten", async (ctx) => {
 });
 ```
 
-Was het eerste antwoord privé, geef latere tekst zelf privé mee als je opties doorgeeft. `followup` vóór een `reply` gooit.
+Was het eerste antwoord privé, geef latere tekst zelf privé mee als je opties doorgeeft. `followup` vóór een `reply` geeft een foutmelding.
 
 <Note>
 `ctx.send(channel, ...)` plaatst een gewoon kanaalbericht. Het kan niet privé zijn en geen `form()` dragen. Dat staat los van het interactie-antwoord ([Berichten sturen](/docs/sending-messages)).
@@ -65,8 +65,8 @@ Was het eerste antwoord privé, geef latere tekst zelf privé mee als je opties 
 
 ## Valkuilen
 
-- Een tweede `reply()` gooit "A command can only reply once." alleen als er een antwoord is opgeslagen en je noch `wait()` hebt gedaan, noch een collect hebt geflusht. Na `wait()` vult `edit()` of een nieuwe `reply()` de defer. Na een collect-flush vervangt een nieuwe `reply()` het opgeslagen antwoord.
-- `simulate()` heeft geen interactietoken, dus `wait()`, `edit()`, `remove()` en `collect()` gooien. `reply()` geeft nog steeds het `Reply`-object terug.
+- Een tweede `reply()` geeft de fout "A command can only reply once." alleen als er een antwoord is opgeslagen en je noch `wait()` hebt gedaan, noch een collect hebt geflusht. Na `wait()` vult `edit()` of een nieuwe `reply()` de defer. Na een collect-flush vervangt een nieuwe `reply()` het opgeslagen antwoord.
+- `simulate()` heeft geen interactietoken, dus `wait()`, `edit()`, `remove()` en `collect()` geven een foutmelding. `reply()` geeft nog steeds het `Reply`-object terug.
 - `ctx.reply(...)` teruggeven uit de handler is de gewone vorm. Er is geen aparte helper om de interactie te versturen.
 
 ## Verder

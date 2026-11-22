@@ -47,13 +47,13 @@ De embedded- en desk-UI delen deze loginpoort. Bridge-modus heeft geen pagina; d
 2. Zet de env die de modus nodig heeft: het bot-token, en voor de UI `DISCORD_CLIENT_ID`, `DISCORD_CLIENT_SECRET`, `DASHBOARD_OWNER_IDS` en `DASHBOARD_SESSION_SECRET`.
 3. Laat `DASHBOARD=embedded`. Niet gezet betekent embedded.
 4. Start de bot en open de URL die `startDashboard` print. De desk-UI luistert standaard op **3847** (`DASHBOARD_PORT` vervangt dat).
-5. Om ze te splitsen zet je de bot op `DASHBOARD=bridge` en draai je `pnpm desk` in een tweede proces met `BRIDGE_URL` en `BRIDGE_SECRET`. De bot-ingang starten met `DASHBOARD=desk` gooit. Die waarde hoort op het desk-proces.
+5. Om ze te splitsen zet je de bot op `DASHBOARD=bridge` en draai je `pnpm desk` in een tweede proces met `BRIDGE_URL` en `BRIDGE_SECRET`. De bot-ingang starten met `DASHBOARD=desk` geeft een foutmelding. Die waarde hoort op het desk-proces.
 
 ```bash
 npm create draeven@latest -- init my-bot --with-dashboard
 ```
 
-De scaffold voegt `pnpm desk` toe (`node dist/desk-main.js`). De bot-ingang starten met `DASHBOARD=desk` gooit en zegt dat je `pnpm desk` moet draaien.
+De scaffold voegt `pnpm desk` toe (`node dist/desk-main.js`). De bot-ingang starten met `DASHBOARD=desk` faalt en zegt dat je `pnpm desk` moet draaien.
 
 Embedded en bridge draaien naast `Start()` in het botproces:
 
@@ -121,7 +121,7 @@ De redirect-URI in het Developer Portal moet de URL zijn waarop je echt luistert
 | `BRIDGE_TLS_CERT`, `BRIDGE_TLS_KEY` | Optionele PEM-paden. Zet beide voor HTTPS op bridge of desk. |
 
 <Warn fix="Gebruik een lange BRIDGE_SECRET; houd de desk op localhost zonder TLS." href="/docs/why-failing">
-Een korte `BRIDGE_SECRET` gooit bij het opstarten in bridge-modus. Commit het geheim niet. Laat de desk op localhost tenzij je TLS en een IP-allowlist hebt.
+Een korte `BRIDGE_SECRET` faalt bij het opstarten in bridge-modus. Commit het geheim niet. Laat de desk op localhost tenzij je TLS en een IP-allowlist hebt.
 </Warn>
 
 ## API-oppervlak
@@ -155,7 +155,7 @@ Leden, kanalen, rollen, kick, ban en timeout hebben een gekozen guild nodig. De 
 ## Beveiliging
 
 - **Owners.** Alleen ids in `DASHBOARD_OWNER_IDS` kunnen de desk gebruiken na Discord OAuth. Een rol-id in die lijst doet niets.
-- **Geheim.** `BRIDGE_SECRET` is het bearer-token tussen desk en bridge. Korter dan 12 tekens gooit.
+- **Geheim.** `BRIDGE_SECRET` is het bearer-token tussen desk en bridge. Korter dan 12 tekens geeft een foutmelding.
 - **IP-allowlist.** `BRIDGE_ALLOW_IPS` laat andere clients vallen. Staat `X-Forwarded-For` erbij, dan wordt die header gecontroleerd. Zet de desk dus achter een proxy die je vertrouwt.
 - **TLS.** Zet `BRIDGE_TLS_CERT` en `BRIDGE_TLS_KEY` samen vóór de poort buiten de machine bereikbaar is.
 - **Audit.** Acties voegen elk één JSON-regel toe aan `.draeven/audit.jsonl` onder `root`.

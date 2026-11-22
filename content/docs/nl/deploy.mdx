@@ -66,7 +66,7 @@ De gateway-verbinding is uitgaand. Met de desk uit open je geen inkomende poort.
 ## Valkuilen
 
 - `watch: true` in productie herlaadt bestanden onder het live proces. Laat het uit en herstart bij een deploy.
-- `alone: "ask"` onder PM2 of systemd gooit als er al een pid leeft, omdat stdin geen TTY is.
+- `alone: "ask"` onder PM2 of systemd faalt als er al een pid leeft, omdat stdin geen TTY is.
 - `src/main.ts` starten zonder build ziet de gecompileerde commandomap nooit.
 
 ## Verder

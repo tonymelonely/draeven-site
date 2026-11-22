@@ -172,7 +172,7 @@ Dev-dependencies in \`package.json\` zijn \`typescript\` \`^5.9\` en \`@types/no
 | \`pnpm desk\` | build, daarna \`node dist/desk-main.js\` (alleen dashboard-scaffold) |
 | \`pnpm dev:desk\` | hetzelfde als \`desk\` |
 
-\`--with-dashboard\` voegt ook \`@draeven/bridge\` \`^0.1.0\` toe. De gegenereerde \`main.ts\` leest \`DASHBOARD\`: \`embedded\` (standaard) start bot en UI, \`bridge\` start alleen de API, \`off\` is alleen de bot, en \`desk\` gooit en zegt dat je \`pnpm desk\` moet draaien. Variabelen en modi staan bij [Bridge en desk](/docs/bridge-desk).
+\`--with-dashboard\` voegt ook \`@draeven/bridge\` \`^0.1.0\` toe. De gegenereerde \`main.ts\` leest \`DASHBOARD\`: \`embedded\` (standaard) start bot en UI, \`bridge\` start alleen de API, \`off\` is alleen de bot, en \`desk\` faalt en zegt dat je \`pnpm desk\` moet draaien. Variabelen en modi staan bij [Bridge en desk](/docs/bridge-desk).
 
 ## Waar commando's landen
 
@@ -341,7 +341,7 @@ Laat een veld weg om de standaard van Draeven of Discord te houden. Een leeg obj
 | <Explain topic="command-defer">\`defer\`</Explain> | \`true\` of \`{ private?: boolean }\` | Defer vóór de handler. \`true\` is publiek. \`{ private: true }\` is efemeer. |
 | \`autoDefer\` | \`boolean\` | \`false\` zet de auto-defer van 2 seconden uit voor dit commando alleen. \`true\` overschrijft \`Start({ autoDefer: false })\` niet. |
 
-\`hasPermissions\` behandelt de Administrator-bit als een pass voor \`need\`. Discord moet die bit wel op de interactie zetten. \`permissionBitfield\` gooit \`[Draeven] Unknown permission …\` voor een naam die niet in de lijst hieronder staat. Een string van cijfers is een ruw bitveld.
+\`hasPermissions\` behandelt de Administrator-bit als een pass voor \`need\`. Discord moet die bit wel op de interactie zetten. \`permissionBitfield\` geeft de fout \`[Draeven] Unknown permission …\` voor een naam die niet in de lijst hieronder staat. Een string van cijfers is een ruw bitveld.
 
 ## PermissionName
 
@@ -382,7 +382,7 @@ export const ageGated = command(
 );
 \`\`\`
 
-\`"bot dm"\` is de eigen DM van de bot. De spatie hoort bij de string. \`"private"\` is de andere privécontext (een groeps-DM, of een user-install-DM die niet de bot-DM is). \`"guild"\` op \`install\` is een serverinstallatie. \`"user"\` is een gebruikersinstallatie. Een onbekende place gooit \`A place is guild, bot dm, or private.\` Een onbekend install-doel gooit \`An install target is guild or user.\`
+\`"bot dm"\` is de eigen DM van de bot. De spatie hoort bij de string. \`"private"\` is de andere privécontext (een groeps-DM, of een user-install-DM die niet de bot-DM is). \`"guild"\` op \`install\` is een serverinstallatie. \`"user"\` is een gebruikersinstallatie. Een onbekende place geeft de fout \`A place is guild, bot dm, or private.\` Een onbekend install-doel geeft de fout \`An install target is guild or user.\`
 
 ## defer en autoDefer
 

@@ -35,7 +35,7 @@ await Start({
 
 `of: "commands"` is een throw uit een slash- of menu-handler. `of: "events"` is een throw uit een gateway-handler. `of: "process"` abonneert op `uncaughtException` en `unhandledRejection`, en `dispose` (van `bot.stop`) haalt die listeners weg.
 
-Een onbekende `via` of `of` gooit al bij `guard()`. Een lege lijst gooit `guard() needs at least one via` of `at least one of`.
+Een onbekende `via` of `of` faalt al bij `guard()`. Een lege lijst geeft de fout `guard() needs at least one via` of `at least one of`.
 
 Console-output gebruikt `console.error`. Een bestandsregel is dezelfde tekst plus een lege regel. Een kanaalbericht wordt afgekapt op 1900 tekens. Als de verbinding nog niet kan sturen, print het kanaalpad de tekst naar de console en logt het `Guard channel log waiting for bot.send.`
 

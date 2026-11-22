@@ -51,8 +51,8 @@ process.on("SIGINT", async () => {
 ## Valkuilen
 
 - `send` kan niet privé zijn en geen `form()` dragen.
-- `setPresence` gooit als deze verbinding de presence niet kan bijwerken.
-- `onEvent`, `onMemberJoin`, `onMemberLeave` en `onMessage` gooien als de verbinding geen events van dat soort heeft.
+- `setPresence` faalt als deze verbinding de presence niet kan bijwerken.
+- `onEvent`, `onMemberJoin`, `onMemberLeave` en `onMessage` geven een foutmelding als de verbinding geen events van dat soort heeft.
 - Je kunt de terugkeerwaarde negeren als het proces gewoon doorloopt tot het stopt. Je hebt hem nodig om vanuit een handler in dit bestand te `send`-en, of om `stop()` aan te roepen.
 
 ## Verder

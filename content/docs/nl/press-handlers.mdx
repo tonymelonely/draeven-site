@@ -27,7 +27,7 @@ Zet `press` op knoppen/menu’s/kiezers, `submit` op formulieren. `link()` / `sk
 | lookups | `getUser`, `getMember`, `getGuild`, `getChannel` en de rest uit [Lookups](/docs/lookups). |
 | `reply` | Eén keer. Een string, een `embed()`, beide, een rij, een formulier, een peiling, een layout, een canvas, of `{ text, rows }`. |
 
-`id` is die custom id. `messageId` staat er als Discord het bericht meestuurde. Roep `reply` precies één keer aan. Een tweede reply gooit `[Draeven] A command can only reply once.` Terugkeren zonder `reply` gooit `[Draeven] The command did not reply.`
+`id` is die custom id. `messageId` staat er als Discord het bericht meestuurde. Roep `reply` precies één keer aan. Een tweede reply geeft de fout `[Draeven] A command can only reply once.` Terugkeren zonder `reply` geeft de fout `[Draeven] The command did not reply.`
 
 ## press en collect
 
@@ -36,7 +36,7 @@ import { command, button, row, menu, form } from "@draeven/core";
 
 const again = button({
   id: "ping-again",
-  label: "Ping again",
+  label: "Nog eens ping",
   press: (ctx) => {
     const user = ctx.getUser(ctx.author);
     return ctx.reply(user.name + " drukte opnieuw.");
@@ -111,7 +111,7 @@ Kiezers (`people`, `roles`, `channels`, `mentions`) gebruiken `press` net als `m
 Houd `press` voor een eenvoudige eenmalige knop:
 
 ```js
-button({ id: "yes", label: "Yes", press: (ctx) => ctx.reply("Yes.") })
+button({ id: "yes", label: "Ja", press: (ctx) => ctx.reply("Ja.") })
 ```
 
 Een commando kan knoppen plaatsen zonder `press`. `use()` is dan de eigenaar:
@@ -119,9 +119,9 @@ Een commando kan knoppen plaatsen zonder `press`. `use()` is dan de eigenaar:
 ```js
 import { button, command, row } from "@draeven/core";
 
-export const letters = command("letters", "Posts letter buttons", async (ctx) =>
+export const letters = command("letters", "Plaatst letterknoppen", async (ctx) =>
   ctx.reply({
-    text: "Pick a letter.",
+    text: "Kies een letter.",
     rows: [row(button({ id: "hangman_A", label: "A" }))],
   })
 );
@@ -137,7 +137,7 @@ export const letters = use({
   run(ctx) {
     const letter = ctx.id.slice("hangman_".length);
     return ctx.reply({
-      text: `You picked **${letter}**`,
+      text: `Je koos **${letter}**`,
       rows: [row(button({ id: "hangman_A", label: "A" }))],
     });
   },
@@ -146,7 +146,7 @@ export const letters = use({
 
 ## ids
 
-| `ids` | Treffer |
+| `ids` | Match |
 |---------|---------|
 | `"hangman_A"` | Precies die id |
 | `"hangman_*"` | Prefix. `*` alleen aan het eind |
@@ -157,14 +157,14 @@ export const letters = use({
 
 ## Als collect wint
 
-`CollectorBook.take` draait eerst. Als een wachter klopt op id, soort en gebruiker, worden `press`, `submit` en `use()` overgeslagen.
+`CollectorBook.take` draait eerst. Als een verzamelaar matcht op id, soort en gebruiker, worden `press`, `submit` en `use()` overgeslagen.
 
 | Er wacht iets op | Wat Draeven doet |
 |------------------|------------------|
 | een knop, menu of kiezer | Bevestigt met een component-update en laat het commando doorgaan. |
 | een formulier-submit | Laat de modal onbevestigd zodat het wachtende commando hem kan beantwoorden. |
 
-Als er niets wacht, kiest Draeven de volgende treffer in deze volgorde:
+Als er niets wacht, kiest Draeven de volgende match in deze volgorde:
 
 1. De inline `press` of `submit` die op die custom id is onthouden.
 2. Een `use()` uit de events-map.
@@ -183,4 +183,4 @@ Deel één id niet tussen een lopende `collect()` en een `press` waarvan je verw
 - `*` in `ids` is alleen een prefix als het het laatste teken is. `hang*man` is een exacte id.
 - Als twee `use()`-handlers kloppen, draait de eerste die geladen is. Bestanden worden op naam gelezen.
 - Een formulier-`submit` moet nog steeds één keer `reply` aanroepen. De modal-interactie is dat antwoord.
-- Stukken bouw je met `button`, `menu` en `form` ([Knoppen, menu's & formulieren](/docs/pieces)). `press` vervangt `row()` niet.
+- Componenten bouw je met `button`, `menu` en `form` ([Knoppen, menu's & formulieren](/docs/pieces)). `press` vervangt `row()` niet.

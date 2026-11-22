@@ -45,7 +45,7 @@ const bot = await Start({
 | `intentsFor("pollVoteAdd")` | `guildMessagePolls`, `directMessagePolls` |
 | `intentBits("guilds", "guildMessages")` | alleen die bits, op intentnaam |
 
-Onbekende eventnamen gooien. `intentBits` gooit bij een onbekende intentnaam.
+Onbekende eventnamen geven een foutmelding. `intentBits` faalt bij een onbekende intentnaam.
 
 Privileged intents hebben nog steeds de portaalschakelaar nodig ([App aanmaken](/docs/creating-app)): **Server Members**, **Message Content**, **Presence**.
 
@@ -83,7 +83,7 @@ export const letters = use({
   run(ctx) {
     const letter = ctx.id.slice("hangman_".length);
     return ctx.reply({
-      text: `You picked **${letter}**`,
+      text: `Je koos **${letter}**`,
       rows: [row(button({ id: "hangman_A", label: "A" }))],
     });
   },
@@ -92,7 +92,7 @@ export const letters = use({
 
 `ids` kan een exacte string zijn (`"hangman_A"`), een prefix met `*` alleen aan het eind (`"hangman_*"`), een lijst (`["yes", "no"]`), of `(id) => boolean`. `kind` is standaard `"press"`. Geef `"submit"` mee voor een formulier. Wie wint tussen `collect`, inline `press` en `use()` staat bij [Press & submit](/docs/press-handlers).
 
-Een tweede `memberJoin`-export in de map gooit. `watch: true` herlaadt deze map zoals commando's (gateway-handlers en `use()`). Een inline `events`-object is geen map, dus watch wisselt die functies niet, en het laadt geen `use()`.
+Een tweede `memberJoin`-export in de map geeft een foutmelding. `watch: true` herlaadt deze map zoals commando's (gateway-handlers en `use()`). Een inline `events`-object is geen map, dus watch wisselt die functies niet, en het laadt geen `use()`.
 
 ## Namen die je kunt registreren
 
@@ -108,8 +108,8 @@ Overig: `voiceUpdate`, `inviteCreate`, `inviteDelete`, `presenceUpdate`, `schedu
 
 ## Valkuilen
 
-- `intentsFor()` zonder namen gooit. Een bot met alleen slash-commando's kan `intentsFor("ready")` doorgeven of intents weglaten.
-- Map-handlers moeten functies zijn. Een constante met de naam `message` gooit.
+- `intentsFor()` zonder namen geeft een foutmelding. Een bot met alleen slash-commando's kan `intentsFor("ready")` doorgeven of intents weglaten.
+- Map-handlers moeten functies zijn. Een constante met de naam `message` geeft een foutmelding.
 - De portal-intent aanzetten en `intentsFor` vergeten levert nog steeds geen events.
 - `use()` in de commandomap wordt genegeerd. Zet het in de events-map, naast `memberJoin`.
 

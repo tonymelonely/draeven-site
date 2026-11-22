@@ -54,9 +54,9 @@ Een gekozen `user()`-optie is al de `User`. Roep `getMember` en `getRoles` aan a
 
 ## Valkuilen
 
-- `getUser` kent alleen gebruikers die Discord aan deze interactie hing. Een id die je zelf verzon gooit `Unknown user …`.
+- `getUser` kent alleen gebruikers die Discord aan deze interactie hing. Een id die je zelf verzon geeft de fout `Unknown user …`.
 - `getMember` is geen mislukte lookup van het account. In een DM bestaat de gebruiker wel en het lid niet, dus het resultaat is `undefined`.
-- `getRoles` in een DM is `[]` als de gebruiker bekend is. Het gooit niet omdat er geen rollen zijn.
+- `getRoles` in een DM is `[]` als de gebruiker bekend is. Het faalt niet omdat er geen rollen zijn.
 
 ## Verder
 

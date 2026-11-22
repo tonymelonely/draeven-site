@@ -111,9 +111,9 @@ return ctx.reply(
 
 `layout()` bouwt Discord **Components V2**-berichten (vlag `IS_COMPONENTS_V2`). Dat is Discords naam voor dit UI-systeem — in Draeven begin je met `layout()`, er is geen aparte `section()`-export.
 
-Discord zelf heeft wel een stuk genaamd **Section** (tekst + één accessory). In Draeven is dat `beside()`. De andere helpers zijn de weergavestukken van Discord: tekst, scheiding, container, galerij, bestand, thumbnail en actierij.
+Discord zelf heeft wel een element genaamd **Section** (tekst + één accessory). In Draeven is dat `beside()`. De andere helpers zijn de weergave-elementen van Discord: tekst, scheiding, container, galerij, bestand, thumbnail en actierij.
 
-Op één antwoord mag een layout <Explain topic="layout-mix">niet mengen</Explain> met berichttekst, `embed()`, `poll()` of een `canvas()`-afbeelding. `reply("tekst", layout(...))` gooit `A reply takes text, an embed, or text and an embed.` De mix-fout `A layout cannot mix with text, embeds, or polls.` is voor `{ text, layout }`. Een `form()` is ook een eigen antwoord. Je mag de layout wel privé maken met `{ private: true }`, en extra `row()`-waarden aan hetzelfde antwoord hangen — die actierijen gaan ná de layout-onderdelen mee.
+Op één antwoord mag een layout <Explain topic="layout-mix">niet mengen</Explain> met berichttekst, `embed()`, `poll()` of een `canvas()`-afbeelding. `reply("tekst", layout(...))` geeft de fout `A reply takes text, an embed, or text and an embed.` De mix-fout `A layout cannot mix with text, embeds, or polls.` is voor `{ text, layout }`. Een `form()` is ook een eigen antwoord. Je mag de layout wel privé maken met `{ private: true }`, en extra `row()`-waarden aan hetzelfde antwoord hangen — die actierijen gaan ná de layout-onderdelen mee.
 
 `layout(...parts)` houdt **1–40** onderdelen. Elk onderdeel komt van `show`, `divide`, `pack`, `beside`, `album`, `showFile` of `row`. `thumb()` is zelf geen layout-onderdeel. Het is alleen de afbeelding-accessory die je aan `beside({ with })` geeft.
 

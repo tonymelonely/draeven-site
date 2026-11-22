@@ -81,9 +81,9 @@ Commando plaatst knoppen. `use()` in de events-map beantwoordt `hangman_*`, ook 
 ```js
 import { button, command, row } from "@draeven/core";
 
-export const letters = command("letters", "Posts letter buttons", async (ctx) =>
+export const letters = command("letters", "Plaatst letterknoppen", async (ctx) =>
   ctx.reply({
-    text: "Pick a letter.",
+    text: "Kies een letter.",
     rows: [
       row(
         button({ id: "hangman_A", label: "A" }),
@@ -105,7 +105,7 @@ export const letters = use({
   run(ctx) {
     const letter = ctx.id.slice("hangman_".length);
     return ctx.reply({
-      text: `You picked **${letter}**`,
+      text: `Je koos **${letter}**`,
       rows: [row(button({ id: "hangman_A", label: "A" }))],
     });
   },
@@ -293,8 +293,8 @@ export const choose = command("choose", "Asks yes or no and waits for a press", 
     text: "Pick one.",
     rows: [
       row(
-        button({ id: "choose-yes", label: "Yes", color: "green" }),
-        button({ id: "choose-no", label: "No", color: "red" })
+        button({ id: "choose-yes", label: "Ja", color: "green" }),
+        button({ id: "choose-no", label: "Nee", color: "red" })
       ),
     ],
   });
@@ -302,7 +302,7 @@ export const choose = command("choose", "Asks yes or no and waits for a press", 
   const pick = await collect({ ids: ["choose-yes", "choose-no"], seconds: 30 });
 
   if (!pick) {
-    return reply("Timed out.");
+    return reply("Timeout.");
   }
 
   return reply(pick.id === "choose-yes" ? "You chose yes." : "You chose no.");
@@ -339,7 +339,7 @@ export const ask = command("ask", "Opens a short form and waits for the answer",
   const submitted = await collect({ ids: "ask-form", kind: "submit", seconds: 120 });
 
   if (!submitted) {
-    return reply("Timed out.");
+    return reply("Timeout.");
   }
 
   return reply(`Got it: ${submitted.fields.note ?? ""}`);
@@ -351,8 +351,8 @@ export const ask = command("ask", "Opens a short form and waits for the answer",
 ## Valkuilen
 
 - Het wachttijdboek zit in het procesgeheugen. Een herstart wist het. `simulate()` past wachttijden niet toe.
-- Een tweede `reply()` gooit alleen als er al een antwoord is opgeslagen en je noch `wait()` hebt gedaan, noch een `collect` hebt geflusht. Na `wait()` vult `edit()` of een nieuwe `reply()` de defer. Na een collect-flush vervangt een nieuwe `reply()` het opgeslagen antwoord.
-- Een `form()` na `wait()`, `defer` of `transcript()` gooit. De modal moet de eerste bevestiging zijn.
+- Een tweede `reply()` faalt alleen als er al een antwoord is opgeslagen en je noch `wait()` hebt gedaan, noch een `collect` hebt geflusht. Na `wait()` vult `edit()` of een nieuwe `reply()` de defer. Na een collect-flush vervangt een nieuwe `reply()` het opgeslagen antwoord.
+- Een `form()` na `wait()`, `defer` of `transcript()` geeft een foutmelding. De modal moet de eerste bevestiging zijn.
 - `embed()` heeft geen titel op de wortel. Zet die in `header: { title }`.
 - `layout()` deelt het antwoord niet met tekst, een embed, een peiling of een canvas-afbeelding.
 

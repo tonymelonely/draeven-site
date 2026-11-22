@@ -21,11 +21,11 @@ await Start({
 
 | `alone` | Gedrag |
 |-----------|--------|
-| `"ask"` (standaard) | Als er een levende pid is en stdin een TTY is, vraagt Draeven of die gestopt moet worden. Ja stopt hem en gaat door. Nee gooit. |
+| `"ask"` (standaard) | Als er een levende pid is en stdin een TTY is, vraagt Draeven of die gestopt moet worden. Ja stopt hem en gaat door. Nee geeft een foutmelding. |
 | `true` | Stop de andere pid en ga door. Geen vraag. |
 | `false` | Niet kijken. Twee processen mogen, en ze zullen botsen. |
 
-Op een non-TTY (CI, een servicebeheerder, veel Windows-taakrunners) vraagt `"ask"` **niet**. Een levende sibling gooit en zegt dat je hem moet stoppen of `alone: true` moet meegeven.
+Op een non-TTY (CI, een servicebeheerder, veel Windows-taakrunners) vraagt `"ask"` **niet**. Een levende sibling faalt en zegt dat je hem moet stoppen of `alone: true` moet meegeven.
 
 <Warn fix="alone: false alleen met process-supervisor; alone: true om het oude proces te vervangen." href="/docs/why-failing">
 Zet `alone: false` alleen als een supervisor al garandeert dat er één proces is. Zet `alone: true` als een nieuwe deploy de oude moet vervangen.

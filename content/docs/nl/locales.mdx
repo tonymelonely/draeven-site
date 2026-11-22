@@ -16,7 +16,7 @@ Gebruik dit als hetzelfde commando in meer dan één taal verschijnt. Gatetekste
 | Optie of sub | `withLocales()` of `sub(..., { locales })` | Naam en beschrijving van dat veld |
 | Jouw antwoord | `say(map, ctx.locale)` | Het bericht nadat ze het uitvoeren |
 
-Locale-sleutels moeten `nl` of `nl-NL` lijken (`xx` of `xx-YY`). Lege strings gooien.
+Locale-sleutels moeten `nl` of `nl-NL` lijken (`xx` of `xx-YY`). Lege strings geven een foutmelding.
 
 ## Voorbeeld
 
@@ -47,7 +47,7 @@ De JavaScript-sleutel blijft `who`. Je leest nog steeds `ctx.who`. `name: "wie"`
 3. `en`, daarna `en-US`.
 4. De eerste string in het object.
 
-`say()` gooit als de map leeg is of een waarde blanco is. Het doet geen netwerkoproep.
+`say()` faalt als de map leeg is of een waarde blanco is. Het doet geen netwerkoproep.
 
 ## Frameworkteksten
 

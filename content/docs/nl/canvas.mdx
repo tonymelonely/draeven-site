@@ -36,7 +36,7 @@ Tekst gebruikt een ingebouwd **5×7**-lettertype voor ASCII, van spatie tot en m
 | `ctx.reply(embed({ header: { title: "Bordje" }, picture }))` | De PNG op die embed, via `picture`. |
 | `ctx.send(channelId, picture)` of `bot.send(channelId, picture)` | Een gewoon kanaalbericht. |
 
-`followup` neemt dezelfde vormen. `ctx.reply("Bordje", picture)` is geen overload. Die gooit. Zet het bijschrift in `{ text, picture }`.
+`followup` neemt dezelfde vormen. `ctx.reply("Bordje", picture)` is geen overload. Die geeft een foutmelding. Zet het bijschrift in `{ text, picture }`.
 
 <Note>
 Een canvas-afbeelding deelt een antwoord niet met `layout()`. `layout()` is Components V2. De afbeelding is een bestand op een klassiek bericht. Verstuur één van de twee.
@@ -53,11 +53,11 @@ Een canvas-afbeelding deelt een antwoord niet met `layout()`. `layout()` is Comp
 | `pixel(x, y)` | Lees één pixel. |
 | `png()` | PNG-bytes. |
 
-Coördinaten en maten zijn gehele getallen. Een gebroken breedte gooit voordat er iets getekend is.
+Coördinaten en maten zijn gehele getallen. Een gebroken breedte faalt voordat er iets getekend is.
 
 ## Valkuilen
 
-- Eén antwoord draagt één afbeelding. Een embed-`picture` plus een bericht-`picture` gooit.
+- Eén antwoord draagt één afbeelding. Een embed-`picture` plus een bericht-`picture` geeft een foutmelding.
 - Het lettertype heeft geen emoji en geen letters voorbij `~`. Teken die als vormen, of zet ze in de embedtekst.
 - Een canvas van 1024×1024 is een grote PNG. Gebruik de maat die het bordje echt nodig heeft.
 - `fill` dekt eerdere verf. Teken eerst de achtergrond, dan de balk, dan de letters.

@@ -71,7 +71,7 @@ De tour hierboven leert het oppervlak. Open de cheatsheet voor veldlimieten.
 
 <CollapsibleCheatsheet title="Velden voor button / link / SKU">
 
-| Stuk | Verplicht | Optioneel / notities |
+| Element | Verplicht | Optioneel / notities |
 |------|-----------|----------------------|
 | `button` | `id` (jouw string, 1–100 tekens), `label` (1–80) | `color` (vier namen), `emoji`, `disabled`, `press` |
 | `link` | `url` (`http`/`https`, ≤512 tekens), `label` (1–80) | `emoji`, `disabled`. Geen custom id → `collect` ziet hem nooit |
@@ -147,7 +147,7 @@ De verzamelaar wint alleen als de custom id, de soort en de gebruiker alle drie 
 Een eenmalige knop mag `press` dragen:
 
 ```js
-button({ id: "yes", label: "Yes", press: (ctx) => ctx.reply("Yes.") })
+button({ id: "yes", label: "Ja", press: (ctx) => ctx.reply("Ja.") })
 ```
 
 Voor knoppen die na een herstart nog moeten werken, laat je `press` weg en exporteer je `use()` uit de events-map. Het commando plaatst alleen de knoppen. `use()` bezit de ids ([Press & submit](/docs/press-handlers)).
@@ -160,9 +160,9 @@ Een formulier kan niet volgen op `wait()` of een `defer` in metadata. Antwoord e
 
 ## Valkuilen
 
-- Een herhaalde id gooit terwijl de rij wordt gebouwd.
+- Een herhaalde id faalt terwijl de rij wordt gebouwd.
 - `link()` komt nooit aan in `collect`. Zet een link niet in `ids`.
-- Een menu of kiezer naast een knop gooit: "A menu takes the whole row."
+- Een menu of kiezer naast een knop geeft de fout: "A menu takes the whole row."
 - Na een timeout blijven de elementen staan. Een bewerking die alleen tekst is, houdt de rij, want `components` wordt weggelaten. `rows: []` valt ook weg. `remove()` verwijdert het antwoord.
 
 ## Verder

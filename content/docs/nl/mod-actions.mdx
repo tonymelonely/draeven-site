@@ -4,7 +4,7 @@ description: timeout, kick, ban, purge en berichthulp op ctx.
 order: 48
 ---
 
-Moderatiehelpers zitten op de commando-`ctx`. Ze roepen Discord-REST aan via de gatewayverbinding die `Start()` opende. Gebruik ze in een guild-commando. Ze gooien in een DM of als die verbinding de actie niet kan uitvoeren.
+Moderatiehelpers zitten op de commando-`ctx`. Ze roepen Discord-REST aan via de gatewayverbinding die `Start()` opende. Gebruik ze in een guild-commando. Ze geven een foutmelding in een DM of als die verbinding de actie niet kan uitvoeren.
 
 Koppel ze altijd aan `need`, zodat de aanroeper wordt gecontroleerd vóór de REST-aanroep ([Rechten](/docs/permissions)).
 

@@ -51,17 +51,17 @@ export const say = command(
 );
 ```
 
-`getChannel()` zonder argument is `undefined` alleen als de interactie geen `channelId` heeft. Een DM heeft nog steeds een kanaal. `getGuild()` en `getMember()` ontbreken in een DM. Controleer `getChannel()` vóór `send` als het kan ontbreken. `ctx.send` gooit onder `simulate()`, omdat er geen REST-verbinding is.
+`getChannel()` zonder argument is `undefined` alleen als de interactie geen `channelId` heeft. Een DM heeft nog steeds een kanaal. `getGuild()` en `getMember()` ontbreken in een DM. Controleer `getChannel()` vóór `send` als het kan ontbreken. `ctx.send` faalt onder `simulate()`, omdat er geen REST-verbinding is.
 
 <Warn fix="Geef View Channel + Send Messages; private hoort niet op send()." href="/docs/why-failing">
-Kanaalberichten vragen View Channel en Send Messages van de bot. `send` accepteert `{ private: true }` niet — dat gooit.
+Kanaalberichten vragen View Channel en Send Messages van de bot. `send` accepteert `{ private: true }` niet — dat geeft een foutmelding.
 </Warn>
 
 ## Valkuilen
 
 - Drukke logs raken de REST-limieten van Discord. `guard({ via: "channel" })` is het ondersteunde pad voor foutregels ([Hot-reload en guard](/docs/hot-reload-guard)).
 - `editMessage` wijzigt een bestaand botbericht. `send` maakt altijd een nieuw bericht.
-- `undefined` als kanaal doorgeven gooit. Sla de aanroep over als `LOG_CHANNEL_ID` ontbreekt.
+- `undefined` als kanaal doorgeven geeft een foutmelding. Sla de aanroep over als `LOG_CHANNEL_ID` ontbreekt.
 
 ## Verder
 

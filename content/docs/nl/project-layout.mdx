@@ -54,7 +54,7 @@ Een string of `URL` is een mappad, net als de config.
 
 `loadCommands()` importeert elk `.js`-bestand, slaat tests (`.test.js`), namen die eindigen op `old.js` (dus ook `fold.js`, niet alleen `file.old.js`) en dotfiles over, en houdt elke export waarvoor `isCommand()` of `isMenu()` waar is. Een default export wordt geladen als het een commando of menu is. Named exports blijven overzichtelijker.
 
-Dubbele slash-namen gooien bij het opstarten. Twee user-menu's met dezelfde naam ook, en twee berichtmenu's met dezelfde naam ook.
+Dubbele slash-namen geven een foutmelding bij het opstarten. Twee user-menu's met dezelfde naam ook, en twee berichtmenu's met dezelfde naam ook.
 
 ## src/main.ts
 
@@ -96,7 +96,7 @@ Dezelfde `watch: true` herlaadt die map ([Events en intents](/docs/events-intent
 ## Valkuilen
 
 - `src/commands/ping.ts` bewerken doet niets tot `tsc` `dist/commands/ping.js` schrijft.
-- `watch: true` met `commands: [ping]` gooit `[Draeven] watch: true needs commands from a folder path or draeven.config.` Er is geen map om te bekijken.
+- `watch: true` met `commands: [ping]` geeft de fout `[Draeven] watch: true needs commands from a folder path or draeven.config.` Er is geen map om te bekijken.
 
 ## Verder
 

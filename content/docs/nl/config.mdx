@@ -17,7 +17,7 @@ export default {
 };
 ```
 
-`commands` en `events` zijn mappaden. Een relatief pad wordt opgelost **naast het configbestand**, ook als `process.cwd()` ergens anders staat. Een absoluut pad wordt gebruikt zoals het er staat. `resolveCommandsFolder(folder, baseDir)` doet die regel zonder een bestand te lezen. Een leeg pad gooit `[Draeven] A folder path cannot be empty.` Een lege `events`-string wordt overgeslagen, dus er laadt geen events-map.
+`commands` en `events` zijn mappaden. Een relatief pad wordt opgelost **naast het configbestand**, ook als `process.cwd()` ergens anders staat. Een absoluut pad wordt gebruikt zoals het er staat. `resolveCommandsFolder(folder, baseDir)` doet die regel zonder een bestand te lezen. Een leeg pad geeft de fout `[Draeven] A folder path cannot be empty.` Een lege `events`-string wordt overgeslagen, dus er laadt geen events-map.
 
 `readConfig(cwd)` begint bij `cwd` (standaard `process.cwd()`) en loopt omhoog door ouder-mappen tot het `draeven.config.js` of `draeven.config.mjs` vindt. Het importeert die module en leest de default export. Zonder bestand is de commandomap `./commands` onder de map waar je begon — niet onder een ouder die toevallig een config bevat. Er is dan nog steeds geen events-map.
 
@@ -36,7 +36,7 @@ await Start({
 });
 ```
 
-`loadCommands` importeert daarna elk `.js`-bestand in de commandomap. Het slaat `.ts`, `.test.js`, namen die eindigen op `old.js` (dus ook `fold.js`), en namen die met een punt beginnen over. Exporteer `command()`, `userMenu()` of `messageMenu()` uit die modules. Andere exports worden genegeerd. Dubbele slash-namen gooien. Twee user-menu's met dezelfde naam ook, en twee berichtmenu's met dezelfde naam ook.
+`loadCommands` importeert daarna elk `.js`-bestand in de commandomap. Het slaat `.ts`, `.test.js`, namen die eindigen op `old.js` (dus ook `fold.js`), en namen die met een punt beginnen over. Exporteer `command()`, `userMenu()` of `messageMenu()` uit die modules. Andere exports worden genegeerd. Dubbele slash-namen geven een foutmelding. Twee user-menu's met dezelfde naam ook, en twee berichtmenu's met dezelfde naam ook.
 
 Als het bestand `events` zet, importeert `loadEvents` die map op dezelfde manier. Het houdt een functie waarvan de naam een gateway-event is, en elke waarde gebouwd met `use()`. Andere exports worden genegeerd ([Events en intents](/docs/events-intents)).
 
@@ -67,9 +67,9 @@ await Start({
 ## Valkuilen
 
 - `draeven.config.ts` en `.cjs` worden genegeerd. De namen zijn `draeven.config.js` en `draeven.config.mjs`.
-- Een ontbrekende map gooit `Cannot read commands folder`. Maak `dist/commands` in de build, anders stopt het proces bij het opstarten.
-- Een gezet `events`-pad dat ontbreekt gooit `Cannot read events folder`. Maak `dist/events`, of laat `events` uit de config.
+- Een ontbrekende map geeft de fout `Cannot read commands folder`. Maak `dist/commands` in de build, anders stopt het proces bij het opstarten.
+- Een gezet `events`-pad dat ontbreekt geeft de fout `Cannot read events folder`. Maak `dist/events`, of laat `events` uit de config.
 - Een lege map, of een map die alleen nog TypeScript bevat, laadt nul commando's. De volgende sync wist dan de commando's die Discord al had.
 - `commands` naar `./src/commands` wijzen oogt goed in de editor en laadt niets, omdat die bestanden nog `.ts` zijn.
 - `events` naar `./src/events` wijzen doet hetzelfde. Het configpad is `./dist/events`.
-- `watch: true` met een array in het geheugen gooit `[Draeven] watch: true needs commands from a folder path or draeven.config.` Geef deze map mee, of een `commands`-pad ([Hot-reload en guard](/docs/hot-reload-guard)).
+- `watch: true` met een array in het geheugen geeft de fout `[Draeven] watch: true needs commands from a folder path or draeven.config.` Geef deze map mee, of een `commands`-pad ([Hot-reload en guard](/docs/hot-reload-guard)).

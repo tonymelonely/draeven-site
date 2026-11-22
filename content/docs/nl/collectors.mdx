@@ -37,7 +37,7 @@ export const confirm = command("confirm", "Ja of nee", async (ctx) => {
 });
 ```
 
-Knopkleuren zijn `blurple` (standaard), `grey`, `green` en `red`. `row()` houdt hoogstens vijf `button()`, `link()` of `sku()`-stukken. Een selectie-`menu()`, en de kiezers `people()`, `roles()`, `channels()` en `mentions()`, nemen elk de rij alleen.
+Knopkleuren zijn `blurple` (standaard), `grey`, `green` en `red`. `row()` houdt hoogstens vijf `button()`, `link()` of `sku()`-componenten. Een selectie-`menu()`, en de kiezers `people()`, `roles()`, `channels()` en `mentions()`, nemen elk de rij alleen.
 
 ## Keuzemenu
 
@@ -101,18 +101,18 @@ Een submit beantwoordt de modal. Een timeout bewerkt de oorspronkelijke interact
 | Veld | Betekenis |
 |------|-----------|
 | `ids` | Custom id of lijst. Verplicht. Minstens één. |
-| `seconds` | Timeout in seconden. Standaard **60**. `0`, een negatief getal of een niet-eindige waarde gooit. |
+| `seconds` | Timeout in seconden. Standaard **60**. `0`, een negatief getal of een niet-eindige waarde geeft een foutmelding. |
 | `who` | Wie mag antwoorden. Standaard de auteur van het commando. `false` laat iedereen toe. Een user-id of `{ id }` beperkt tot die gebruiker. |
 | `kind` | `"press"`, `"submit"` of `"any"` (standaard). |
 
 <Warn fix="Roep reply() of wait() aan vóór collect()." href="/docs/why-failing">
-`collect` gooit als je nog niet hebt geantwoord of gewacht, en als de verbinding niet kan verzamelen (ook `simulate()`).
+`collect` faalt als je nog niet hebt geantwoord of gewacht, en als de verbinding niet kan verzamelen (ook `simulate()`).
 </Warn>
 
 ## Valkuilen
 
-- Rond één `collect` af of laat hem timen voordat je een volgende start in dezelfde flow. Overlappende wachters zijn lastig te matchen.
-- Custom ids op één bericht moeten uniek zijn. Draeven gooit bij het bouwen van de rij als een knop-id terugkomt.
+- Rond één `collect` af of laat hem timen voordat je een volgende start in dezelfde flow. Overlappende verzamelaars zijn lastig te matchen.
+- Custom ids op één bericht moeten uniek zijn. Draeven faalt bij het bouwen van de rij als een knop-id terugkomt.
 - De verzamelaar wint alleen als id, soort en wie alle drie kloppen. Een andere gebruiker of een andere soort draait `press` nog steeds.
 - Na een timeout blijven de knoppen staan. Een bewerking die alleen tekst is, houdt de rij. `rows: []` valt weg. `remove()` verwijdert het antwoord.
 

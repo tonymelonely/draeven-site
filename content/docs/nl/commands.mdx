@@ -69,7 +69,7 @@ Optienamen volgen hetzelfde patroon als commandonamen, en deze sleutels zijn ger
 ## Valkuilen
 
 - De `Reply` van `ctx.reply()` teruggeven is genoeg. Je hoeft niet nog een keer te versturen.
-- `reply()` gooit `A command can only reply once.` alleen als er al een antwoord is opgeslagen en je noch `wait()` hebt gedaan, noch een `collect` hebt geflusht. Na `wait()` vul je met `edit()` of een nieuwe `reply()`. Na een collect-flush vervangt een nieuwe `reply()` het opgeslagen antwoord. Gebruik `followup()` voor een extra bericht.
+- `reply()` geeft de fout `A command can only reply once.` alleen als er al een antwoord is opgeslagen en je noch `wait()` hebt gedaan, noch een `collect` hebt geflusht. Na `wait()` vul je met `edit()` of een nieuwe `reply()`. Na een collect-flush vervangt een nieuwe `reply()` het opgeslagen antwoord. Gebruik `followup()` voor een extra bericht.
 - Traag werk hoort `await ctx.wait()` en daarna `ctx.edit(...)`, of leunt op de standaard auto-defer na 2 seconden ([Antwoorden](/docs/replies)).
 
 ## Verder
